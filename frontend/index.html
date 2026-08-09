@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ruaka Jewellery Dealer — Handcrafted Jewelry, Ruaka</title>
+<title>Ruaka Jewelry Dealer  Handcrafted Jewelry, Ruaka</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -181,6 +181,8 @@
   }
   .tray svg{width:46%;height:46%;opacity:0.95;position:relative;z-index:1;transition:transform .4s ease;}
   .card:hover .tray svg{transform:scale(1.08) rotate(-2deg);}
+  .tray-img{width:100%;height:100%;object-fit:cover;position:relative;z-index:1;transition:transform .5s ease;}
+  .card:hover .tray-img{transform:scale(1.06);}
   .wish{
     position:absolute;top:14px;right:14px;z-index:2;
     width:32px;height:32px;border-radius:50%;
@@ -284,8 +286,9 @@
     display:flex;gap:0;border-radius:6px;overflow:hidden;max-height:86vh;
     box-shadow:0 30px 70px rgba(30,24,16,0.18);
   }
-  .modal-tray{width:44%;position:relative;flex:none;}
+  .modal-tray{width:44%;position:relative;flex:none;overflow:hidden;}
   .modal-tray svg{width:50%;height:50%;}
+  .modal-tray .tray-img{width:100%;height:100%;object-fit:cover;}
   .modal-info{padding:34px;overflow-y:auto;}
   .modal-info .card-cat{margin-bottom:10px;}
   .modal-info h2{font-size:1.7rem;margin-bottom:10px;}
@@ -333,7 +336,7 @@
 <body>
 
 <header id="header">
-  <div class="logo">Ruaka Jewellery Dealer<span>.</span></div>
+  <div class="logo">Ruaka Jewelry Dealer<span>.</span></div>
   <nav class="links">
     <a href="#collection">Rings</a>
     <a href="#collection">Necklaces</a>
@@ -357,7 +360,7 @@
   <div class="hero-copy">
     <span class="eyebrow">Handcrafted in Ruaka</span>
     <h1>Jewelry made for <em>the moments</em> you keep.</h1>
-    <p>Small-batch gold and silver pieces, cast and set by hand in our Ruaka workshop — each one named for the place or person that inspired it.</p>
+    <p>Small-batch gold and silver pieces, cast and set by hand in our Ruaka workshop  each one named for the place or person that inspired it.</p>
     <div>
       <a href="#collection" class="btn-primary">View Collection</a>
       <a href="#story" class="btn-ghost">Our Craft →</a>
@@ -392,9 +395,9 @@
 
 <section class="story" id="story">
   <div class="story-copy">
-    <span class="eyebrow">Since 2021</span>
+    <span class="eyebrow">Since 2024</span>
     <h2>Cast in small batches, finished entirely by hand.</h2>
-    <p>Every Ruaka Jewellery Dealer piece starts as a wax carving on our workbench in Ruaka. We cast in recycled gold and sterling silver, then stone-set and polish each piece ourselves — no two trays ever look quite the same.</p>
+    <p>Every Ruaka Jewelry Dealer piece starts as a wax carving on a workbench in Ruaka and from different parts of the globe. We cast in recycled gold and sterling silver, then stone-set and polish each piece ourselves  no two trays ever look quite the same.</p>
     <div class="chain"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
   </div>
   <div class="story-visual">
@@ -409,7 +412,7 @@
   <div class="trust-item">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
     <h3>Pay with M-Pesa</h3>
-    <p>Secure STK push checkout — no card required.</p>
+    <p>Secure STK push checkout  no card required.</p>
   </div>
   <div class="trust-item">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M3 12l6 6L21 6"/></svg>
@@ -426,7 +429,7 @@
 <footer>
   <div class="footer-grid">
     <div>
-      <div class="logo" style="margin-bottom:14px;">Ruaka Jewellery Dealer<span>.</span></div>
+      <div class="logo" style="margin-bottom:14px;">Ruaka Jewelry Dealer<span>.</span></div>
       <p style="max-width:260px;">Handcrafted gold and silver jewelry, designed and cast in Ruaka, Kenya.</p>
     </div>
     <div>
@@ -440,14 +443,14 @@
     <div>
       <h4>Visit</h4>
       <p>Kilimani, Ruaka</p>
-      <p>hello@ruakajewellerydealer.co.ke</p>
+      <p>hello@ruakaJewelrydealer.co.ke</p>
       <p>+254 7XX XXX XXX</p>
     </div>
   </div>
-  <div class="footer-bottom">© 2026 Ruaka Jewellery Dealer — Demo storefront for review purposes.</div>
+  <div class="footer-bottom">© 2026 Ruaka Jewelry Dealer  Demo storefront for review purposes.</div>
 </footer>
 
-<div class="demo-tag">Sample preview — not a live store</div>
+<div class="demo-tag">Sample preview  not a live store</div>
 
 <!-- CART DRAWER -->
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
@@ -483,14 +486,14 @@
 
 <script>
 const PRODUCTS = [
-  {id:1, name:"Turkana Drop Earrings", cat:"earring", catLabel:"Earrings", price:6800, desc:"Slim gold-vermeil drops with a hand-hammered finish, inspired by the light off Lake Turkana.", materials:["18k Gold Vermeil","Sterling Silver"], color:"earring", ink:"earring-ink"},
-  {id:2, name:"Rift Valley Band", cat:"ring", catLabel:"Rings", price:9200, desc:"A stacking band with a subtle ridge line tracing the escarpment silhouette.", materials:["18k Gold Vermeil","925 Silver"], color:"ring", ink:"ring-ink"},
-  {id:3, name:"Serengeti Pendant", cat:"necklace", catLabel:"Necklaces", price:14500, desc:"A single hand-set citrine on a fine cable chain, cast from an original wax carving.", materials:["18k Gold Vermeil"], color:"necklace", ink:"necklace-ink"},
-  {id:4, name:"Baraka Bangle", cat:"bracelet", catLabel:"Bracelets", price:11300, desc:"'Baraka' — blessing. An open cuff finished with a brushed matte texture.", materials:["925 Sterling Silver","18k Vermeil"], color:"bracelet", ink:"bracelet-ink"},
-  {id:5, name:"Nuru Hoops", cat:"earring", catLabel:"Earrings", price:5400, desc:"'Nuru' — light. Featherweight hoops polished to a mirror shine.", materials:["18k Gold Vermeil"], color:"earring", ink:"earring-ink"},
-  {id:6, name:"Amani Necklace", cat:"necklace", catLabel:"Necklaces", price:16800, desc:"'Amani' — peace. Layered chains with a hand-set pale sapphire.", materials:["18k Gold Vermeil","Sapphire"], color:"necklace", ink:"necklace-ink"},
-  {id:7, name:"Eden Solitaire", cat:"bridal", catLabel:"Bridal", price:38000, desc:"A classic solitaire engagement ring, hand-set with a lab-grown diamond.", materials:["18k Gold","Lab Diamond"], color:"bridal", ink:"bridal-ink"},
-  {id:8, name:"Kilele Cuff", cat:"bracelet", catLabel:"Bracelets", price:9700, desc:"'Kilele' — peak. A tapered cuff with a raised centerline ridge.", materials:["925 Sterling Silver"], color:"bracelet", ink:"bracelet-ink"},
+  {id:1, name:"Turkana Drop Earrings", cat:"earring", catLabel:"Earrings", price:6800, desc:"Slim gold-vermeil drops with a hand-hammered finish, inspired by the light off Lake Turkana.", materials:["18k Gold Vermeil","Sterling Silver"], color:"earring", ink:"earring-ink", img:"https://images.unsplash.com/photo-1680968921717-4abbbe793bb3?auto=format&fit=crop&w=800&q=80"},
+  {id:2, name:"Rift Valley Band", cat:"ring", catLabel:"Rings", price:9200, desc:"A stacking band with a subtle ridge line tracing the escarpment silhouette.", materials:["18k Gold Vermeil","925 Silver"], color:"ring", ink:"ring-ink", img:"https://images.unsplash.com/photo-1622398925373-3f91b1e275f5?auto=format&fit=crop&w=800&q=80"},
+  {id:3, name:"Serengeti Pendant", cat:"necklace", catLabel:"Necklaces", price:14500, desc:"A single hand-set citrine on a fine cable chain, cast from an original wax carving.", materials:["18k Gold Vermeil"], color:"necklace", ink:"necklace-ink", img:"https://images.unsplash.com/photo-1611107683227-e9060eccd846?auto=format&fit=crop&w=800&q=80"},
+  {id:4, name:"Baraka Bangle", cat:"bracelet", catLabel:"Bracelets", price:11300, desc:"'Baraka'  blessing. An open cuff finished with a brushed matte texture.", materials:["925 Sterling Silver","18k Vermeil"], color:"bracelet", ink:"bracelet-ink", img:"https://images.unsplash.com/photo-1602173574767-37ac01994b2a?auto=format&fit=crop&w=800&q=80"},
+  {id:5, name:"Nuru Hoops", cat:"earring", catLabel:"Earrings", price:5400, desc:"'Nuru'  light. Featherweight hoops polished to a mirror shine.", materials:["18k Gold Vermeil"], color:"earring", ink:"earring-ink", img:"https://images.unsplash.com/photo-1561172478-a203d9c8290e?auto=format&fit=crop&w=800&q=80"},
+  {id:6, name:"Amani Necklace", cat:"necklace", catLabel:"Necklaces", price:16800, desc:"'Amani'  peace. Layered chains with a hand-set pale sapphire.", materials:["18k Gold Vermeil","Sapphire"], color:"necklace", ink:"necklace-ink", img:"https://images.unsplash.com/photo-1685970731194-e27b477e87ba?auto=format&fit=crop&w=800&q=80"},
+  {id:7, name:"Eden Solitaire", cat:"bridal", catLabel:"Bridal", price:38000, desc:"A classic solitaire engagement ring, hand-set with a lab-grown diamond.", materials:["18k Gold","Lab Diamond"], color:"bridal", ink:"bridal-ink", img:"https://images.unsplash.com/photo-1631982686092-e6561a853187?auto=format&fit=crop&w=800&q=80"},
+  {id:8, name:"Kilele Cuff", cat:"bracelet", catLabel:"Bracelets", price:9700, desc:"'Kilele'  peak. A tapered cuff with a raised centerline ridge.", materials:["925 Sterling Silver"], color:"bracelet", ink:"bracelet-ink", img:"https://images.unsplash.com/photo-1679156271456-d6068c543ee7?auto=format&fit=crop&w=800&q=80"},
 ];
 
 const ICONS = {
@@ -514,7 +517,7 @@ function renderGrid(filter='all'){
         <div class="wish" onclick="event.stopPropagation(); this.classList.toggle('active')">
           <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg>
         </div>
-        <svg viewBox="0 0 24 24" stroke="var(--${p.ink})" stroke-width="1.2">${ICONS[p.cat]}</svg>
+        <img class="tray-img" src="${p.img}" alt="${p.name}" loading="lazy">
       </div>
       <div class="card-info">
         <div class="card-cat">${p.catLabel}</div>
@@ -566,7 +569,7 @@ function updateCartUI(){
     wrap.innerHTML = cart.map(i => `
       <div class="drawer-item">
         <div class="tray" style="background:var(--${i.color})">
-          <svg viewBox="0 0 24 24" stroke="var(--${i.ink})" stroke-width="1.2">${ICONS[i.cat]}</svg>
+          <img class="tray-img" src="${i.img}" alt="${i.name}" loading="lazy">
         </div>
         <div class="di-info">
           <div class="card-name">${i.name}</div>
@@ -589,8 +592,8 @@ function openModal(id){
   const p = PRODUCTS.find(x => x.id === id);
   document.getElementById('modalBox').innerHTML = `
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="modal-tray" style="background:var(--${p.color}); display:flex; align-items:center; justify-content:center;">
-      <svg viewBox="0 0 24 24" stroke="var(--${p.ink})" stroke-width="1">${ICONS[p.cat]}</svg>
+    <div class="modal-tray" style="background:var(--${p.color});">
+      <img class="tray-img" src="${p.img}" alt="${p.name}" loading="lazy">
     </div>
     <div class="modal-info">
       <div class="card-cat">${p.catLabel}</div>
