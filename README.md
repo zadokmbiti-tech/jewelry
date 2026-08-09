@@ -29,4 +29,4 @@ The current frontend is a static preview  open `frontend/index.html` directly in
 - [ ] Admin panel
 
 ## Contact
-Kilimani, Ruaka  hello@ruakajewellerydealer.co.ke
+Kiambaa, Ruaka  hello@ruakajewellerydealer.co.ke
