@@ -3,29 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ruaka Jewellery Dealer  Handcrafted Jewelry, Ruaka</title>
+<title>Ruaka Jewellery Dealer — Handcrafted Jewelry, Ruaka</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#100e0c;
-    --surface:#1b1713;
-    --ivory:#f3ede3;
-    --muted:#a89b8a;
-    --gold:#c6a15b;
-    --gold-bright:#e2c07f;
-    --ring:#163127;
-    --necklace:#3b1518;
-    --earring:#16192e;
-    --bracelet:#2e2016;
-    --bridal:#2a1830;
-    --line:rgba(198,161,91,0.25);
+    --bg:#ffffff;
+    --surface:#f7f5f1;
+    --ink:#221c16;
+    --muted:#8c8073;
+    --gold:#b8860b;
+    --gold-bright:#d9a520;
+    --ring:#e7f3ea;
+    --necklace:#fbe9e9;
+    --earring:#e9edfb;
+    --bracelet:#fcf1df;
+    --bridal:#f3e8fb;
+    --ring-ink:#2f6b45;
+    --necklace-ink:#a3423f;
+    --earring-ink:#3f4ea3;
+    --bracelet-ink:#a37a2f;
+    --bridal-ink:#7a3fa3;
+    --line:rgba(184,134,11,0.22);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{
     background:var(--bg);
-    color:var(--ivory);
+    color:var(--ink);
     font-family:'Jost',sans-serif;
     font-weight:300;
     line-height:1.6;
@@ -54,12 +59,12 @@
     position:fixed;top:0;left:0;right:0;z-index:100;
     display:flex;align-items:center;justify-content:space-between;
     padding:22px 5vw;
-    background:linear-gradient(to bottom, rgba(16,14,12,0.9), transparent);
+    background:linear-gradient(to bottom, rgba(255,255,255,0.94), transparent);
     transition:background 0.4s ease, padding 0.4s ease, border-color .4s ease;
     border-bottom:1px solid transparent;
   }
   header.scrolled{
-    background:rgba(16,14,12,0.92);
+    background:rgba(255,255,255,0.92);
     backdrop-filter:blur(10px);
     padding:14px 5vw;
     border-bottom:1px solid var(--line);
@@ -72,7 +77,7 @@
     color:var(--muted);position:relative;padding-bottom:4px;
     transition:color .3s ease;
   }
-  nav.links a:hover{color:var(--ivory);}
+  nav.links a:hover{color:var(--ink);}
   nav.links a::after{
     content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--gold);
     transition:width .3s ease;
@@ -81,11 +86,11 @@
   .nav-icons{display:flex;align-items:center;gap:22px;}
   .cart-btn{position:relative;}
   .cart-count{
-    position:absolute;top:-9px;right:-11px;background:var(--gold);color:var(--bg);
+    position:absolute;top:-9px;right:-11px;background:var(--gold);color:#fff;
     font-size:0.65rem;width:17px;height:17px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;font-weight:600;
   }
-  .icon-btn svg{width:19px;height:19px;stroke:var(--ivory);}
+  .icon-btn svg{width:19px;height:19px;stroke:var(--ink);}
 
   .hero{
     min-height:100vh;display:flex;align-items:center;
@@ -97,11 +102,11 @@
     font-size:clamp(2.6rem,5.5vw,4.4rem);
     line-height:1.05;margin:18px 0 22px;
   }
-  .hero-copy h1 em{font-style:italic;color:var(--gold-bright);}
+  .hero-copy h1 em{font-style:italic;color:var(--gold);}
   .hero-copy p{color:var(--muted);font-size:1.02rem;max-width:420px;margin-bottom:34px;}
   .btn-primary{
     display:inline-flex;align-items:center;gap:10px;
-    background:var(--gold);color:var(--bg);
+    background:var(--gold);color:#fff;
     padding:15px 30px;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.16em;font-weight:500;
     transition:background .3s ease, transform .3s ease;
   }
@@ -120,7 +125,7 @@
     animation:glint 3.2s ease-in-out infinite;
   }
   @keyframes glint{
-    0%,100%{opacity:0.35;}
+    0%,100%{opacity:0.4;}
     50%{opacity:1;}
   }
   .hero-orbit{
@@ -149,7 +154,7 @@
     transition:all .3s ease;
   }
   .cat-chip:hover, .cat-chip.active{
-    border-color:var(--gold);color:var(--gold-bright);background:rgba(198,161,91,0.06);
+    border-color:var(--gold);color:var(--gold);background:rgba(184,134,11,0.06);
   }
   .cat-chip svg{width:16px;height:16px;stroke:currentColor;}
 
@@ -161,10 +166,10 @@
     border-radius:4px;overflow:hidden;
     background:var(--surface);
     border:1px solid var(--line);
-    transition:transform .35s ease, border-color .35s ease;
+    transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease;
     cursor:pointer;
   }
-  .card:hover{transform:translateY(-6px);border-color:var(--gold);}
+  .card:hover{transform:translateY(-6px);border-color:var(--gold);box-shadow:0 18px 34px rgba(184,134,11,0.14);}
   .tray{
     aspect-ratio:1/1;position:relative;
     display:flex;align-items:center;justify-content:center;
@@ -172,23 +177,23 @@
   }
   .tray::after{
     content:'';position:absolute;inset:0;
-    background:radial-gradient(circle at 50% 40%, rgba(255,255,255,0.06), transparent 65%);
+    background:radial-gradient(circle at 50% 40%, rgba(255,255,255,0.5), transparent 65%);
   }
-  .tray svg{width:46%;height:46%;stroke:var(--gold);opacity:0.92;position:relative;z-index:1;transition:transform .4s ease;}
+  .tray svg{width:46%;height:46%;opacity:0.95;position:relative;z-index:1;transition:transform .4s ease;}
   .card:hover .tray svg{transform:scale(1.08) rotate(-2deg);}
   .wish{
     position:absolute;top:14px;right:14px;z-index:2;
     width:32px;height:32px;border-radius:50%;
-    background:rgba(16,14,12,0.5);backdrop-filter:blur(4px);
+    background:rgba(255,255,255,0.75);backdrop-filter:blur(4px);
     display:flex;align-items:center;justify-content:center;
   }
-  .wish svg{width:15px;height:15px;stroke:var(--ivory);fill:none;transition:fill .3s ease, stroke .3s ease;}
+  .wish svg{width:15px;height:15px;stroke:var(--ink);fill:none;transition:fill .3s ease, stroke .3s ease;}
   .wish.active svg{fill:var(--gold);stroke:var(--gold);}
   .card-info{padding:18px 20px 22px;}
   .card-cat{font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
   .card-name{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;margin-bottom:8px;}
   .card-row{display:flex;align-items:center;justify-content:space-between;}
-  .price{font-size:0.95rem;color:var(--ivory);}
+  .price{font-size:0.95rem;color:var(--ink);}
   .add-btn{
     font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;
     color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:2px;
@@ -222,14 +227,14 @@
   }
   .footer-grid h4{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--gold);margin-bottom:18px;}
   .footer-grid p, .footer-grid a{font-size:0.88rem;color:var(--muted);display:block;margin-bottom:10px;}
-  .footer-grid a:hover{color:var(--gold-bright);}
+  .footer-grid a:hover{color:var(--gold);}
   .footer-bottom{
     text-align:center;font-size:0.75rem;color:var(--muted);
     padding-top:26px;border-top:1px solid var(--line);max-width:1280px;margin:0 auto;
   }
 
   .overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;
+    position:fixed;inset:0;background:rgba(30,24,16,0.4);z-index:200;
     opacity:0;pointer-events:none;transition:opacity .35s ease;
   }
   .overlay.open{opacity:1;pointer-events:auto;}
@@ -238,6 +243,7 @@
     background:var(--bg);border-left:1px solid var(--line);z-index:201;
     transform:translateX(100%);transition:transform .4s ease;
     display:flex;flex-direction:column;
+    box-shadow:-20px 0 50px rgba(30,24,16,0.08);
   }
   .drawer.open{transform:translateX(0);}
   .drawer-head{
@@ -245,7 +251,7 @@
     display:flex;justify-content:space-between;align-items:center;
   }
   .drawer-head h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;}
-  .drawer-close svg{width:18px;height:18px;stroke:var(--ivory);}
+  .drawer-close svg{width:18px;height:18px;stroke:var(--ink);}
   .drawer-items{flex:1;overflow-y:auto;padding:20px 28px;}
   .drawer-item{
     display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line);
@@ -261,7 +267,7 @@
   .drawer-foot{padding:24px 28px 30px;border-top:1px solid var(--line);}
   .subtotal-row{display:flex;justify-content:space-between;margin-bottom:18px;font-size:0.95rem;}
   .checkout-btn{
-    width:100%;background:var(--gold);color:var(--bg);padding:16px;
+    width:100%;background:var(--gold);color:#fff;padding:16px;
     text-transform:uppercase;letter-spacing:0.14em;font-size:0.82rem;font-weight:500;
     display:flex;align-items:center;justify-content:center;gap:10px;
   }
@@ -274,27 +280,28 @@
   }
   .modal.open{opacity:1;pointer-events:auto;}
   .modal-box{
-    background:var(--surface);border:1px solid var(--line);max-width:720px;width:100%;
+    background:var(--bg);border:1px solid var(--line);max-width:720px;width:100%;
     display:flex;gap:0;border-radius:6px;overflow:hidden;max-height:86vh;
+    box-shadow:0 30px 70px rgba(30,24,16,0.18);
   }
   .modal-tray{width:44%;position:relative;flex:none;}
-  .modal-tray svg{width:50%;height:50%;stroke:var(--gold);}
+  .modal-tray svg{width:50%;height:50%;}
   .modal-info{padding:34px;overflow-y:auto;}
   .modal-info .card-cat{margin-bottom:10px;}
   .modal-info h2{font-size:1.7rem;margin-bottom:10px;}
-  .modal-price{font-size:1.15rem;color:var(--gold-bright);margin-bottom:18px;}
+  .modal-price{font-size:1.15rem;color:var(--gold);margin-bottom:18px;}
   .modal-desc{color:var(--muted);font-size:0.92rem;margin-bottom:22px;}
   .selector-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;}
   .selector-opts{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
   .opt{
     padding:8px 16px;border:1px solid var(--line);border-radius:30px;font-size:0.8rem;color:var(--muted);
   }
-  .opt.sel{border-color:var(--gold);color:var(--gold-bright);}
+  .opt.sel{border-color:var(--gold);color:var(--gold);}
   .modal-close{
     position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;
-    background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:5;
+    background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;z-index:5;
   }
-  .modal-close svg{width:15px;height:15px;stroke:var(--ivory);}
+  .modal-close svg{width:15px;height:15px;stroke:var(--ink);}
 
   .stk-box{max-width:360px;text-align:center;padding:44px 34px;}
   .stk-box .phone-icon{width:44px;height:44px;stroke:var(--gold);margin:0 auto 18px;}
@@ -350,18 +357,18 @@
   <div class="hero-copy">
     <span class="eyebrow">Handcrafted in Ruaka</span>
     <h1>Jewelry made for <em>the moments</em> you keep.</h1>
-    <p>Small-batch gold and silver pieces, cast and set by hand in our Ruaka workshop  each one named for the place or person that inspired it.</p>
+    <p>Small-batch gold and silver pieces, cast and set by hand in our Ruaka workshop — each one named for the place or person that inspired it.</p>
     <div>
       <a href="#collection" class="btn-primary">View Collection</a>
       <a href="#story" class="btn-ghost">Our Craft →</a>
     </div>
   </div>
   <div class="hero-art">
-    <svg viewBox="0 0 200 240" fill="none" stroke="#c6a15b" stroke-width="1.2">
+    <svg viewBox="0 0 200 240" fill="none" stroke="#b8860b" stroke-width="1.2">
       <path class="glint" d="M40 20 C40 60, 160 60, 160 20" />
-      <path d="M20 22 C20 70, 180 70, 180 22" opacity="0.4"/>
+      <path d="M20 22 C20 70, 180 70, 180 22" opacity="0.35"/>
       <circle cx="100" cy="150" r="34" class="glint"/>
-      <path d="M100 116 L100 70" opacity="0.5"/>
+      <path d="M100 116 L100 70" opacity="0.4"/>
       <path d="M85 150 L100 130 L115 150 L100 180 Z" class="glint"/>
     </svg>
   </div>
@@ -387,12 +394,12 @@
   <div class="story-copy">
     <span class="eyebrow">Since 2021</span>
     <h2>Cast in small batches, finished entirely by hand.</h2>
-    <p>Every Ruaka Jewellery Dealer piece starts as a wax carving on our workbench in Ruaka. We cast in recycled gold and sterling silver, then stone-set and polish each piece ourselves  no two trays ever look quite the same.</p>
+    <p>Every Ruaka Jewellery Dealer piece starts as a wax carving on our workbench in Ruaka. We cast in recycled gold and sterling silver, then stone-set and polish each piece ourselves — no two trays ever look quite the same.</p>
     <div class="chain"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
   </div>
   <div class="story-visual">
-    <svg viewBox="0 0 200 200" fill="none" stroke="#c6a15b" stroke-width="1.1">
-      <ellipse cx="100" cy="100" rx="70" ry="70" opacity="0.3"/>
+    <svg viewBox="0 0 200 200" fill="none" stroke="#b8860b" stroke-width="1.1">
+      <ellipse cx="100" cy="100" rx="70" ry="70" opacity="0.25"/>
       <path d="M100 40 L124 88 L176 96 L138 130 L148 182 L100 156 L52 182 L62 130 L24 96 L76 88 Z" class="glint"/>
     </svg>
   </div>
@@ -402,7 +409,7 @@
   <div class="trust-item">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
     <h3>Pay with M-Pesa</h3>
-    <p>Secure STK push checkout  no card required.</p>
+    <p>Secure STK push checkout — no card required.</p>
   </div>
   <div class="trust-item">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M3 12l6 6L21 6"/></svg>
@@ -433,14 +440,14 @@
     <div>
       <h4>Visit</h4>
       <p>Kilimani, Ruaka</p>
-      <p>hello@Ruaka Jewellery Dealer.co.ke</p>
+      <p>hello@ruakajewellerydealer.co.ke</p>
       <p>+254 7XX XXX XXX</p>
     </div>
   </div>
-  <div class="footer-bottom">© 2026 Ruaka Jewellery Dealer Jewelry  Demo storefront for review purposes.</div>
+  <div class="footer-bottom">© 2026 Ruaka Jewellery Dealer — Demo storefront for review purposes.</div>
 </footer>
 
-<div class="demo-tag">Sample preview  not a live store</div>
+<div class="demo-tag">Sample preview — not a live store</div>
 
 <!-- CART DRAWER -->
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
@@ -476,14 +483,14 @@
 
 <script>
 const PRODUCTS = [
-  {id:1, name:"Turkana Drop Earrings", cat:"earring", catLabel:"Earrings", price:6800, desc:"Slim gold-vermeil drops with a hand-hammered finish, inspired by the light off Lake Turkana.", materials:["18k Gold Vermeil","Sterling Silver"], color:"earring"},
-  {id:2, name:"Rift Valley Band", cat:"ring", catLabel:"Rings", price:9200, desc:"A stacking band with a subtle ridge line tracing the escarpment silhouette.", materials:["18k Gold Vermeil","925 Silver"], color:"ring"},
-  {id:3, name:"Serengeti Pendant", cat:"necklace", catLabel:"Necklaces", price:14500, desc:"A single hand-set citrine on a fine cable chain, cast from an original wax carving.", materials:["18k Gold Vermeil"], color:"necklace"},
-  {id:4, name:"Baraka Bangle", cat:"bracelet", catLabel:"Bracelets", price:11300, desc:"'Baraka'  blessing. An open cuff finished with a brushed matte texture.", materials:["925 Sterling Silver","18k Vermeil"], color:"bracelet"},
-  {id:5, name:"Nuru Hoops", cat:"earring", catLabel:"Earrings", price:5400, desc:"'Nuru'  light. Featherweight hoops polished to a mirror shine.", materials:["18k Gold Vermeil"], color:"earring"},
-  {id:6, name:"Amani Necklace", cat:"necklace", catLabel:"Necklaces", price:16800, desc:"'Amani'  peace. Layered chains with a hand-set pale sapphire.", materials:["18k Gold Vermeil","Sapphire"], color:"necklace"},
-  {id:7, name:"Eden Solitaire", cat:"bridal", catLabel:"Bridal", price:38000, desc:"A classic solitaire engagement ring, hand-set with a lab-grown diamond.", materials:["18k Gold","Lab Diamond"], color:"bridal"},
-  {id:8, name:"Kilele Cuff", cat:"bracelet", catLabel:"Bracelets", price:9700, desc:"'Kilele'  peak. A tapered cuff with a raised centerline ridge.", materials:["925 Sterling Silver"], color:"bracelet"},
+  {id:1, name:"Turkana Drop Earrings", cat:"earring", catLabel:"Earrings", price:6800, desc:"Slim gold-vermeil drops with a hand-hammered finish, inspired by the light off Lake Turkana.", materials:["18k Gold Vermeil","Sterling Silver"], color:"earring", ink:"earring-ink"},
+  {id:2, name:"Rift Valley Band", cat:"ring", catLabel:"Rings", price:9200, desc:"A stacking band with a subtle ridge line tracing the escarpment silhouette.", materials:["18k Gold Vermeil","925 Silver"], color:"ring", ink:"ring-ink"},
+  {id:3, name:"Serengeti Pendant", cat:"necklace", catLabel:"Necklaces", price:14500, desc:"A single hand-set citrine on a fine cable chain, cast from an original wax carving.", materials:["18k Gold Vermeil"], color:"necklace", ink:"necklace-ink"},
+  {id:4, name:"Baraka Bangle", cat:"bracelet", catLabel:"Bracelets", price:11300, desc:"'Baraka' — blessing. An open cuff finished with a brushed matte texture.", materials:["925 Sterling Silver","18k Vermeil"], color:"bracelet", ink:"bracelet-ink"},
+  {id:5, name:"Nuru Hoops", cat:"earring", catLabel:"Earrings", price:5400, desc:"'Nuru' — light. Featherweight hoops polished to a mirror shine.", materials:["18k Gold Vermeil"], color:"earring", ink:"earring-ink"},
+  {id:6, name:"Amani Necklace", cat:"necklace", catLabel:"Necklaces", price:16800, desc:"'Amani' — peace. Layered chains with a hand-set pale sapphire.", materials:["18k Gold Vermeil","Sapphire"], color:"necklace", ink:"necklace-ink"},
+  {id:7, name:"Eden Solitaire", cat:"bridal", catLabel:"Bridal", price:38000, desc:"A classic solitaire engagement ring, hand-set with a lab-grown diamond.", materials:["18k Gold","Lab Diamond"], color:"bridal", ink:"bridal-ink"},
+  {id:8, name:"Kilele Cuff", cat:"bracelet", catLabel:"Bracelets", price:9700, desc:"'Kilele' — peak. A tapered cuff with a raised centerline ridge.", materials:["925 Sterling Silver"], color:"bracelet", ink:"bracelet-ink"},
 ];
 
 const ICONS = {
@@ -507,7 +514,7 @@ function renderGrid(filter='all'){
         <div class="wish" onclick="event.stopPropagation(); this.classList.toggle('active')">
           <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg>
         </div>
-        <svg viewBox="0 0 24 24" stroke-width="1.2">${ICONS[p.cat]}</svg>
+        <svg viewBox="0 0 24 24" stroke="var(--${p.ink})" stroke-width="1.2">${ICONS[p.cat]}</svg>
       </div>
       <div class="card-info">
         <div class="card-cat">${p.catLabel}</div>
@@ -559,7 +566,7 @@ function updateCartUI(){
     wrap.innerHTML = cart.map(i => `
       <div class="drawer-item">
         <div class="tray" style="background:var(--${i.color})">
-          <svg viewBox="0 0 24 24" stroke="#c6a15b" stroke-width="1.2">${ICONS[i.cat]}</svg>
+          <svg viewBox="0 0 24 24" stroke="var(--${i.ink})" stroke-width="1.2">${ICONS[i.cat]}</svg>
         </div>
         <div class="di-info">
           <div class="card-name">${i.name}</div>
@@ -583,7 +590,7 @@ function openModal(id){
   document.getElementById('modalBox').innerHTML = `
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="modal-tray" style="background:var(--${p.color}); display:flex; align-items:center; justify-content:center;">
-      <svg viewBox="0 0 24 24" stroke="#c6a15b" stroke-width="1">${ICONS[p.cat]}</svg>
+      <svg viewBox="0 0 24 24" stroke="var(--${p.ink})" stroke-width="1">${ICONS[p.cat]}</svg>
     </div>
     <div class="modal-info">
       <div class="card-cat">${p.catLabel}</div>
