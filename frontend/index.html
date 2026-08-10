@@ -422,7 +422,7 @@
   <div class="trust-item">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M8 7V5a4 4 0 018 0v2"/></svg>
     <h3>Ruaka Delivery</h3>
-    <p>Same-week delivery countrywide, gift-boxed.</p>
+    <p>Same-week delivery countrywide, gift-boxed.</br> New deliveries every Saturday</p>
   </div>
 </section>
 
@@ -444,15 +444,14 @@
       <h4>Visit</h4>
       <p>Kilimani, Ruaka</p>
       <p>hello@ruakaJewelrydealer.co.ke</p>
-      <p>+254 7XX XXX XXX</p>
+      <p>+254 700111222</p>
     </div>
   </div>
-  <div class="footer-bottom">© 2026 Ruaka Jewelry Dealer  Demo storefront for review purposes.</div>
+  <div class="footer-bottom">© 2026 Ruaka Jewelry Dealer  Demo webpage for review purposes.</div>
 </footer>
 
 <div class="demo-tag">Sample preview  not a live store</div>
 
-<!-- CART DRAWER -->
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-head">
@@ -467,12 +466,10 @@
   </div>
 </div>
 
-<!-- PRODUCT MODAL -->
 <div class="modal" id="modal">
   <div class="modal-box" id="modalBox"></div>
 </div>
 
-<!-- STK MODAL -->
 <div class="modal" id="stkModal">
   <div class="modal-box stk-box">
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -486,14 +483,14 @@
 
 <script>
 const PRODUCTS = [
-  {id:1, name:"Turkana Drop Earrings", cat:"earring", catLabel:"Earrings", price:6800, desc:"Slim gold-vermeil drops with a hand-hammered finish, inspired by the light off Lake Turkana.", materials:["18k Gold Vermeil","Sterling Silver"], color:"earring", ink:"earring-ink", img:"https://images.unsplash.com/photo-1680968921717-4abbbe793bb3?auto=format&fit=crop&w=800&q=80"},
+  {id:1, name:"Drop Earrings", cat:"earring", catLabel:"Earrings", price:6800, desc:"Slim gold-vermeil drops with a hand-hammered finish, inspired by the light off Lake Turkana.", materials:["18k Gold Vermeil","Sterling Silver"], color:"earring", ink:"earring-ink", img:"https://images.unsplash.com/photo-1680968921717-4abbbe793bb3?auto=format&fit=crop&w=800&q=80"},
   {id:2, name:"Rift Valley Band", cat:"ring", catLabel:"Rings", price:9200, desc:"A stacking band with a subtle ridge line tracing the escarpment silhouette.", materials:["18k Gold Vermeil","925 Silver"], color:"ring", ink:"ring-ink", img:"https://images.unsplash.com/photo-1622398925373-3f91b1e275f5?auto=format&fit=crop&w=800&q=80"},
-  {id:3, name:"Serengeti Pendant", cat:"necklace", catLabel:"Necklaces", price:14500, desc:"A single hand-set citrine on a fine cable chain, cast from an original wax carving.", materials:["18k Gold Vermeil"], color:"necklace", ink:"necklace-ink", img:"https://images.unsplash.com/photo-1611107683227-e9060eccd846?auto=format&fit=crop&w=800&q=80"},
+  {id:3, name:"Sere Pendant", cat:"necklace", catLabel:"Necklaces", price:14500, desc:"A single hand-set citrine on a fine cable chain, cast from an original wax carving.", materials:["18k Gold Vermeil"], color:"necklace", ink:"necklace-ink", img:"https://images.unsplash.com/photo-1611107683227-e9060eccd846?auto=format&fit=crop&w=800&q=80"},
   {id:4, name:"Baraka Bangle", cat:"bracelet", catLabel:"Bracelets", price:11300, desc:"'Baraka'  blessing. An open cuff finished with a brushed matte texture.", materials:["925 Sterling Silver","18k Vermeil"], color:"bracelet", ink:"bracelet-ink", img:"https://images.unsplash.com/photo-1602173574767-37ac01994b2a?auto=format&fit=crop&w=800&q=80"},
   {id:5, name:"Nuru Hoops", cat:"earring", catLabel:"Earrings", price:5400, desc:"'Nuru'  light. Featherweight hoops polished to a mirror shine.", materials:["18k Gold Vermeil"], color:"earring", ink:"earring-ink", img:"https://images.unsplash.com/photo-1561172478-a203d9c8290e?auto=format&fit=crop&w=800&q=80"},
   {id:6, name:"Amani Necklace", cat:"necklace", catLabel:"Necklaces", price:16800, desc:"'Amani'  peace. Layered chains with a hand-set pale sapphire.", materials:["18k Gold Vermeil","Sapphire"], color:"necklace", ink:"necklace-ink", img:"https://images.unsplash.com/photo-1685970731194-e27b477e87ba?auto=format&fit=crop&w=800&q=80"},
   {id:7, name:"Eden Solitaire", cat:"bridal", catLabel:"Bridal", price:38000, desc:"A classic solitaire engagement ring, hand-set with a lab-grown diamond.", materials:["18k Gold","Lab Diamond"], color:"bridal", ink:"bridal-ink", img:"https://images.unsplash.com/photo-1631982686092-e6561a853187?auto=format&fit=crop&w=800&q=80"},
-  {id:8, name:"Kilele Cuff", cat:"bracelet", catLabel:"Bracelets", price:9700, desc:"'Kilele'  peak. A tapered cuff with a raised centerline ridge.", materials:["925 Sterling Silver"], color:"bracelet", ink:"bracelet-ink", img:"https://images.unsplash.com/photo-1679156271456-d6068c543ee7?auto=format&fit=crop&w=800&q=80"},
+  {id:8, name:"Killer Cuff", cat:"bracelet", catLabel:"Bracelets", price:9700, desc:"'Kilele'  peak. A tapered cuff with a raised centerline ridge.", materials:["925 Sterling Silver"], color:"bracelet", ink:"bracelet-ink", img:"https://images.unsplash.com/photo-1679156271456-d6068c543ee7?auto=format&fit=crop&w=800&q=80"},
 ];
 
 const ICONS = {
