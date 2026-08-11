@@ -556,7 +556,7 @@ function renderGrid(filter='all'){
   const grid = document.getElementById('grid');
   const items = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === filter);
   if(items.length === 0){
-    grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--muted);">No pieces in this collection yet — check back soon.</p>`;
+    grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--muted);">No pieces in this collection yet  check back soon.</p>`;
     return;
   }
   grid.innerHTML = items.map(p => `
@@ -668,7 +668,7 @@ async function openModal(id){
   const p = PRODUCTS.find(x => x.id === id);
   // Render immediately with the single cached image from the grid, then
   // fetch the full product detail (up to 3 images) and fill in the gallery
-  // once it arrives — keeps the modal snappy while still showing all photos.
+  // once it arrives  keeps the modal snappy while still showing all photos.
   document.getElementById('modalBox').innerHTML = modalMarkup(p, [p.img]);
   document.getElementById('overlay').classList.add('open');
   document.getElementById('modal').classList.add('open');
@@ -680,7 +680,7 @@ async function openModal(id){
     const images = (detail.images && detail.images.length) ? detail.images : [p.img];
     document.getElementById('modalBox').innerHTML = modalMarkup(p, images);
   } catch (err) {
-    // Gallery fetch failed silently — the single cached image already shown is enough.
+    // Gallery fetch failed silently  the single cached image already shown is enough.
   }
 }
 

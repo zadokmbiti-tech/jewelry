@@ -1,8 +1,8 @@
 // Simple shared-secret gate for the admin pages (admin.html / manage.html).
-// This is NOT a full user-account system — it's a single password shared by
+// This is NOT a full user-account system  it's a single password shared by
 // whoever is allowed to manage products, appropriate for a solo-owner shop.
 // The real enforcement happens server-side (main.py's require_admin and
-// api/upload.js) — this file's job is just to collect the password once and
+// api/upload.js)  this file's job is just to collect the password once and
 // attach it to every admin request.
 
 (function () {

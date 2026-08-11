@@ -90,7 +90,7 @@
       <label>Current Images</label>
       <div id="currentImagesRow" style="display:flex; gap:8px; margin-top:4px;"></div>
 
-      <label>Replace Images (optional — choose 1–3 to replace all current images; leave blank to keep them)</label>
+      <label>Replace Images (optional  choose 1–3 to replace all current images; leave blank to keep them)</label>
       <input type="file" id="editImageFiles" accept="image/*" multiple>
       <div id="modalPreviewRow" style="display:flex; gap:8px; margin-top:8px;"></div>
 
@@ -156,7 +156,7 @@ async function loadList() {
         <img src="${p.image_url || 'https://placehold.co/100x100?text=No+Image'}" alt="${p.name}">
         <div class="info">
           <div class="name">${p.name}</div>
-          <div class="meta">KES ${p.price.toLocaleString()} — ${CATEGORY_LABELS[p.category] || p.category}</div>
+          <div class="meta">KES ${p.price.toLocaleString()}  ${CATEGORY_LABELS[p.category] || p.category}</div>
         </div>
         <button onclick="openEdit(${p.id})">Edit</button>
         <button class="delete-btn" onclick="deleteProduct(${p.id})">Delete</button>
@@ -233,7 +233,7 @@ document.getElementById('editForm').addEventListener('submit', async (e) => {
     });
     if (!updateRes.ok) throw new Error('Failed to update product details');
 
-    // Step 2: replace images, only if new files were chosen — clear the old
+    // Step 2: replace images, only if new files were chosen  clear the old
     // set first, then upload and link the new ones (1-3) in order.
     const imageFiles = Array.from(document.getElementById('editImageFiles').files);
     if (imageFiles.length > MAX_IMAGES) throw new Error(`Choose at most ${MAX_IMAGES} images`);

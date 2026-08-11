@@ -1,4 +1,4 @@
--- Ruaka Jewelry Dealer — database schema
+-- Ruaka Jewelry Dealer  database schema
 -- Run this once against your Postgres database (Neon/Supabase) before using the API.
 
 CREATE TABLE IF NOT EXISTS products (

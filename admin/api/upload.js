@@ -17,13 +17,13 @@ export default async function handler(request, response) {
     const { filename: rawName, contentType, dataBase64 } = request.body || {};
 
     if (!dataBase64) {
-      return response.status(400).json({ error: 'Upload body was empty — no file data received.' });
+      return response.status(400).json({ error: 'Upload body was empty  no file data received.' });
     }
 
     const fileBuffer = Buffer.from(dataBase64, 'base64');
 
     if (!fileBuffer || fileBuffer.length === 0) {
-      return response.status(400).json({ error: 'Upload body was empty — decoded file had 0 bytes.' });
+      return response.status(400).json({ error: 'Upload body was empty  decoded file had 0 bytes.' });
     }
 
     const safeName = (rawName || `image-${Date.now()}.jpg`).replace(/[^a-zA-Z0-9._-]/g, '_');

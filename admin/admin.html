@@ -132,7 +132,7 @@ document.getElementById('productForm').addEventListener('submit', async function
     if (!productRes.ok) throw new Error(productData.detail || 'Product creation failed');
 
     // Step 2: upload each image to Vercel Blob, then link it to the product,
-    // in order — the first becomes the primary/cover image.
+    // in order  the first becomes the primary/cover image.
     for (let i = 0; i < imageFiles.length; i++) {
       const file = imageFiles[i];
       status.textContent = `Uploading image ${i + 1} of ${imageFiles.length}...`;
