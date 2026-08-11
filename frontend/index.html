@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sj Gems Jewelry Store  Handcrafted Jewelry, Ruaka</title>
+<title>Sj Gems Jewelry Store, Ruaka</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -280,16 +280,17 @@
   .add-btn:hover{color:var(--gold);border-color:var(--gold);}
 
   .story{
-    display:flex;align-items:center;gap:80px;
+    display:flex;align-items:center;gap:60px;
     background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   }
-  .story-copy{flex:1;max-width:480px;}
+  .story-copy{flex:1.7;max-width:760px;}
   .story-copy h2{font-size:clamp(1.8rem,3vw,2.4rem);margin:16px 0 20px;line-height:1.2;}
+  .story-text-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 36px;}
   .story-copy p{color:var(--muted);margin-bottom:18px;}
-  .story-visual{flex:1;display:flex;justify-content:center;}
-  .story-visual svg{width:min(320px,30vw);}
-  .story-mission{display:flex;gap:28px;margin-top:30px;flex-wrap:wrap;}
-  .mission-block{flex:1;min-width:180px;}
+  .story-visual{flex:0.7;display:flex;justify-content:center;}
+  .story-visual svg{width:min(220px,22vw);}
+  .story-mission{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:30px;}
+  .mission-block{min-width:0;}
   .mission-block h3{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--gold);margin-bottom:8px;}
   .mission-block p{color:var(--muted);font-size:0.9rem;margin-bottom:0;}
 
@@ -326,6 +327,15 @@
   .footer-grid h4{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--gold);margin-bottom:18px;}
   .footer-grid p, .footer-grid a{font-size:0.88rem;color:var(--muted);display:block;margin-bottom:10px;}
   .footer-grid a:hover{color:var(--gold);}
+  .footer-socials{display:flex;gap:14px;margin-top:6px;}
+  .footer-socials a{
+    width:34px;height:34px;border-radius:50%;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--ink);margin-bottom:0;
+    transition:border-color .3s ease,color .3s ease;flex-shrink:0;
+  }
+  .footer-socials a:hover{border-color:var(--gold);color:var(--gold);}
+  .footer-socials svg{width:16px;height:16px;fill:currentColor;}
+  .footer-socials svg.ig-icon{fill:none;stroke:currentColor;}
   .footer-bottom{
     text-align:center;font-size:0.75rem;color:var(--muted);
     padding-top:26px;border-top:1px solid var(--line);max-width:1280px;margin:0 auto;
@@ -416,7 +426,6 @@
   }
   @keyframes pulse{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:1;transform:scale(1.4);}}
 
-  /* ── Mobile hamburger nav ─────────────────────────────────────────── */
   .hamburger{display:none;width:22px;height:16px;flex-direction:column;justify-content:space-between;}
   .hamburger span{display:block;height:1.5px;background:var(--ink);border-radius:2px;transition:transform .3s ease, opacity .3s ease;}
   .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
@@ -439,7 +448,6 @@
     #adminIconBtn{display:none;}
   }
 
-  /* ── Stock badges ─────────────────────────────────────────────────── */
   .stock-badge{font-size:0.7rem;letter-spacing:0.06em;padding:3px 10px;border-radius:20px;display:inline-block;}
   .stock-low{background:#fbe9e9;color:#a3423f;}
   .stock-out{background:#eee;color:#888;}
@@ -449,7 +457,6 @@
   .modal-stock.stock-ok{color:#2f6b45;}
   .btn-primary.disabled{background:#ccc;pointer-events:none;color:#888;}
 
-  /* ── WhatsApp floating button ─────────────────────────────────────── */
   .wa-btn{
     position:fixed;bottom:24px;right:24px;z-index:95;
     width:54px;height:54px;border-radius:50%;background:#25D366;
@@ -460,7 +467,6 @@
   .wa-btn:hover{transform:scale(1.08);}
   .wa-btn svg{width:28px;height:28px;fill:#fff;}
 
-  /* ── Auth modals: admin login + customer register ─────────────────── */
   .auth-box{
     max-width:380px;text-align:center;padding:0;overflow:hidden;position:relative;
   }
@@ -517,7 +523,6 @@
   }
   .auth-note{font-size:0.76rem;color:var(--muted);text-align:center;margin-top:16px;line-height:1.5;}
 
-  /* ── Admin dashboard ──────────────────────────────────────────────── */
   .admin-panel{
     position:fixed;inset:0;z-index:300;background:var(--bg);
     transform:translateY(100%);transition:transform .4s ease;
@@ -575,6 +580,9 @@
     .hero-copy{margin:0 auto;}
     .hero-copy p{margin-left:auto;margin-right:auto;}
     .story{flex-direction:column;padding:70px 6vw;}
+    .story-copy{max-width:100%;}
+    .story-text-cols{grid-template-columns:1fr;}
+    .story-mission{grid-template-columns:1fr;}
     .shop-wrap{flex-direction:column;}
     .shop-map{min-height:260px;}
     .footer-grid{grid-template-columns:1fr 1fr;}
@@ -702,8 +710,11 @@
   <div class="story-copy">
     <span class="eyebrow">Since 2024</span>
     <h2>Cast in small batches, finished entirely by hand.</h2>
-    <p>Jewelry has adorned people for thousands of years  worn as a mark of status, a keepsake of love, or a quiet piece of personal history passed from one hand to the next. From hammered gold cuffs to hand-strung pearls, every era has shaped precious metal and stone into something meant to be kept, not just worn.</p>
-    <p>Every Sj Gems Jewelry Store piece starts as a wax carving on a workbench in Ruaka and from different parts of the globe. We cast in recycled gold and sterling silver, then stone-set and polish each piece ourselves  no two trays ever look quite the same.</p>
+    <p class="story-lead">Jewelry has adorned people for thousands of years  worn as a mark of status, a keepsake of love, or a quiet piece of personal history passed from one hand to the next.</p>
+    <div class="story-text-cols">
+      <p>From hammered gold cuffs to hand-strung pearls, every era has shaped precious metal and stone into something meant to be kept, not just worn.</p>
+      <p>Every Sj Gems Jewelry Store piece starts as a wax carving on a workbench in Ruaka and from different parts of the globe. We cast in recycled gold and sterling silver, then stone-set and polish each piece ourselves  no two trays ever look quite the same.</p>
+    </div>
     <div class="chain"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <div class="story-mission">
       <div class="mission-block">
@@ -768,12 +779,12 @@
   <div class="trust-item">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M3 12l6 6L21 6"/></svg>
     <h3>Certified Materials</h3>
-    <p>Emerald, Silver, gold-plated, brass, pearl, hypoallergenic, genuine leather products.</p>
+    <p>Emerald, Silver, Brass, Gold-plated, Genuine Leather products, Pearl products.</p>
   </div>
   <div class="trust-item">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M8 7V5a4 4 0 018 0v2"/></svg>
-    <h3>Sj Gems Ruaka</h3>
-    <p>New deliveries every week delivery done countrywide, gift-boxed.<br>Quality Products</p>
+    <h3>Ruaka Delivery</h3>
+    <p>New deliveries Every week, gift-boxed.<br>Deliveries done country-wide</p>
   </div>
 </section>
 
@@ -781,7 +792,11 @@
   <div class="footer-grid">
     <div>
       <div class="logo" style="margin-bottom:14px;">Sj Gems Jewelry Store<span>.</span></div>
-      <p style="max-width:260px;">Handcrafted gold and silver jewelry, designed and cast in Ruaka, Kenya.</p>
+      <p style="max-width:260px;">crafted gold and silver jewelry, designed are available at our store in Ruaka, Kenya.</p>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <a href="#collection">Xuping Sets</a><a href="#collection">Necklaces</a><a href="#collection">Earrings</a><a href="#collection">Leather Belts</a>
     </div>
     <div>
       <h4>Help</h4>
@@ -792,6 +807,17 @@
       <p>Ruaka, Kiambu</p>
       <p>hello@Sj Gems Jewelry Store.co.ke</p>
       <p>+254741573866</p>
+      <div class="footer-socials">
+        <a href="https://wa.me/254741573866" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.7-.8-2-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.2-.1.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.5 7.8 9.3 7.3c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2.1 3.2 5.1 4.4.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4z"/><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20z"/></svg>
+        </a>
+        <a href="https://instagram.com/sjgemsjewelrystore" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg class="ig-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
+        </a>
+        <a href="https://tiktok.com/@sjgemsjewelrystore" target="_blank" rel="noopener" aria-label="TikTok">
+          <svg viewBox="0 0 24 24"><path d="M16.6 5.8c-.9-.8-1.5-1.9-1.6-3.2h-3.2v13.4a2.6 2.6 0 11-1.8-2.5V10.3a5.8 5.8 0 106 5.8V9.4a6.7 6.7 0 003.8 1.2V7.4a3.9 3.9 0 01-3.2-1.6z"/></svg>
+        </a>
+      </div>
     </div>
   </div>
   <div class="footer-bottom">© 2026 Sj Gems Jewelry Store</div>
@@ -1153,9 +1179,6 @@ function swapModalImage(thumbEl, src){
 
 async function openModal(id){
   const p = PRODUCTS.find(x => x.id === id);
-  // Render immediately with the single cached image from the grid, then
-  // fetch the full product detail (up to 3 images) and fill in the gallery
-  // once it arrives  keeps the modal snappy while still showing all photos.
   document.getElementById('modalBox').innerHTML = modalMarkup(p, [p.img]);
   document.getElementById('overlay').classList.add('open');
   document.getElementById('modal').classList.add('open');
@@ -1167,7 +1190,6 @@ async function openModal(id){
     const images = (detail.images && detail.images.length) ? detail.images.map(im => im.url) : [p.img];
     document.getElementById('modalBox').innerHTML = modalMarkup(p, images);
   } catch (err) {
-    // Gallery fetch failed silently  the single cached image already shown is enough.
   }
 }
 
@@ -1197,13 +1219,11 @@ window.addEventListener('scroll', () => {
   document.getElementById('header').classList.toggle('scrolled', window.scrollY > 40);
 });
 
-/* ── Mobile menu ─────────────────────────────────────────────────────── */
 function toggleMobileMenu(){
   document.getElementById('hamburgerBtn').classList.toggle('open');
   document.getElementById('mobileMenu').classList.toggle('open');
 }
 
-/* ── Desktop "Menu" dropdown ──────────────────────────────────────────── */
 function goToCategory(filter){
   document.querySelectorAll('.cat-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === filter));
   renderGrid(filter);
@@ -1221,7 +1241,6 @@ document.addEventListener('click', () => {
   document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
 });
 
-/* ── Admin: login, session, and dashboard ───────────────────────────── */
 const ADMIN_STORAGE_KEY = 'jewelry_admin_secret';
 
 function getAdminSecret(){
@@ -1235,8 +1254,6 @@ function adminFetch(url, options = {}){
 
 function openAdminEntry(){
   if (getAdminSecret()){
-    // Already logged in this session  go straight to the dashboard and
-    // re-validate quietly in case the secret has since changed server-side.
     adminFetch(`${API_URL}/admin/ping`).then(res => {
       if (res.ok) { openAdminPanel(); } else { sessionStorage.removeItem(ADMIN_STORAGE_KEY); showAdminLogin(); }
     }).catch(() => showAdminLogin());
@@ -1290,7 +1307,6 @@ function toggleAdminPwVisibility(){
     : '<path d="M17.9 17.9A10.4 10.4 0 0112 19c-7 0-11-7-11-7a19 19 0 015.1-5.6M9.9 4.2A10 10 0 0112 4c7 0 11 7 11 7a19 19 0 01-2.5 3.4M14.1 14.1a3 3 0 11-4.2-4.2"/><path d="M2 2l20 20"/>';
 }
 
-/* ── Customer registration gate (name + phone, required before adding to bag) ── */
 const CUSTOMER_STORAGE_KEY = 'jewelry_customer_info';
 let pendingCartAction = null;
 
@@ -1334,7 +1350,6 @@ async function submitRegister(){
   localStorage.setItem(CUSTOMER_STORAGE_KEY, JSON.stringify({ name, phone }));
   closeAll();
 
-  // Best-effort: record the lead server-side. Doesn't block the customer if it fails.
   fetch(`${API_URL}/customers`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1362,7 +1377,6 @@ function showAdminTab(tab){
   if (tab === 'manage') loadManageList();
 }
 
-/* ── Admin: Add Product ──────────────────────────────────────────────── */
 const ADMIN_MAX_IMAGES = 3;
 
 document.getElementById('apImageFiles').addEventListener('change', function(e){
@@ -1451,7 +1465,7 @@ async function submitAddProduct(e){
     status.textContent = '✅ Product added!';
     document.getElementById('addProductForm').reset();
     document.getElementById('apPreviewRow').innerHTML = '';
-    loadProducts(); // refresh the live storefront grid too
+    loadProducts();
 
   } catch (err) {
     status.textContent = '❌ ' + err.message;
@@ -1461,7 +1475,6 @@ async function submitAddProduct(e){
   }
 }
 
-/* ── Admin: Manage Products ──────────────────────────────────────────── */
 async function loadManageList(){
   const list = document.getElementById('manageList');
   try {
