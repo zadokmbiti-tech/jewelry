@@ -26,8 +26,8 @@
     --xuping-necklaces-ink:#a3423f;
     --pearl-necklaces:#f4f2ea;
     --pearl-necklaces-ink:#8a8163;
-    --P.u-leather-belts:#ece1d3;
-    --P.u-leather-belts-ink:#7a5230;
+    --pu-leather-belts:#ece1d3;
+    --pu-leather-belts-ink:#7a5230;
     --male-stainless-steel-sets:#e7ebee;
     --male-stainless-steel-sets-ink:#46596b;
     --statement-stainless-earrings:#eef2f0;
@@ -329,11 +329,6 @@
     animation:pulse 1.2s ease-in-out infinite;
   }
   @keyframes pulse{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:1;transform:scale(1.4);}}
-  .demo-tag{
-    position:fixed;bottom:20px;left:20px;z-index:90;
-    font-size:0.7rem;color:var(--muted);background:var(--surface);
-    border:1px solid var(--line);padding:8px 14px;border-radius:30px;letter-spacing:0.06em;
-  }
 
   @media(max-width:860px){
     nav.links{display:none;}
@@ -404,7 +399,7 @@
     <button class="cat-chip" data-filter="kids-xuping-earrings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 3v6"/><path d="M8 9h8l-2 10a2 2 0 01-4 0z"/></svg> Kids Xuping Earrings</button>
     <button class="cat-chip" data-filter="xuping-necklaces"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.4"/></svg> Xuping Necklaces</button>
     <button class="cat-chip" data-filter="pearl-necklaces"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.4"/></svg> Pearl Necklaces</button>
-    <button class="cat-chip" data-filter="P.u-leather-belts"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="9" width="18" height="6" rx="1"/><rect x="9" y="8" width="6" height="8" rx="1"/></svg> P.U Leather Belts</button>
+    <button class="cat-chip" data-filter="pu-leather-belts"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="9" width="18" height="6" rx="1"/><rect x="9" y="8" width="6" height="8" rx="1"/></svg> P.U Leather Belts</button>
     <button class="cat-chip" data-filter="male-stainless-steel-sets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="7" r="2"/><circle cx="18" cy="7" r="2"/></svg> Male Stainless Steel Sets</button>
     <button class="cat-chip" data-filter="statement-stainless-earrings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 3v6"/><path d="M8 9h8l-2 10a2 2 0 01-4 0z"/></svg> Statement Stainless Earrings</button>
     <button class="cat-chip" data-filter="fashion-jewelry-necklace-sets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.4"/></svg> Fashion Jewelry Necklace Sets</button>
@@ -469,7 +464,6 @@
   <div class="footer-bottom">© 2026 Ruaka Jewelry Dealer  Demo webpage for review purposes.</div>
 </footer>
 
-<div class="demo-tag">Sample preview  not a live store</div>
 
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 <div class="drawer" id="drawer">
@@ -517,7 +511,7 @@ const CATEGORY_META = {
   "kids-xuping-earrings":           { label: "Kids Xuping Earrings",          color: "kids-xuping-earrings",          ink: "kids-xuping-earrings-ink" },
   "xuping-necklaces":               { label: "Xuping Necklaces",              color: "xuping-necklaces",              ink: "xuping-necklaces-ink" },
   "pearl-necklaces":                { label: "Pearl Necklaces",               color: "pearl-necklaces",               ink: "pearl-necklaces-ink" },
-  "P.u-leather-belts":               { label: "P.U Leather Belts",             color: "P.u-leather-belts",              ink: "P.u-leather-belts-ink" },
+  "pu-leather-belts":               { label: "P.U Leather Belts",             color: "pu-leather-belts",              ink: "pu-leather-belts-ink" },
   "male-stainless-steel-sets":      { label: "Male Stainless Steel Sets",     color: "male-stainless-steel-sets",     ink: "male-stainless-steel-sets-ink" },
   "statement-stainless-earrings":   { label: "Statement Stainless Earrings",  color: "statement-stainless-earrings",  ink: "statement-stainless-earrings-ink" },
   "fashion-jewelry-necklace-sets":  { label: "Fashion Jewelry Necklace Sets", color: "fashion-jewelry-necklace-sets", ink: "fashion-jewelry-necklace-sets-ink" },
