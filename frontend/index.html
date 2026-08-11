@@ -14,16 +14,26 @@
     --muted:#8c8073;
     --gold:#b8860b;
     --gold-bright:#d9a520;
-    --ring:#e7f3ea;
-    --necklace:#fbe9e9;
-    --earring:#e9edfb;
-    --bracelet:#fcf1df;
-    --bridal:#f3e8fb;
-    --ring-ink:#2f6b45;
-    --necklace-ink:#a3423f;
-    --earring-ink:#3f4ea3;
-    --bracelet-ink:#a37a2f;
-    --bridal-ink:#7a3fa3;
+    --xuping-sets:#f3e8d2;
+    --xuping-sets-ink:#a3762f;
+    --xuping-earrings:#e9edfb;
+    --xuping-earrings-ink:#3f4ea3;
+    --genuine-leather-belts:#e8ddd0;
+    --genuine-leather-belts-ink:#6b4a2f;
+    --kids-xuping-earrings:#fdeaf0;
+    --kids-xuping-earrings-ink:#b5507e;
+    --xuping-necklaces:#fbe9e9;
+    --xuping-necklaces-ink:#a3423f;
+    --pearl-necklaces:#f4f2ea;
+    --pearl-necklaces-ink:#8a8163;
+    --P.u-leather-belts:#ece1d3;
+    --P.u-leather-belts-ink:#7a5230;
+    --male-stainless-steel-sets:#e7ebee;
+    --male-stainless-steel-sets-ink:#46596b;
+    --statement-stainless-earrings:#eef2f0;
+    --statement-stainless-earrings-ink:#3f6b5c;
+    --fashion-jewelry-necklace-sets:#f3e8fb;
+    --fashion-jewelry-necklace-sets-ink:#7a3fa3;
     --line:rgba(184,134,11,0.22);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -295,6 +305,10 @@
   .modal-price{font-size:1.15rem;color:var(--gold);margin-bottom:18px;}
   .modal-desc{color:var(--muted);font-size:0.92rem;margin-bottom:22px;}
   .selector-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;}
+  .modal-thumbs{display:flex;gap:8px;position:absolute;left:14px;bottom:14px;z-index:4;}
+  .modal-thumbs img{width:44px;height:44px;object-fit:cover;border-radius:4px;border:2px solid rgba(255,255,255,0.7);cursor:pointer;opacity:0.75;transition:opacity .2s ease, border-color .2s ease;}
+  .modal-thumbs img:hover{opacity:1;}
+  .modal-thumbs img.active{opacity:1;border-color:var(--gold);}
   .selector-opts{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
   .opt{
     padding:8px 16px;border:1px solid var(--line);border-radius:30px;font-size:0.8rem;color:var(--muted);
@@ -338,11 +352,11 @@
 <header id="header">
   <div class="logo">Ruaka Jewelry Dealer<span>.</span></div>
   <nav class="links">
-    <a href="#collection">Rings</a>
-    <a href="#collection">Necklaces</a>
+    <a href="#collection">Xuping Sets</a>
     <a href="#collection">Earrings</a>
-    <a href="#collection">Bracelets</a>
-    <a href="#collection">Bridal</a>
+    <a href="#collection">Necklaces</a>
+    <a href="#collection">Belts</a>
+    <a href="#collection">Steel Sets</a>
   </nav>
   <div class="nav-icons">
     <button class="icon-btn" aria-label="Search">
@@ -384,11 +398,16 @@
   </div>
   <div class="categories">
     <button class="cat-chip active" data-filter="all">✦ All</button>
-    <button class="cat-chip" data-filter="ring"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="15" r="6"/><path d="M9 9l3-6 3 6"/></svg> Rings</button>
-    <button class="cat-chip" data-filter="necklace"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.4"/></svg> Necklaces</button>
-    <button class="cat-chip" data-filter="earring"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 3v6"/><path d="M8 9h8l-2 10a2 2 0 01-4 0z"/></svg> Earrings</button>
-    <button class="cat-chip" data-filter="bracelet"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><ellipse cx="12" cy="12" rx="9" ry="5"/></svg> Bracelets</button>
-    <button class="cat-chip" data-filter="bridal"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg> Bridal</button>
+    <button class="cat-chip" data-filter="xuping-sets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="7" r="2"/><circle cx="18" cy="7" r="2"/></svg> Xuping Sets</button>
+    <button class="cat-chip" data-filter="xuping-earrings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 3v6"/><path d="M8 9h8l-2 10a2 2 0 01-4 0z"/></svg> Xuping Earrings</button>
+    <button class="cat-chip" data-filter="genuine-leather-belts"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="9" width="18" height="6" rx="1"/><rect x="9" y="8" width="6" height="8" rx="1"/></svg> Genuine Leather Belts</button>
+    <button class="cat-chip" data-filter="kids-xuping-earrings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 3v6"/><path d="M8 9h8l-2 10a2 2 0 01-4 0z"/></svg> Kids Xuping Earrings</button>
+    <button class="cat-chip" data-filter="xuping-necklaces"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.4"/></svg> Xuping Necklaces</button>
+    <button class="cat-chip" data-filter="pearl-necklaces"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.4"/></svg> Pearl Necklaces</button>
+    <button class="cat-chip" data-filter="P.u-leather-belts"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="9" width="18" height="6" rx="1"/><rect x="9" y="8" width="6" height="8" rx="1"/></svg> P.U Leather Belts</button>
+    <button class="cat-chip" data-filter="male-stainless-steel-sets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="7" r="2"/><circle cx="18" cy="7" r="2"/></svg> Male Stainless Steel Sets</button>
+    <button class="cat-chip" data-filter="statement-stainless-earrings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 3v6"/><path d="M8 9h8l-2 10a2 2 0 01-4 0z"/></svg> Statement Stainless Earrings</button>
+    <button class="cat-chip" data-filter="fashion-jewelry-necklace-sets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.4"/></svg> Fashion Jewelry Necklace Sets</button>
   </div>
   <div class="grid" id="grid"></div>
 </section>
@@ -434,7 +453,7 @@
     </div>
     <div>
       <h4>Shop</h4>
-      <a href="#">Rings</a><a href="#">Necklaces</a><a href="#">Earrings</a><a href="#">Bridal</a>
+      <a href="#collection">Xuping Sets</a><a href="#collection">Necklaces</a><a href="#collection">Earrings</a><a href="#collection">Leather Belts</a>
     </div>
     <div>
       <h4>Help</h4>
@@ -482,24 +501,57 @@
 </div>
 
 <script>
-const PRODUCTS = [
-  {id:1, name:"Drop Earrings", cat:"earring", catLabel:"Earrings", price:6800, desc:"Slim gold-vermeil drops with a hand-hammered finish, inspired by the light off Lake Turkana.", materials:["18k Gold Vermeil","Sterling Silver"], color:"earring", ink:"earring-ink", img:"https://images.unsplash.com/photo-1680968921717-4abbbe793bb3?auto=format&fit=crop&w=800&q=80"},
-  {id:2, name:"Rift Valley Band", cat:"ring", catLabel:"Rings", price:9200, desc:"A stacking band with a subtle ridge line tracing the escarpment silhouette.", materials:["18k Gold Vermeil","925 Silver"], color:"ring", ink:"ring-ink", img:"https://images.unsplash.com/photo-1622398925373-3f91b1e275f5?auto=format&fit=crop&w=800&q=80"},
-  {id:3, name:"Sere Pendant", cat:"necklace", catLabel:"Necklaces", price:14500, desc:"A single hand-set citrine on a fine cable chain, cast from an original wax carving.", materials:["18k Gold Vermeil"], color:"necklace", ink:"necklace-ink", img:"https://images.unsplash.com/photo-1611107683227-e9060eccd846?auto=format&fit=crop&w=800&q=80"},
-  {id:4, name:"Baraka Bangle", cat:"bracelet", catLabel:"Bracelets", price:11300, desc:"'Baraka'  blessing. An open cuff finished with a brushed matte texture.", materials:["925 Sterling Silver","18k Vermeil"], color:"bracelet", ink:"bracelet-ink", img:"https://images.unsplash.com/photo-1602173574767-37ac01994b2a?auto=format&fit=crop&w=800&q=80"},
-  {id:5, name:"Nuru Hoops", cat:"earring", catLabel:"Earrings", price:5400, desc:"'Nuru'  light. Featherweight hoops polished to a mirror shine.", materials:["18k Gold Vermeil"], color:"earring", ink:"earring-ink", img:"https://images.unsplash.com/photo-1561172478-a203d9c8290e?auto=format&fit=crop&w=800&q=80"},
-  {id:6, name:"Amani Necklace", cat:"necklace", catLabel:"Necklaces", price:16800, desc:"'Amani'  peace. Layered chains with a hand-set pale sapphire.", materials:["18k Gold Vermeil","Sapphire"], color:"necklace", ink:"necklace-ink", img:"https://images.unsplash.com/photo-1685970731194-e27b477e87ba?auto=format&fit=crop&w=800&q=80"},
-  {id:7, name:"Eden Solitaire", cat:"bridal", catLabel:"Bridal", price:38000, desc:"A classic solitaire engagement ring, hand-set with a lab-grown diamond.", materials:["18k Gold","Lab Diamond"], color:"bridal", ink:"bridal-ink", img:"https://images.unsplash.com/photo-1631982686092-e6561a853187?auto=format&fit=crop&w=800&q=80"},
-  {id:8, name:"Killer Cuff", cat:"bracelet", catLabel:"Bracelets", price:9700, desc:"'Kilele'  peak. A tapered cuff with a raised centerline ridge.", materials:["925 Sterling Silver"], color:"bracelet", ink:"bracelet-ink", img:"https://images.unsplash.com/photo-1679156271456-d6068c543ee7?auto=format&fit=crop&w=800&q=80"},
-];
+// Point this at your deployed FastAPI backend (or http://localhost:8000 for local dev).
+const API_URL = "http://localhost:8088";
 
-const ICONS = {
-  ring: `<circle cx="12" cy="15" r="6"/><path d="M9 9l3-6 3 6"/>`,
-  necklace: `<path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.6"/>`,
-  earring: `<path d="M12 3v5"/><path d="M8 8h8l-2 11a2 2 0 01-4 0z"/>`,
-  bracelet: `<ellipse cx="12" cy="12" rx="9" ry="5"/><ellipse cx="12" cy="12" rx="9" ry="5" opacity="0.4" transform="rotate(20 12 12)"/>`,
-  bridal: `<path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/>`
+// Populated by loadProducts() from the API. Each item is normalized to the
+// shape the renderers below expect: id, name, cat, catLabel, price, desc,
+// materials, color, ink, img.
+let PRODUCTS = [];
+
+const CATEGORY_META = {
+  "xuping-sets":                   { label: "Xuping Sets",                   color: "xuping-sets",                   ink: "xuping-sets-ink" },
+  "xuping-earrings":                { label: "Xuping Earrings",               color: "xuping-earrings",               ink: "xuping-earrings-ink" },
+  "genuine-leather-belts":          { label: "Genuine Leather Belts",         color: "genuine-leather-belts",         ink: "genuine-leather-belts-ink" },
+  "kids-xuping-earrings":           { label: "Kids Xuping Earrings",          color: "kids-xuping-earrings",          ink: "kids-xuping-earrings-ink" },
+  "xuping-necklaces":               { label: "Xuping Necklaces",              color: "xuping-necklaces",              ink: "xuping-necklaces-ink" },
+  "pearl-necklaces":                { label: "Pearl Necklaces",               color: "pearl-necklaces",               ink: "pearl-necklaces-ink" },
+  "P.u-leather-belts":               { label: "P.U Leather Belts",             color: "P.u-leather-belts",              ink: "P.u-leather-belts-ink" },
+  "male-stainless-steel-sets":      { label: "Male Stainless Steel Sets",     color: "male-stainless-steel-sets",     ink: "male-stainless-steel-sets-ink" },
+  "statement-stainless-earrings":   { label: "Statement Stainless Earrings",  color: "statement-stainless-earrings",  ink: "statement-stainless-earrings-ink" },
+  "fashion-jewelry-necklace-sets":  { label: "Fashion Jewelry Necklace Sets", color: "fashion-jewelry-necklace-sets", ink: "fashion-jewelry-necklace-sets-ink" },
 };
+const PLACEHOLDER_IMG = "https://placehold.co/800x800/f7f5f1/b8860b?text=Ruaka+Jewelry";
+
+function normalizeProduct(p) {
+  const meta = CATEGORY_META[p.category] || { label: p.category, color: "xuping-sets", ink: "xuping-sets-ink" };
+  return {
+    id: p.id,
+    name: p.name,
+    cat: p.category,
+    catLabel: meta.label,
+    price: p.price,
+    desc: p.description || "",
+    materials: p.materials && p.materials.length ? p.materials : ["Details on request"],
+    color: meta.color,
+    ink: meta.ink,
+    img: p.image_url || PLACEHOLDER_IMG,
+  };
+}
+
+async function loadProducts() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--muted);">Loading collection…</p>`;
+  try {
+    const res = await fetch(`${API_URL}/products`);
+    if (!res.ok) throw new Error('Request failed');
+    const data = await res.json();
+    PRODUCTS = data.map(normalizeProduct);
+    renderGrid();
+  } catch (err) {
+    grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--muted);">Couldn't load the collection right now. Please try again shortly.</p>`;
+  }
+}
 
 let cart = [];
 
@@ -508,6 +560,10 @@ function fmt(n){ return "KES " + n.toLocaleString(); }
 function renderGrid(filter='all'){
   const grid = document.getElementById('grid');
   const items = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === filter);
+  if(items.length === 0){
+    grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--muted);">No pieces in this collection yet — check back soon.</p>`;
+    return;
+  }
   grid.innerHTML = items.map(p => `
     <div class="card" onclick="openModal(${p.id})">
       <div class="tray" style="background:var(--${p.color})">
@@ -585,12 +641,15 @@ function updateCartUI(){
   document.getElementById('subtotal').textContent = fmt(subtotal);
 }
 
-function openModal(id){
-  const p = PRODUCTS.find(x => x.id === id);
-  document.getElementById('modalBox').innerHTML = `
+function modalMarkup(p, images){
+  const thumbs = images.length > 1
+    ? `<div class="modal-thumbs">${images.map((src,idx) => `<img src="${src}" class="${idx===0?'active':''}" onclick="event.stopPropagation(); swapModalImage(this,'${src}')">`).join('')}</div>`
+    : '';
+  return `
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="modal-tray" style="background:var(--${p.color});">
-      <img class="tray-img" src="${p.img}" alt="${p.name}" loading="lazy">
+      <img class="tray-img" id="modalMainImg" src="${images[0] || p.img}" alt="${p.name}" loading="lazy">
+      ${thumbs}
     </div>
     <div class="modal-info">
       <div class="card-cat">${p.catLabel}</div>
@@ -602,8 +661,32 @@ function openModal(id){
       <a class="btn-primary" style="width:100%;justify-content:center;" onclick="addToCart(${p.id}); closeAll();">Add to Bag</a>
     </div>
   `;
+}
+
+function swapModalImage(thumbEl, src){
+  document.getElementById('modalMainImg').src = src;
+  document.querySelectorAll('.modal-thumbs img').forEach(img => img.classList.remove('active'));
+  thumbEl.classList.add('active');
+}
+
+async function openModal(id){
+  const p = PRODUCTS.find(x => x.id === id);
+  // Render immediately with the single cached image from the grid, then
+  // fetch the full product detail (up to 3 images) and fill in the gallery
+  // once it arrives — keeps the modal snappy while still showing all photos.
+  document.getElementById('modalBox').innerHTML = modalMarkup(p, [p.img]);
   document.getElementById('overlay').classList.add('open');
   document.getElementById('modal').classList.add('open');
+
+  try {
+    const res = await fetch(`${API_URL}/products/${id}`);
+    if (!res.ok) return;
+    const detail = await res.json();
+    const images = (detail.images && detail.images.length) ? detail.images : [p.img];
+    document.getElementById('modalBox').innerHTML = modalMarkup(p, images);
+  } catch (err) {
+    // Gallery fetch failed silently — the single cached image already shown is enough.
+  }
 }
 
 function openCart(){
@@ -630,7 +713,7 @@ window.addEventListener('scroll', () => {
   document.getElementById('header').classList.toggle('scrolled', window.scrollY > 40);
 });
 
-renderGrid();
+loadProducts();
 updateCartUI();
 </script>
 </body>

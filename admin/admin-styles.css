@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #ffffff;
+  --surface: #f7f5f1;
+  --ink: #221c16;
+  --muted: #8c8073;
+  --gold: #b8860b;
+  --gold-bright: #d9a520;
+  --line: rgba(184, 134, 11, 0.22);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  background: var(--surface);
+  color: var(--ink);
+}
+h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 700; }
+
+.admin-wrap { max-width: 500px; margin: 40px auto; padding: 0 20px 40px; }
+.admin-wrap h2 { margin-bottom: 10px; font-size: 1.8rem; }
+.admin-wrap label { display: block; margin-top: 15px; font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.admin-wrap input,
+.admin-wrap textarea,
+.admin-wrap select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  box-sizing: border-box;
+  font-family: inherit;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.admin-wrap input:focus,
+.admin-wrap textarea:focus,
+.admin-wrap select:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.admin-wrap button {
+  margin-top: 22px;
+  padding: 12px 22px;
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: background 0.2s ease;
+}
+.admin-wrap button:hover { background: var(--gold-bright); }
+.admin-wrap button:disabled { background: #ccc; cursor: not-allowed; }
+#status, #modalStatus { margin-top: 15px; font-weight: 600; }
+#preview, #modalPreview { margin-top: 10px; max-width: 200px; display: none; border-radius: 6px; }

@@ -1,0 +1,11 @@
+venv
+__pycache__
+.env
+uploads/*
+!uploads/.gitkeep
+admin/node_modules
+admin/.vercel
+admin/.env*
+.DS_Store
+Thumbs.db
+.env.local

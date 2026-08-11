@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Product - Admin</title>
+<link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+
+<div class="admin-wrap">
+  <div style="text-align:right; margin-bottom: 10px;">
+    <a href="manage.html" style="font-size:0.9rem; color:#3D2233;">Manage existing products →</a>
+  </div>
+  <h2>Add New Piece</h2>
+
+  <form id="productForm">
+    <label>Product Name</label>
+    <input type="text" id="name" required>
+
+    <label>Description</label>
+    <textarea id="description" rows="3"></textarea>
+
+    <label>Price (KES)</label>
+    <input type="number" id="price" required>
+
+    <label>Category</label>
+    <select id="category" required>
+      <option value="xuping-sets">Xuping Sets</option>
+      <option value="xuping-earrings">Xuping Earrings</option>
+      <option value="genuine-leather-belts">Genuine Leather Belts</option>
+      <option value="kids-xuping-earrings">Kids Xuping Earrings</option>
+      <option value="xuping-necklaces">Xuping Necklaces</option>
+      <option value="pearl-necklaces">Pearl Necklaces</option>
+      <option value="P.u-leather-belts">P.U Leather Belts</option>
+      <option value="male-stainless-steel-sets">Male Stainless Steel Sets</option>
+      <option value="statement-stainless-earrings">Statement Stainless Earrings</option>
+      <option value="fashion-jewelry-necklace-sets">Fashion Jewelry Necklace Sets</option>
+    </select>
+
+    <label>Materials (comma-separated)</label>
+    <input type="text" id="materials" placeholder="18k Gold Vermeil, Sterling Silver">
+
+    <label>
+      <input type="checkbox" id="isNew" style="width:auto; display:inline-block;" checked>
+      Mark as New
+    </label>
+
+    <label>Product Images (1–3)</label>
+    <input type="file" id="imageFiles" accept="image/*" multiple required>
+    <div id="previewRow" style="display:flex; gap:8px; margin-top:10px;"></div>
+
+    <button type="submit" id="submitBtn">Add Product</button>
+    <div id="status"></div>
+  </form>
+</div>
+
+<script src="config.js"></script>
+<script src="admin-auth.js"></script>
+<script>
+requireAdminLogin();
+
+const MAX_IMAGES = 3;
+
+document.getElementById('imageFiles').addEventListener('change', function(e) {
+  const files = Array.from(e.target.files);
+  const status = document.getElementById('status');
+  if (files.length > MAX_IMAGES) {
+    status.textContent = `❌ Choose at most ${MAX_IMAGES} images.`;
+    e.target.value = '';
+    document.getElementById('previewRow').innerHTML = '';
+    return;
+  }
+  status.textContent = '';
+  const row = document.getElementById('previewRow');
+  row.innerHTML = files.map(f =>
+    `<img src="${URL.createObjectURL(f)}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;">`
+  ).join('');
+});
+
+// Reads a File into a base64 string (no data-URL prefix) for sending as
+// JSON to /api/upload.
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Splits the comma-separated materials input into a clean string array,
+// matching the `materials: list[str]` shape main.py expects.
+function parseMaterials(raw) {
+  return raw.split(',').map(m => m.trim()).filter(Boolean);
+}
+
+document.getElementById('productForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const submitBtn = document.getElementById('submitBtn');
+  const status = document.getElementById('status');
+
+  const imageFiles = Array.from(document.getElementById('imageFiles').files);
+  if (imageFiles.length === 0) {
+    status.textContent = '❌ Choose at least 1 image.';
+    return;
+  }
+  if (imageFiles.length > MAX_IMAGES) {
+    status.textContent = `❌ Choose at most ${MAX_IMAGES} images.`;
+    return;
+  }
+
+  submitBtn.disabled = true;
+
+  try {
+    status.textContent = 'Saving product...';
+
+    // Step 1: create the product record (no images yet)
+    const productRes = await adminFetch(`${API_URL}/admin/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('name').value,
+        description: document.getElementById('description').value,
+        price: parseFloat(document.getElementById('price').value),
+        category: document.getElementById('category').value,
+        materials: parseMaterials(document.getElementById('materials').value),
+        is_new: document.getElementById('isNew').checked
+      })
+    });
+    const productData = await productRes.json();
+    if (!productRes.ok) throw new Error(productData.detail || 'Product creation failed');
+
+    // Step 2: upload each image to Vercel Blob, then link it to the product,
+    // in order — the first becomes the primary/cover image.
+    for (let i = 0; i < imageFiles.length; i++) {
+      const file = imageFiles[i];
+      status.textContent = `Uploading image ${i + 1} of ${imageFiles.length}...`;
+
+      const dataBase64 = await fileToBase64(file);
+      const uploadRes = await adminFetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, contentType: file.type, dataBase64 })
+      });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) throw new Error(uploadData.error || `Image ${i + 1} upload failed`);
+
+      const imgRes = await adminFetch(`${API_URL}/admin/products/${productData.id}/images`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blob_url: uploadData.url, is_primary: i === 0, sort_order: i })
+      });
+      if (!imgRes.ok) throw new Error(`Linking image ${i + 1} failed`);
+    }
+
+    status.textContent = '✅ Product added successfully!';
+    document.getElementById('productForm').reset();
+    document.getElementById('previewRow').innerHTML = '';
+
+  } catch (err) {
+    status.textContent = '❌ Error: ' + err.message;
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>
