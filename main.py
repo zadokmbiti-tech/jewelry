@@ -81,6 +81,11 @@ class ProductImageCreate(BaseModel):
     sort_order: int = 0
 
 
+class CustomerCreate(BaseModel):
+    name: str
+    phone: str
+
+
 @app.get("/")
 def read_root():
     return {"status": "running"}
@@ -302,3 +307,38 @@ def delete_product(product_id: int):
     if not deleted:
         raise HTTPException(status_code=404, detail="Product not found")
     return {"message": "Product deleted"}
+
+
+@app.post("/customers")
+def create_customer(customer: CustomerCreate):
+    """Records a customer's name + phone before they can add an item to
+    their bag. No password, no login  this is a lightweight lead capture,
+    not an account system."""
+    name = customer.name.strip()
+    phone = customer.phone.strip()
+    if not name or not phone:
+        raise HTTPException(status_code=422, detail="name and phone are required")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO customers (name, phone) VALUES (%s, %s) RETURNING id;",
+        (name, phone),
+    )
+    new_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"id": new_id, "message": "Registered"}
+
+
+@app.get("/admin/customers", dependencies=[Depends(require_admin)])
+def list_customers():
+    """Not yet wired into the admin dashboard UI, but available if you want
+    to pull your list of registered customers later."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id, name, phone, created_at FROM customers ORDER BY created_at DESC;")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [{"id": r[0], "name": r[1], "phone": r[2], "created_at": r[3].isoformat()} for r in rows]
