@@ -15,7 +15,7 @@ A storefront for browsing rings, necklaces, earrings, bracelets, and bridal piec
 .
 ├── frontend/
 │   └── index.html      # Storefront UI (catalog, cart, checkout flow)
-└── backend/             # FastAPI app, models, routes (in progress)
+└── backend/             # FastAPI app, models, routes
 ```
 
 ## Running the demo
