@@ -1,6 +1,3 @@
--- Ruaka Jewelry Dealer  database schema
--- Run this once against your Postgres database (Neon/Supabase) before using the API.
-
 CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -13,12 +10,12 @@ CREATE TABLE IF NOT EXISTS products (
         'kids-xuping-earrings',
         'xuping-necklaces',
         'pearl-necklaces',
-        'P.u-leather-belts',
+        'pu-leather-belts',
         'male-stainless-steel-sets',
         'statement-stainless-earrings',
         'fashion-jewelry-necklace-sets'
     )),
-    materials TEXT[] NOT NULL DEFAULT '{}',
+    quantity INTEGER NOT NULL DEFAULT 0,
     is_new BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -33,3 +30,12 @@ CREATE TABLE IF NOT EXISTS product_images (
 
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON product_images(product_id);
+
+-- ─────────────────────────────────────────────────────────────────────────
+-- MIGRATION: run this instead of the CREATE TABLE above if you already have
+-- a live database from before (it drops the old materials column and adds
+-- quantity in its place, keeping your existing product rows intact).
+-- ─────────────────────────────────────────────────────────────────────────
+-- ALTER TABLE products DROP COLUMN IF EXISTS materials;
+-- ALTER TABLE products ADD COLUMN IF NOT EXISTS quantity INTEGER NOT NULL DEFAULT 0;
+

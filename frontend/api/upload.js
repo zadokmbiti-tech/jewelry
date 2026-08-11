@@ -1,4 +1,13 @@
 import { put } from '@vercel/blob';
+
+// The file is sent as base64 inside a normal JSON body (see admin.html /
+// manage.html). We deliberately avoid sending it as a raw binary body: under
+// `vercel dev` for this (non-Next.js) Serverless Function, the raw request
+// stream comes back empty no matter how it's read  something upstream
+// drains it before our handler runs. JSON is a content type Vercel's
+// default body parser handles reliably in both `vercel dev` and production,
+// so this sidesteps that problem entirely instead of fighting it.
+
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
     return response.status(405).json({ error: 'Method not allowed' });

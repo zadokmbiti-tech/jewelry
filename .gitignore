@@ -3,9 +3,8 @@ __pycache__
 .env
 uploads/*
 !uploads/.gitkeep
-admin/node_modules
-admin/.vercel
-admin/.env*
+frontend/node_modules
+frontend/.vercel
+frontend/.env*
 .DS_Store
 Thumbs.db
-.env.local

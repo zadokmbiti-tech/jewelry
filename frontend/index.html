@@ -153,6 +153,25 @@
   .section-head .eyebrow{margin-bottom:14px;display:block;}
   .section-head h2{font-size:clamp(1.9rem,3.4vw,2.6rem);}
 
+  .search-bar{
+    display:flex;align-items:center;gap:12px;
+    max-width:420px;margin:0 auto 40px;
+    padding:12px 20px;border:1px solid var(--line);border-radius:40px;
+    background:var(--surface);transition:border-color .3s ease;
+  }
+  .search-bar:focus-within{border-color:var(--gold);}
+  .search-bar svg{width:17px;height:17px;stroke:var(--muted);flex-shrink:0;}
+  .search-bar input{
+    border:none;background:transparent;outline:none;width:100%;
+    font-family:'Jost',sans-serif;font-size:0.92rem;color:var(--ink);
+  }
+  .search-bar input::placeholder{color:var(--muted);}
+  .search-clear{
+    display:none;stroke:var(--muted);cursor:pointer;flex-shrink:0;
+  }
+  .search-clear.show{display:block;}
+  .search-clear:hover{stroke:var(--gold);}
+
   .categories{
     display:flex;justify-content:center;gap:14px;flex-wrap:wrap;
     padding:0 5vw 90px;
@@ -330,6 +349,111 @@
   }
   @keyframes pulse{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:1;transform:scale(1.4);}}
 
+  /* ── Mobile hamburger nav ─────────────────────────────────────────── */
+  .hamburger{display:none;width:22px;height:16px;flex-direction:column;justify-content:space-between;}
+  .hamburger span{display:block;height:1.5px;background:var(--ink);border-radius:2px;transition:transform .3s ease, opacity .3s ease;}
+  .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .hamburger.open span:nth-child(2){opacity:0;}
+  .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  .mobile-menu{
+    display:none;position:fixed;top:0;left:0;right:0;z-index:99;
+    background:var(--bg);border-bottom:1px solid var(--line);
+    padding:90px 8vw 30px;transform:translateY(-100%);transition:transform .35s ease;
+    box-shadow:0 20px 40px rgba(30,24,16,0.08);
+  }
+  .mobile-menu.open{transform:translateY(0);}
+  .mobile-menu a, .mobile-menu button.mm-link{
+    display:block;width:100%;text-align:left;padding:14px 0;border-bottom:1px solid var(--line);
+    font-size:1rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink);
+  }
+  @media(max-width:860px){
+    .hamburger{display:flex;}
+    .mobile-menu{display:block;}
+    #adminIconBtn{display:none;}
+  }
+
+  /* ── Stock badges ─────────────────────────────────────────────────── */
+  .stock-badge{font-size:0.7rem;letter-spacing:0.06em;padding:3px 10px;border-radius:20px;display:inline-block;}
+  .stock-low{background:#fbe9e9;color:#a3423f;}
+  .stock-out{background:#eee;color:#888;}
+  .modal-stock{font-size:0.85rem;margin-bottom:18px;}
+  .modal-stock.stock-low{color:#a3423f;}
+  .modal-stock.stock-out{color:#888;}
+  .modal-stock.stock-ok{color:#2f6b45;}
+  .btn-primary.disabled{background:#ccc;pointer-events:none;color:#888;}
+
+  /* ── WhatsApp floating button ─────────────────────────────────────── */
+  .wa-btn{
+    position:fixed;bottom:24px;right:24px;z-index:95;
+    width:54px;height:54px;border-radius:50%;background:#25D366;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 20px rgba(37,211,102,0.4);
+    transition:transform .25s ease;
+  }
+  .wa-btn:hover{transform:scale(1.08);}
+  .wa-btn svg{width:28px;height:28px;fill:#fff;}
+
+  /* ── Admin entry + login modal ────────────────────────────────────── */
+  .admin-login-box{max-width:340px;text-align:left;padding:36px;}
+  .admin-login-box h3{font-size:1.3rem;margin-bottom:18px;}
+  .admin-login-box input{
+    width:100%;padding:12px;border:1px solid var(--line);border-radius:4px;font-family:inherit;margin-bottom:14px;
+  }
+  .admin-login-box .btn-primary{width:100%;justify-content:center;}
+  .admin-login-err{color:#a3423f;font-size:0.82rem;margin-bottom:10px;display:none;}
+
+  /* ── Admin dashboard ──────────────────────────────────────────────── */
+  .admin-panel{
+    position:fixed;inset:0;z-index:300;background:var(--bg);
+    transform:translateY(100%);transition:transform .4s ease;
+    overflow-y:auto;
+  }
+  .admin-panel.open{transform:translateY(0);}
+  .admin-topbar{
+    position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:20px 5vw;z-index:2;
+  }
+  .admin-topbar .logo{font-size:1.3rem;}
+  .admin-tabs{display:flex;gap:10px;}
+  .admin-tab{
+    padding:9px 20px;border:1px solid var(--line);border-radius:30px;font-size:0.8rem;
+    text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);
+  }
+  .admin-tab.active{border-color:var(--gold);color:var(--gold);background:rgba(184,134,11,0.06);}
+  .admin-logout{font-size:0.8rem;color:var(--muted);text-decoration:underline;}
+  .admin-body{max-width:640px;margin:0 auto;padding:40px 6vw 100px;}
+  .admin-body h2{font-size:1.5rem;margin-bottom:26px;}
+  .a-field{margin-bottom:18px;}
+  .a-field label{display:block;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px;}
+  .a-field input, .a-field textarea, .a-field select{
+    width:100%;padding:11px;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:0.95rem;background:var(--bg);color:var(--ink);
+  }
+  .a-field input:focus, .a-field textarea:focus, .a-field select:focus{outline:none;border-color:var(--gold);}
+  .a-check{display:flex;align-items:center;gap:8px;margin-bottom:22px;}
+  .a-check input{width:auto;}
+  .a-submit{width:100%;justify-content:center;}
+  .a-status{margin-top:14px;font-size:0.88rem;font-weight:500;}
+  .a-preview-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .a-preview-row img{width:74px;height:74px;object-fit:cover;border-radius:6px;}
+  .a-current-images{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+  .a-current-img{position:relative;width:74px;height:74px;}
+  .a-current-img img{width:100%;height:100%;object-fit:cover;border-radius:6px;}
+  .a-img-remove{
+    position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;
+    background:#a3423f;color:#fff;font-size:0.7rem;display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .a-plist{margin-top:10px;}
+  .a-prow{
+    display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;
+  }
+  .a-prow img{width:56px;height:56px;object-fit:cover;border-radius:6px;background:var(--surface);}
+  .a-prow .a-pinfo{flex:1;}
+  .a-prow .a-pname{font-weight:500;}
+  .a-prow .a-pmeta{font-size:0.8rem;color:var(--muted);}
+  .a-prow button{padding:7px 14px;border:1px solid var(--line);border-radius:4px;font-size:0.8rem;}
+  .a-prow .a-del{color:#a3423f;border-color:#f2c6c1;}
+  .a-edit-panel{border:1px solid var(--line);border-radius:8px;padding:22px;margin-bottom:18px;background:var(--surface);}
+
   @media(max-width:860px){
     nav.links{display:none;}
     .hero{flex-direction:column;text-align:center;padding-top:130px;gap:40px;}
@@ -342,27 +466,40 @@
   }
 </style>
 </head>
-<body>
+<body id="top">
 
 <header id="header">
   <div class="logo">Ruaka Jewelry Dealer<span>.</span></div>
   <nav class="links">
-    <a href="#collection">Xuping Sets</a>
-    <a href="#collection">Earrings</a>
-    <a href="#collection">Necklaces</a>
-    <a href="#collection">Belts</a>
-    <a href="#collection">Steel Sets</a>
+    <a href="#top">Home</a>
+    <a href="#story">About</a>
+    <a href="#collection">Menu</a>
+    <a href="#contact">Contact</a>
   </nav>
   <div class="nav-icons">
-    <button class="icon-btn" aria-label="Search">
+    <button class="icon-btn" aria-label="Search" onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth'}); setTimeout(() => document.getElementById('searchInput').focus(), 400);">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
     </button>
     <button class="icon-btn cart-btn" aria-label="Cart" onclick="openCart()">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6L4 3H2"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>
       <span class="cart-count" id="cartCount">0</span>
     </button>
+    <button class="icon-btn" id="adminIconBtn" aria-label="Admin" onclick="openAdminEntry()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+    </button>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#top" onclick="toggleMobileMenu()">Home</a>
+  <a href="#story" onclick="toggleMobileMenu()">About</a>
+  <a href="#collection" onclick="toggleMobileMenu()">Menu</a>
+  <a href="#contact" onclick="toggleMobileMenu()">Contact</a>
+  <button class="mm-link" onclick="toggleMobileMenu(); openAdminEntry();">Admin</button>
+</div>
 
 <section class="hero">
   <div class="hero-orbit"></div>
@@ -390,6 +527,11 @@
   <div class="section-head">
     <span class="eyebrow">The Collection</span>
     <h2>Every tray tells a story</h2>
+  </div>
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input type="text" id="searchInput" placeholder="Search products…" oninput="handleSearch(this.value)">
+    <svg class="search-clear" id="searchClear" viewBox="0 0 24 24" fill="none" stroke-width="1.5" onclick="clearSearch()"><path d="M18 6L6 18M6 6l12 12"/></svg>
   </div>
   <div class="categories">
     <button class="cat-chip active" data-filter="all">✦ All</button>
@@ -436,7 +578,7 @@
   <div class="trust-item">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M8 7V5a4 4 0 018 0v2"/></svg>
     <h3>Ruaka Delivery</h3>
-    <p>Same-week delivery countrywide, gift-boxed.</br> New deliveries every Saturday</p>
+    <p>Same-week delivery countrywide, gift-boxed.<br>New deliveries every Saturday</p>
   </div>
 </section>
 
@@ -454,16 +596,15 @@
       <h4>Help</h4>
       <a href="#">Delivery</a><a href="#">Returns</a><a href="#">Sizing Guide</a><a href="#">Contact</a>
     </div>
-    <div>
+    <div id="contact">
       <h4>Visit</h4>
       <p>Ruaka, Kiambu</p>
-      <p>hello@ruakaJewelrydealer</p>
-      <p>+254 741573866</p>
+      <p>hello@ruakaJewelrydealer.co.ke</p>
+      <p>+254 700111222</p>
     </div>
   </div>
-  <div class="footer-bottom">© 2026 Ruaka Jewelry Dealer  Demo webpage for review purposes.</div>
+  <div class="footer-bottom">© 2026 Ruaka Jewelry Dealer</div>
 </footer>
-
 
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 <div class="drawer" id="drawer">
@@ -491,6 +632,71 @@
     <p>We've sent an M-Pesa payment prompt to your number.</p>
     <p>Enter your PIN to complete the order.</p>
     <div class="stk-pulse"></div>
+  </div>
+</div>
+
+<a class="wa-btn" href="https://wa.me/254700111222?text=Hi%2C%20I%27m%20interested%20in%20your%20jewelry" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.7-.8-2-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.2-.1.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.5 7.8 9.3 7.3c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2.1 3.2 5.1 4.4.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4z"/><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20z"/></svg>
+</a>
+
+<div class="modal" id="adminLoginModal">
+  <div class="modal-box admin-login-box">
+    <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h3>Admin Login</h3>
+    <div class="admin-login-err" id="adminLoginErr">Incorrect password.</div>
+    <input type="password" id="adminPasswordInput" placeholder="Admin password" autocomplete="off">
+    <a class="btn-primary" onclick="submitAdminLogin()">Log In</a>
+  </div>
+</div>
+
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-topbar">
+    <div class="logo">Ruaka Jewelry Dealer<span>.</span> Admin</div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" id="tabAddBtn" onclick="showAdminTab('add')">Add Product</button>
+      <button class="admin-tab" id="tabManageBtn" onclick="showAdminTab('manage')">Manage Products</button>
+    </div>
+    <div>
+      <a class="admin-logout" onclick="adminLogout()">Log Out &amp; Close</a>
+    </div>
+  </div>
+
+  <div class="admin-body" id="adminAddView">
+    <h2>Add New Piece</h2>
+    <form id="addProductForm">
+      <div class="a-field"><label>Product Name</label><input type="text" id="apName" required></div>
+      <div class="a-field"><label>Description</label><textarea id="apDescription" rows="3"></textarea></div>
+      <div class="a-field"><label>Price (KES)</label><input type="number" id="apPrice" required></div>
+      <div class="a-field">
+        <label>Category</label>
+        <select id="apCategory" required>
+          <option value="xuping-sets">Xuping Sets</option>
+          <option value="xuping-earrings">Xuping Earrings</option>
+          <option value="genuine-leather-belts">Genuine Leather Belts</option>
+          <option value="kids-xuping-earrings">Kids Xuping Earrings</option>
+          <option value="xuping-necklaces">Xuping Necklaces</option>
+          <option value="pearl-necklaces">Pearl Necklaces</option>
+          <option value="pu-leather-belts">P.U Leather Belts</option>
+          <option value="male-stainless-steel-sets">Male Stainless Steel Sets</option>
+          <option value="statement-stainless-earrings">Statement Stainless Earrings</option>
+          <option value="fashion-jewelry-necklace-sets">Fashion Jewelry Necklace Sets</option>
+        </select>
+      </div>
+      <div class="a-field"><label>Quantity Available</label><input type="number" id="apQuantity" min="0" value="1" required></div>
+      <div class="a-check"><input type="checkbox" id="apIsNew" checked><label style="margin:0;text-transform:none;letter-spacing:0;color:var(--ink);">Mark as New</label></div>
+      <div class="a-field">
+        <label>Product Images (1–3)</label>
+        <input type="file" id="apImageFiles" accept="image/*" multiple required>
+        <div class="a-preview-row" id="apPreviewRow"></div>
+      </div>
+      <a class="btn-primary a-submit" id="apSubmitBtn" onclick="submitAddProduct(event)">Add Product</a>
+      <div class="a-status" id="apStatus"></div>
+    </form>
+  </div>
+
+  <div class="admin-body" id="adminManageView" style="display:none;">
+    <h2>Manage Products</h2>
+    <div id="manageList"><p style="color:var(--muted);">Loading…</p></div>
   </div>
 </div>
 
@@ -527,11 +733,17 @@ function normalizeProduct(p) {
     catLabel: meta.label,
     price: p.price,
     desc: p.description || "",
-    materials: p.materials && p.materials.length ? p.materials : ["Details on request"],
+    quantity: typeof p.quantity === "number" ? p.quantity : 0,
     color: meta.color,
     ink: meta.ink,
     img: p.image_url || PLACEHOLDER_IMG,
   };
+}
+
+function stockInfo(qty){
+  if (qty <= 0) return { text: "Out of Stock", cls: "stock-out" };
+  if (qty <= 3) return { text: `Only ${qty} left!`, cls: "stock-low" };
+  return null;
 }
 
 async function loadProducts() {
@@ -552,14 +764,31 @@ let cart = [];
 
 function fmt(n){ return "KES " + n.toLocaleString(); }
 
-function renderGrid(filter='all'){
+let currentCategory = 'all';
+let currentSearch = '';
+
+function renderGrid(filter=currentCategory){
+  currentCategory = filter;
   const grid = document.getElementById('grid');
-  const items = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === filter);
+  let items = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === filter);
+  const q = currentSearch.trim().toLowerCase();
+  if(q){
+    items = items.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.catLabel.toLowerCase().includes(q)
+    );
+  }
   if(items.length === 0){
-    grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--muted);">No pieces in this collection yet  check back soon.</p>`;
+    const safeQuery = currentSearch.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const msg = q ? `No pieces match "${safeQuery}".` : `No pieces in this collection yet  check back soon.`;
+    grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--muted);">${msg}</p>`;
     return;
   }
-  grid.innerHTML = items.map(p => `
+  grid.innerHTML = items.map(p => {
+    const stock = stockInfo(p.quantity);
+    const badge = stock ? `<span class="stock-badge ${stock.cls}">${stock.text}</span>` : '';
+    const addDisabled = p.quantity <= 0 ? 'style="opacity:0.4;pointer-events:none;"' : '';
+    return `
     <div class="card" onclick="openModal(${p.id})">
       <div class="tray" style="background:var(--${p.color})">
         <div class="wish" onclick="event.stopPropagation(); this.classList.toggle('active')">
@@ -570,13 +799,15 @@ function renderGrid(filter='all'){
       <div class="card-info">
         <div class="card-cat">${p.catLabel}</div>
         <div class="card-name">${p.name}</div>
+        ${badge ? `<div style="margin-bottom:8px;">${badge}</div>` : ''}
         <div class="card-row">
           <span class="price">${fmt(p.price)}</span>
-          <button class="add-btn" onclick="event.stopPropagation(); addToCart(${p.id})">Add to bag</button>
+          <button class="add-btn" ${addDisabled} onclick="event.stopPropagation(); addToCart(${p.id})">Add to bag</button>
         </div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 document.querySelectorAll('.cat-chip').forEach(chip => {
@@ -587,9 +818,29 @@ document.querySelectorAll('.cat-chip').forEach(chip => {
   });
 });
 
+function handleSearch(value){
+  currentSearch = value;
+  document.getElementById('searchClear').classList.toggle('show', value.length > 0);
+  renderGrid(currentCategory);
+}
+
+function clearSearch(){
+  currentSearch = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').classList.remove('show');
+  renderGrid(currentCategory);
+}
+
 function addToCart(id){
+  const product = PRODUCTS.find(p => p.id === id);
+  if(!product || product.quantity <= 0) return;
   const existing = cart.find(i => i.id === id);
-  if(existing){ existing.qty++; } else { cart.push({...PRODUCTS.find(p=>p.id===id), qty:1}); }
+  if(existing){
+    if(existing.qty >= product.quantity) return; // don't exceed available stock
+    existing.qty++;
+  } else {
+    cart.push({...product, qty:1});
+  }
   updateCartUI();
   openCart();
 }
@@ -597,6 +848,7 @@ function addToCart(id){
 function changeQty(id, delta){
   const item = cart.find(i => i.id === id);
   if(!item) return;
+  if(delta > 0 && item.qty >= item.quantity) return; // don't exceed available stock
   item.qty += delta;
   if(item.qty <= 0) cart = cart.filter(i => i.id !== id);
   updateCartUI();
@@ -640,6 +892,13 @@ function modalMarkup(p, images){
   const thumbs = images.length > 1
     ? `<div class="modal-thumbs">${images.map((src,idx) => `<img src="${src}" class="${idx===0?'active':''}" onclick="event.stopPropagation(); swapModalImage(this,'${src}')">`).join('')}</div>`
     : '';
+  const stock = stockInfo(p.quantity);
+  const stockLine = p.quantity <= 0
+    ? `<div class="modal-stock stock-out">Out of Stock</div>`
+    : (stock ? `<div class="modal-stock stock-low">${stock.text}</div>` : `<div class="modal-stock stock-ok">In Stock</div>`);
+  const addBtn = p.quantity <= 0
+    ? `<a class="btn-primary disabled" style="width:100%;justify-content:center;">Out of Stock</a>`
+    : `<a class="btn-primary" style="width:100%;justify-content:center;" onclick="addToCart(${p.id}); closeAll();">Add to Bag</a>`;
   return `
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="modal-tray" style="background:var(--${p.color});">
@@ -651,9 +910,8 @@ function modalMarkup(p, images){
       <h2>${p.name}</h2>
       <div class="modal-price">${fmt(p.price)}</div>
       <p class="modal-desc">${p.desc}</p>
-      <div class="selector-label">Material</div>
-      <div class="selector-opts">${p.materials.map((m,idx) => `<span class="opt ${idx===0?'sel':''}">${m}</span>`).join('')}</div>
-      <a class="btn-primary" style="width:100%;justify-content:center;" onclick="addToCart(${p.id}); closeAll();">Add to Bag</a>
+      ${stockLine}
+      ${addBtn}
     </div>
   `;
 }
@@ -677,7 +935,7 @@ async function openModal(id){
     const res = await fetch(`${API_URL}/products/${id}`);
     if (!res.ok) return;
     const detail = await res.json();
-    const images = (detail.images && detail.images.length) ? detail.images : [p.img];
+    const images = (detail.images && detail.images.length) ? detail.images.map(im => im.url) : [p.img];
     document.getElementById('modalBox').innerHTML = modalMarkup(p, images);
   } catch (err) {
     // Gallery fetch failed silently  the single cached image already shown is enough.
@@ -702,11 +960,340 @@ function closeAll(){
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('modal').classList.remove('open');
   document.getElementById('stkModal').classList.remove('open');
+  document.getElementById('adminLoginModal').classList.remove('open');
 }
 
 window.addEventListener('scroll', () => {
   document.getElementById('header').classList.toggle('scrolled', window.scrollY > 40);
 });
+
+/* ── Mobile menu ─────────────────────────────────────────────────────── */
+function toggleMobileMenu(){
+  document.getElementById('hamburgerBtn').classList.toggle('open');
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+/* ── Admin: login, session, and dashboard ───────────────────────────── */
+const ADMIN_STORAGE_KEY = 'jewelry_admin_secret';
+
+function getAdminSecret(){
+  return sessionStorage.getItem(ADMIN_STORAGE_KEY) || '';
+}
+
+function adminFetch(url, options = {}){
+  const headers = { ...(options.headers || {}), 'X-Admin-Secret': getAdminSecret() };
+  return fetch(url, { ...options, headers });
+}
+
+function openAdminEntry(){
+  if (getAdminSecret()){
+    // Already logged in this session  go straight to the dashboard and
+    // re-validate quietly in case the secret has since changed server-side.
+    adminFetch(`${API_URL}/admin/ping`).then(res => {
+      if (res.ok) { openAdminPanel(); } else { sessionStorage.removeItem(ADMIN_STORAGE_KEY); showAdminLogin(); }
+    }).catch(() => showAdminLogin());
+    return;
+  }
+  showAdminLogin();
+}
+
+function showAdminLogin(){
+  document.getElementById('adminLoginErr').style.display = 'none';
+  document.getElementById('adminPasswordInput').value = '';
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('adminLoginModal').classList.add('open');
+  setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
+}
+
+async function submitAdminLogin(){
+  const pw = document.getElementById('adminPasswordInput').value;
+  const errBox = document.getElementById('adminLoginErr');
+  if (!pw) return;
+  sessionStorage.setItem(ADMIN_STORAGE_KEY, pw);
+  try {
+    const res = await adminFetch(`${API_URL}/admin/ping`);
+    if (res.ok) {
+      closeAll();
+      openAdminPanel();
+    } else {
+      sessionStorage.removeItem(ADMIN_STORAGE_KEY);
+      errBox.style.display = 'block';
+    }
+  } catch (err) {
+    sessionStorage.removeItem(ADMIN_STORAGE_KEY);
+    errBox.textContent = 'Could not reach the server. Try again.';
+    errBox.style.display = 'block';
+  }
+}
+
+function adminLogout(){
+  sessionStorage.removeItem(ADMIN_STORAGE_KEY);
+  document.getElementById('adminPanel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function openAdminPanel(){
+  document.getElementById('adminPanel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  showAdminTab('add');
+}
+
+function showAdminTab(tab){
+  document.getElementById('tabAddBtn').classList.toggle('active', tab === 'add');
+  document.getElementById('tabManageBtn').classList.toggle('active', tab === 'manage');
+  document.getElementById('adminAddView').style.display = tab === 'add' ? 'block' : 'none';
+  document.getElementById('adminManageView').style.display = tab === 'manage' ? 'block' : 'none';
+  if (tab === 'manage') loadManageList();
+}
+
+/* ── Admin: Add Product ──────────────────────────────────────────────── */
+const ADMIN_MAX_IMAGES = 3;
+
+document.getElementById('apImageFiles').addEventListener('change', function(e){
+  const files = Array.from(e.target.files);
+  const status = document.getElementById('apStatus');
+  if (files.length > ADMIN_MAX_IMAGES){
+    status.textContent = `❌ Choose at most ${ADMIN_MAX_IMAGES} images.`;
+    e.target.value = '';
+    document.getElementById('apPreviewRow').innerHTML = '';
+    return;
+  }
+  status.textContent = '';
+  document.getElementById('apPreviewRow').innerHTML = files.map(f =>
+    `<img src="${URL.createObjectURL(f)}">`
+  ).join('');
+});
+
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function submitAddProduct(e){
+  e.preventDefault();
+  const status = document.getElementById('apStatus');
+  const submitBtn = document.getElementById('apSubmitBtn');
+  const imageFiles = Array.from(document.getElementById('apImageFiles').files);
+
+  if (!document.getElementById('apName').value || !document.getElementById('apPrice').value){
+    status.textContent = '❌ Fill in the required fields.';
+    return;
+  }
+  if (imageFiles.length === 0){
+    status.textContent = '❌ Choose at least 1 image.';
+    return;
+  }
+  if (imageFiles.length > ADMIN_MAX_IMAGES){
+    status.textContent = `❌ Choose at most ${ADMIN_MAX_IMAGES} images.`;
+    return;
+  }
+
+  submitBtn.style.pointerEvents = 'none';
+  submitBtn.style.opacity = '0.6';
+
+  try {
+    status.textContent = 'Saving product...';
+    const productRes = await adminFetch(`${API_URL}/admin/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('apName').value,
+        description: document.getElementById('apDescription').value,
+        price: parseFloat(document.getElementById('apPrice').value),
+        category: document.getElementById('apCategory').value,
+        quantity: parseInt(document.getElementById('apQuantity').value, 10) || 0,
+        is_new: document.getElementById('apIsNew').checked
+      })
+    });
+    const productData = await productRes.json();
+    if (!productRes.ok) throw new Error(productData.detail || 'Product creation failed');
+
+    for (let i = 0; i < imageFiles.length; i++){
+      const file = imageFiles[i];
+      status.textContent = `Uploading image ${i + 1} of ${imageFiles.length}...`;
+      const dataBase64 = await fileToBase64(file);
+      const uploadRes = await adminFetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, contentType: file.type, dataBase64 })
+      });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) throw new Error(uploadData.error || `Image ${i + 1} upload failed`);
+
+      const imgRes = await adminFetch(`${API_URL}/admin/products/${productData.id}/images`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blob_url: uploadData.url, is_primary: i === 0, sort_order: i })
+      });
+      if (!imgRes.ok) throw new Error(`Linking image ${i + 1} failed`);
+    }
+
+    status.textContent = '✅ Product added!';
+    document.getElementById('addProductForm').reset();
+    document.getElementById('apPreviewRow').innerHTML = '';
+    loadProducts(); // refresh the live storefront grid too
+
+  } catch (err) {
+    status.textContent = '❌ ' + err.message;
+  } finally {
+    submitBtn.style.pointerEvents = '';
+    submitBtn.style.opacity = '';
+  }
+}
+
+/* ── Admin: Manage Products ──────────────────────────────────────────── */
+async function loadManageList(){
+  const list = document.getElementById('manageList');
+  try {
+    const res = await fetch(`${API_URL}/products`);
+    const products = await res.json();
+    if (products.length === 0){
+      list.innerHTML = '<p style="color:var(--muted);">No products yet.</p>';
+      return;
+    }
+    list.innerHTML = products.map(p => `
+      <div class="a-prow" id="prow-${p.id}">
+        <img src="${p.image_url || 'https://placehold.co/100x100?text=No+Image'}" alt="${p.name}">
+        <div class="a-pinfo">
+          <div class="a-pname">${p.name}</div>
+          <div class="a-pmeta">${fmt(p.price)}  ${(CATEGORY_META[p.category]||{label:p.category}).label}  Qty: ${p.quantity}</div>
+        </div>
+        <button onclick="openEditPanel(${p.id})">Edit</button>
+        <button class="a-del" onclick="deleteManagedProduct(${p.id})">Delete</button>
+      </div>
+      <div id="editpanel-${p.id}"></div>
+    `).join('');
+  } catch (err) {
+    list.innerHTML = '<p style="color:#a3423f;">Could not load products.</p>';
+  }
+}
+
+async function deleteManagedProduct(id){
+  if (!confirm('Delete this product? This cannot be undone.')) return;
+  const res = await adminFetch(`${API_URL}/admin/products/${id}`, { method: 'DELETE' });
+  if (res.ok){ loadManageList(); loadProducts(); } else { alert('Could not delete product.'); }
+}
+
+async function openEditPanel(id){
+  const panelWrap = document.getElementById(`editpanel-${id}`);
+  if (panelWrap.innerHTML) { panelWrap.innerHTML = ''; return; } // toggle closed if already open
+
+  const res = await fetch(`${API_URL}/products/${id}`);
+  if (!res.ok) return alert('Could not load product');
+  const p = await res.json();
+
+  const catOptions = Object.keys(CATEGORY_META).map(key =>
+    `<option value="${key}" ${key === p.category ? 'selected' : ''}>${CATEGORY_META[key].label}</option>`
+  ).join('');
+
+  const currentImagesHtml = (p.images && p.images.length)
+    ? p.images.map(im => `
+        <div class="a-current-img" id="curimg-${im.id}">
+          <img src="${im.url}">
+          <div class="a-img-remove" onclick="removeProductImage(${id}, ${im.id})">×</div>
+        </div>
+      `).join('')
+    : '<span style="color:var(--muted); font-size:0.85rem;">No images</span>';
+
+  panelWrap.innerHTML = `
+    <div class="a-edit-panel">
+      <div class="a-field"><label>Product Name</label><input type="text" id="edName-${id}" value="${p.name.replace(/"/g,'&quot;')}"></div>
+      <div class="a-field"><label>Description</label><textarea id="edDescription-${id}" rows="3">${p.description || ''}</textarea></div>
+      <div class="a-field"><label>Price (KES)</label><input type="number" id="edPrice-${id}" value="${p.price}"></div>
+      <div class="a-field"><label>Category</label><select id="edCategory-${id}">${catOptions}</select></div>
+      <div class="a-field"><label>Quantity Available</label><input type="number" id="edQuantity-${id}" min="0" value="${p.quantity}"></div>
+      <div class="a-check"><input type="checkbox" id="edIsNew-${id}" ${p.is_new ? 'checked' : ''}><label style="margin:0;text-transform:none;letter-spacing:0;color:var(--ink);">Mark as New</label></div>
+
+      <div class="a-field">
+        <label>Current Images (click × to remove one)</label>
+        <div class="a-current-images" id="curImagesRow-${id}">${currentImagesHtml}</div>
+      </div>
+      <div class="a-field">
+        <label>Add Images (up to ${ADMIN_MAX_IMAGES} total)</label>
+        <input type="file" id="edImageFiles-${id}" accept="image/*" multiple>
+        <div class="a-preview-row" id="edPreviewRow-${id}"></div>
+      </div>
+
+      <a class="btn-primary a-submit" onclick="saveEditedProduct(${id})">Save Changes</a>
+      <div class="a-status" id="edStatus-${id}"></div>
+    </div>
+  `;
+
+  document.getElementById(`edImageFiles-${id}`).addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    document.getElementById(`edPreviewRow-${id}`).innerHTML = files.map(f => `<img src="${URL.createObjectURL(f)}">`).join('');
+  });
+}
+
+async function removeProductImage(productId, imageId){
+  if (!confirm('Remove this image?')) return;
+  const res = await adminFetch(`${API_URL}/admin/products/${productId}/images/${imageId}`, { method: 'DELETE' });
+  if (res.ok){
+    const el = document.getElementById(`curimg-${imageId}`);
+    if (el) el.remove();
+    loadProducts(); // primary image may have changed
+  } else {
+    alert('Could not remove image.');
+  }
+}
+
+async function saveEditedProduct(id){
+  const status = document.getElementById(`edStatus-${id}`);
+  status.textContent = 'Saving...';
+  try {
+    const updateRes = await adminFetch(`${API_URL}/admin/products/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById(`edName-${id}`).value,
+        description: document.getElementById(`edDescription-${id}`).value,
+        price: parseFloat(document.getElementById(`edPrice-${id}`).value),
+        category: document.getElementById(`edCategory-${id}`).value,
+        quantity: parseInt(document.getElementById(`edQuantity-${id}`).value, 10) || 0,
+        is_new: document.getElementById(`edIsNew-${id}`).checked
+      })
+    });
+    if (!updateRes.ok) throw new Error('Failed to update product details');
+
+    const currentImgCount = document.querySelectorAll(`#curImagesRow-${id} .a-current-img`).length;
+    const newFiles = Array.from(document.getElementById(`edImageFiles-${id}`).files);
+    if (newFiles.length > 0){
+      if (currentImgCount + newFiles.length > ADMIN_MAX_IMAGES){
+        throw new Error(`A product can have at most ${ADMIN_MAX_IMAGES} images total (${currentImgCount} already there).`);
+      }
+      for (let i = 0; i < newFiles.length; i++){
+        const file = newFiles[i];
+        status.textContent = `Uploading image ${i + 1} of ${newFiles.length}...`;
+        const dataBase64 = await fileToBase64(file);
+        const uploadRes = await adminFetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name, contentType: file.type, dataBase64 })
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) throw new Error(uploadData.error || `Image ${i + 1} upload failed`);
+
+        const imgRes = await adminFetch(`${API_URL}/admin/products/${id}/images`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ blob_url: uploadData.url, is_primary: currentImgCount === 0 && i === 0, sort_order: currentImgCount + i })
+        });
+        if (!imgRes.ok) throw new Error(`Linking image ${i + 1} failed`);
+      }
+    }
+
+    status.textContent = '✅ Saved!';
+    loadProducts();
+    setTimeout(() => { loadManageList(); }, 500);
+
+  } catch (err) {
+    status.textContent = '❌ ' + err.message;
+  }
+}
 
 loadProducts();
 updateCartUI();

@@ -23,7 +23,7 @@ VALID_CATEGORIES = {
     "kids-xuping-earrings",
     "xuping-necklaces",
     "pearl-necklaces",
-    "P.u-leather-belts",
+    "pu-leather-belts",
     "male-stainless-steel-sets",
     "statement-stainless-earrings",
     "fashion-jewelry-necklace-sets",
@@ -62,7 +62,7 @@ class ProductCreate(BaseModel):
     description: str | None = None
     price: float
     category: str
-    materials: list[str] = []
+    quantity: int = 0
     is_new: bool = False
 
 
@@ -71,7 +71,7 @@ class ProductUpdate(BaseModel):
     description: str | None = None
     price: float
     category: str
-    materials: list[str] = []
+    quantity: int = 0
     is_new: bool = False
 
 
@@ -86,6 +86,14 @@ def read_root():
     return {"status": "running"}
 
 
+@app.get("/admin/ping", dependencies=[Depends(require_admin)])
+def admin_ping():
+    """Used purely to validate an admin password from the client before
+    revealing the admin dashboard \u2014 returns 200 if the secret is correct,
+    401 (via require_admin) otherwise."""
+    return {"ok": True}
+
+
 @app.get("/products")
 def get_products(category: str | None = None):
     conn = get_conn()
@@ -93,7 +101,7 @@ def get_products(category: str | None = None):
     if category:
         cur.execute(
             """
-            SELECT id, name, description, price, category, materials, is_new
+            SELECT id, name, description, price, category, quantity, is_new
             FROM products WHERE category = %s ORDER BY created_at DESC;
             """,
             (category,),
@@ -101,7 +109,7 @@ def get_products(category: str | None = None):
     else:
         cur.execute(
             """
-            SELECT id, name, description, price, category, materials, is_new
+            SELECT id, name, description, price, category, quantity, is_new
             FROM products ORDER BY created_at DESC;
             """
         )
@@ -122,7 +130,7 @@ def get_products(category: str | None = None):
                 "description": r[2],
                 "price": float(r[3]),
                 "category": r[4],
-                "materials": r[5] or [],
+                "quantity": r[5],
                 "is_new": r[6],
                 "image_url": img_row[0] if img_row else None,
             }
@@ -138,7 +146,7 @@ def get_product(product_id: int):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, name, description, price, category, materials, is_new FROM products WHERE id = %s;",
+        "SELECT id, name, description, price, category, quantity, is_new FROM products WHERE id = %s;",
         (product_id,),
     )
     row = cur.fetchone()
@@ -148,10 +156,10 @@ def get_product(product_id: int):
         raise HTTPException(status_code=404, detail="Product not found")
 
     cur.execute(
-        "SELECT blob_url FROM product_images WHERE product_id = %s ORDER BY is_primary DESC, sort_order ASC;",
+        "SELECT id, blob_url FROM product_images WHERE product_id = %s ORDER BY is_primary DESC, sort_order ASC;",
         (product_id,),
     )
-    images = [r[0] for r in cur.fetchall()]
+    images = [{"id": r[0], "url": r[1]} for r in cur.fetchall()]
     cur.close()
     conn.close()
 
@@ -161,7 +169,7 @@ def get_product(product_id: int):
         "description": row[2],
         "price": float(row[3]),
         "category": row[4],
-        "materials": row[5] or [],
+        "quantity": row[5],
         "is_new": row[6],
         "images": images,
     }
@@ -174,11 +182,11 @@ def create_product(product: ProductCreate):
     cur = conn.cursor()
     cur.execute(
         """
-        INSERT INTO products (name, description, price, category, materials, is_new)
+        INSERT INTO products (name, description, price, category, quantity, is_new)
         VALUES (%s, %s, %s, %s, %s, %s)
         RETURNING id;
         """,
-        (product.name, product.description, product.price, product.category, product.materials, product.is_new),
+        (product.name, product.description, product.price, product.category, product.quantity, product.is_new),
     )
     new_id = cur.fetchone()[0]
     conn.commit()
@@ -220,10 +228,28 @@ def add_product_image(product_id: int, image: ProductImageCreate):
     return {"id": new_id, "message": "Image added"}
 
 
+@app.delete("/admin/products/{product_id}/images/{image_id}", dependencies=[Depends(require_admin)])
+def delete_product_image(product_id: int, image_id: int):
+    """Removes a single image from a product. Lets the admin UI offer a
+    per-image remove button instead of only a wipe-and-replace-all flow."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "DELETE FROM product_images WHERE id = %s AND product_id = %s RETURNING id;",
+        (image_id, product_id),
+    )
+    deleted = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Image not found on this product")
+    return {"message": "Image removed"}
+
+
 @app.delete("/admin/products/{product_id}/images", dependencies=[Depends(require_admin)])
 def clear_product_images(product_id: int):
-    """Removes every image on a product. Used by the admin edit form right
-    before uploading a fresh set of 1-3 replacement images."""
+    """Removes every image on a product in one call."""
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("SELECT id FROM products WHERE id = %s;", (product_id,))
@@ -253,16 +279,15 @@ def update_product(product_id: int, product: ProductUpdate):
     cur.execute(
         """
         UPDATE products
-        SET name = %s, description = %s, price = %s, category = %s, materials = %s, is_new = %s
+        SET name = %s, description = %s, price = %s, category = %s, quantity = %s, is_new = %s
         WHERE id = %s;
         """,
-        (product.name, product.description, product.price, product.category, product.materials, product.is_new, product_id),
+        (product.name, product.description, product.price, product.category, product.quantity, product.is_new, product_id),
     )
     conn.commit()
     cur.close()
     conn.close()
     return {"message": "Product updated"}
-
 
 
 @app.delete("/admin/products/{product_id}", dependencies=[Depends(require_admin)])
