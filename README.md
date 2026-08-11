@@ -30,3 +30,4 @@ The current frontend is a static preview  open `frontend/index.html` directly in
 
 ## Contact
 Kiambaa, Ruaka  hello@ruakajewellerydealer.co.ke
+"# jewelry" 
