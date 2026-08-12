@@ -467,7 +467,6 @@
   .wa-btn:hover{transform:scale(1.08);}
   .wa-btn svg{width:28px;height:28px;fill:#fff;}
 
-  /* ---------- Sunzly AI chat widget ---------- */
   .sunzly-bubble{
     position:fixed;bottom:90px;right:24px;z-index:241;
     width:56px;height:56px;border-radius:50%;
@@ -614,7 +613,6 @@
   }
   .auth-note{font-size:0.76rem;color:var(--muted);text-align:center;margin-top:16px;line-height:1.5;}
 
-  /* ── Admin login: banner-crest layout ───────────────────────────────── */
   .msu-box{max-width:400px;padding:0;overflow:visible;text-align:left;}
   .msu-banner{
     height:92px;background:linear-gradient(135deg, var(--ink) 0%, #3a2f22 100%);
@@ -884,7 +882,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M8 7V5a4 4 0 018 0v2"/></svg>
         <div>
           <span class="shop-detail-label">Hours</span>
-          <p>Monday  Saturday: 8:00 AM  10:00 PM</p>
+          <p>Monday &ndash; Saturday: 8:00 AM &ndash; 10:00 PM</p>
         </div>
       </div>
       <div class="shop-detail">
@@ -910,7 +908,7 @@
     <h3>Certified Materials</h3>
     <p>Emerald, Silver, Brass, Gold-plated, Genuine Leather products, Pearl products.</p>
   </div>
-  <div class="trust-item">
+  <div class="trust-item" id="delivery-info">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M8 7V5a4 4 0 018 0v2"/></svg>
     <h3>Ruaka Delivery</h3>
     <p>New deliveries Every week, gift-boxed.<br>Deliveries done country-wide</p>
@@ -921,7 +919,7 @@
   <div class="footer-grid">
     <div>
       <div class="logo" style="margin-bottom:14px;">Sj Gems Jewelry Store<span>.</span></div>
-      <p style="max-width:260px;">crafted gold and silver jewelry, designed are available at our store in Ruaka, Kenya.</p>
+      <p style="max-width:260px;">Handcrafted gold and silver jewelry, cast and set by hand at our store in Ruaka, Kenya.</p>
     </div>
     <div>
       <h4>Shop</h4>
@@ -929,12 +927,12 @@
     </div>
     <div>
       <h4>Help</h4>
-      <a href="#">Delivery</a><a href="#">Returns</a><a href="#">Sizing Guide</a><a href="#">Contact</a>
+      <a href="#delivery-info">Delivery</a><a href="https://wa.me/254741573866" target="_blank" rel="noopener">Returns</a><a href="https://wa.me/254741573866" target="_blank" rel="noopener">Sizing Guide</a><a href="#contact">Contact</a>
     </div>
     <div id="contact">
       <h4>Visit</h4>
       <p>Ruaka, Kiambu</p>
-      <p>hello@Sj Gems Jewelry Store.co.ke</p>
+      <p>hello@sjgemsjewelrystore.co.ke</p>
       <p>+254741573866</p>
       <div class="footer-socials">
         <a href="https://wa.me/254741573866" target="_blank" rel="noopener" aria-label="WhatsApp">
@@ -984,7 +982,6 @@
   <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.7-.8-2-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.2-.1.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.5 7.8 9.3 7.3c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2.1 3.2 5.1 4.4.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4z"/><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20z"/></svg>
 </a>
 
-<!-- Sunzly AI chat widget -->
 <button class="sunzly-bubble" id="sunzlyBubble" aria-label="Chat with Sunzly AI" onclick="toggleSunzly()">
   <span class="sunzly-dot" id="sunzlyDot"></span>
   <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-8.9 8.4 8.6 8.6 0 01-3.4-.8L3 20l1.1-5.5A8.4 8.4 0 013.6 12 8.4 8.4 0 0112 3.6a8.4 8.4 0 019 7.9z"/></svg>
@@ -1279,7 +1276,7 @@ function addToCart(id){
   if(!product || product.quantity <= 0) return;
   const existing = cart.find(i => i.id === id);
   if(existing){
-    if(existing.qty >= product.quantity) return; // don't exceed available stock
+    if(existing.qty >= product.quantity) return;
     existing.qty++;
   } else {
     cart.push({...product, qty:1});
@@ -1291,7 +1288,7 @@ function addToCart(id){
 function changeQty(id, delta){
   const item = cart.find(i => i.id === id);
   if(!item) return;
-  if(delta > 0 && item.qty >= item.quantity) return; // don't exceed available stock
+  if(delta > 0 && item.qty >= item.quantity) return;
   item.qty += delta;
   if(item.qty <= 0) cart = cart.filter(i => i.id !== id);
   updateCartUI();
@@ -1670,11 +1667,8 @@ async function loadCustomersList(){
 
 const ADMIN_MAX_IMAGES = 3;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
-// Client-side check only speeds up feedback -- the server (upload.js)
-// re-validates type and size itself, since client checks are trivially
-// bypassed by anyone calling the API directly.
 function invalidImageReason(file){
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return `"${file.name}" isn't a supported image type (jpg, png, webp, gif only).`;
   if (file.size > MAX_IMAGE_BYTES) return `"${file.name}" is over the 5MB limit.`;
@@ -1818,7 +1812,7 @@ async function deleteManagedProduct(id){
 
 async function openEditPanel(id){
   const panelWrap = document.getElementById(`editpanel-${id}`);
-  if (panelWrap.innerHTML) { panelWrap.innerHTML = ''; return; } // toggle closed if already open
+  if (panelWrap.innerHTML) { panelWrap.innerHTML = ''; return; }
 
   const res = await fetch(`${API_URL}/products/${id}`);
   if (!res.ok) return alert('Could not load product');
@@ -1880,7 +1874,7 @@ async function removeProductImage(productId, imageId){
   if (res.ok){
     const el = document.getElementById(`curimg-${imageId}`);
     if (el) el.remove();
-    loadProducts(); // primary image may have changed
+    loadProducts();
   } else {
     alert('Could not remove image.');
   }
@@ -1940,7 +1934,6 @@ async function saveEditedProduct(id){
   }
 }
 
-/* ================= Sunzly AI  rule-based storefront assistant ================= */
 const SUNZLY_WA_NUMBER = "254741573866";
 const SUNZLY_STORE_NAME = "Sj Gems Jewelry Store";
 let sunzlyOpened = false;
@@ -1997,7 +1990,7 @@ const SUNZLY_FAQ = [
   },
   {
     test: /\b(new|latest|new arrivals|just in|newest)\b/,
-    reply: null, // handled dynamically below
+    reply: null,
     dynamic: "newArrivals"
   }
 ];
@@ -2069,7 +2062,6 @@ function sunzlyEscalate(reason, msg, userText){
 function sunzlyRespond(text){
   const lower = text.toLowerCase();
 
-  // 1. Escalation triggers take priority
   for (const rule of SUNZLY_ESCALATION) {
     if (rule.test.test(lower)) {
       sunzlyEscalate(rule.reason, rule.msg, text);
@@ -2077,19 +2069,16 @@ function sunzlyRespond(text){
     }
   }
 
-  // 2. Greetings
   if (/\b(hi|hello|hey|habari|mambo|niaje)\b/.test(lower)) {
     sunzlyRenderMessage("bot", `Hi! I'm Sunzly AI 👋 How can I help  delivery, payment, or finding a piece from our collection?`);
     return;
   }
 
-  // 3. About the bot
   if (/\b(who are you|what are you|sunzly)\b/.test(lower)) {
     sunzlyRenderMessage("bot", `I'm Sunzly AI, the assistant for ${SUNZLY_STORE_NAME}. I can help with delivery, payment, materials, and finding pieces in our catalogue  and I'll bring in our team for anything trickier.`);
     return;
   }
 
-  // 4. Thanks / bye
   if (/\b(thank you|thanks|asante|cheers)\b/.test(lower)) {
     sunzlyRenderMessage("bot", "You're welcome! Anything else I can help with?");
     return;
@@ -2099,7 +2088,6 @@ function sunzlyRespond(text){
     return;
   }
 
-  // 5. Static FAQ rules
   for (const rule of SUNZLY_FAQ) {
     if (rule.test.test(lower)) {
       if (rule.dynamic === "newArrivals") {
@@ -2116,14 +2104,12 @@ function sunzlyRespond(text){
     }
   }
 
-  // 6. Product catalogue search
   const matches = sunzlySearchProducts(text);
   if (matches.length) {
     sunzlyRenderMessage("bot", `Here's what I found in our collection:${sunzlyProductListHtml(matches)}Scroll down to the Collection section to see more, or ask me anything else.`);
     return;
   }
 
-  // 7. Fallback  can't answer confidently
   sunzlyEscalate("unsure", "I'm not fully sure about that one  let me connect you with our team so they can help directly.", text);
 }
 

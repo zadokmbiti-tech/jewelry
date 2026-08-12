@@ -17,7 +17,6 @@ load_dotenv()
 
 app = FastAPI()
 
-# ── Rate limiting (per-IP, applied per-route below) ─────────────────────────
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -26,7 +25,7 @@ _default_origins = [
     "http://localhost:5500",
     "http://127.0.0.1:5500",
     "http://localhost:3000",
-    "https://sjgemsjewelryhomepage.vercel.app/",
+    "https://sjgemsjewelryhomepage.vercel.app",
 ]
 _env_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
 ALLOWED_ORIGINS = _env_origins or _default_origins
