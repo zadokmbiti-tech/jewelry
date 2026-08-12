@@ -22,13 +22,11 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# ── CORS: restrict to known frontend origins instead of "*" ────────────────
-# Set ALLOWED_ORIGINS in the environment as a comma-separated list, e.g.
-# "https://your-storefront.vercel.app,https://yourdomain.co.ke"
 _default_origins = [
     "http://localhost:5500",
     "http://127.0.0.1:5500",
     "http://localhost:3000",
+    "https://sjgemsjewelryhomepage.vercel.app/",
 ]
 _env_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
 ALLOWED_ORIGINS = _env_origins or _default_origins
@@ -55,7 +53,6 @@ VALID_CATEGORIES = {
 
 MAX_PRODUCT_IMAGES = 3
 
-# ── Simple input sanitization helpers ───────────────────────────────────────
 _TAG_RE = re.compile(r"<[^>]*>")
 _KENYA_PHONE_RE = re.compile(r"^(?:\+254|0)7\d{8}$|^(?:\+254|0)1\d{8}$")
 
@@ -70,10 +67,9 @@ def get_conn():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
 
 
-# ── Admin auth: constant-time comparison + IP lockout after repeated fails ─
 _failed_attempts: dict[str, list[float]] = defaultdict(list)
 LOCKOUT_THRESHOLD = 5
-LOCKOUT_WINDOW_SECONDS = 15 * 60  # failures older than this don't count
+LOCKOUT_WINDOW_SECONDS = 15 * 60
 LOCKOUT_DURATION_SECONDS = 15 * 60
 
 
@@ -104,14 +100,10 @@ def require_admin(
     consecutive failures, with the same generic message either way."""
     expected = os.getenv("ADMIN_SECRET")
     if not expected:
-        # Fail closed: if the server isn't configured with a secret, refuse
-        # rather than silently letting everyone in.
         raise HTTPException(status_code=500, detail="Server misconfigured: ADMIN_SECRET not set")
 
     ip = get_remote_address(request)
     if _is_locked_out(ip):
-        # Same generic message as a bad secret -- never reveal *why* access
-        # was denied (wrong secret vs. too many attempts).
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     provided = x_admin_secret or ""
