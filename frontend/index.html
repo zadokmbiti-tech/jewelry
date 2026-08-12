@@ -614,6 +614,44 @@
   }
   .auth-note{font-size:0.76rem;color:var(--muted);text-align:center;margin-top:16px;line-height:1.5;}
 
+  /* ── Admin login: banner-crest layout ───────────────────────────────── */
+  .msu-box{max-width:400px;padding:0;overflow:visible;text-align:left;}
+  .msu-banner{
+    height:92px;background:linear-gradient(135deg, var(--ink) 0%, #3a2f22 100%);
+    position:relative;border-radius:6px 6px 0 0;
+  }
+  .msu-crest{
+    position:absolute;left:50%;bottom:-34px;transform:translateX(-50%);
+    width:76px;height:76px;border-radius:50%;background:#fff;
+    border:3px solid var(--gold);box-shadow:0 8px 20px rgba(30,24,16,0.25);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .msu-crest img{width:100%;height:100%;object-fit:cover;}
+  .msu-body{padding:46px 34px 30px;}
+  .msu-title{text-align:center;margin-bottom:26px;}
+  .msu-title h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--ink);}
+  .msu-title p{color:var(--muted);font-size:0.8rem;margin-top:4px;}
+  .msu-row{
+    display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  }
+  .msu-row label{
+    flex:none;width:78px;font-size:0.85rem;font-weight:600;color:var(--ink);
+  }
+  .msu-row .auth-field{flex:1;margin-bottom:0;}
+  .msu-divider{height:1px;background:var(--line);margin:22px 0 20px;}
+  .msu-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+  .msu-forgot{
+    font-size:0.82rem;color:var(--gold);background:none;border:none;cursor:pointer;
+    text-decoration:underline;padding:0;font-family:inherit;
+  }
+  .msu-signin{
+    padding:12px 26px;border-radius:8px;font-size:0.88rem;flex:none;
+  }
+  @media (max-width:520px){
+    .msu-row{flex-direction:column;align-items:flex-start;gap:6px;}
+    .msu-row label{width:auto;}
+  }
+
   .admin-panel{
     position:fixed;inset:0;z-index:300;background:var(--bg);
     transform:translateY(100%);transition:transform .4s ease;
@@ -981,23 +1019,32 @@
 </div>
 
 <div class="modal" id="adminLoginModal">
-  <div class="modal-box auth-box">
+  <div class="modal-box msu-box">
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="auth-head">
-      <div class="auth-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></div>
-      <h3>Admin Login</h3>
-      <p>Manage the Sj Gems Jewelry Store catalogue</p>
+    <div class="msu-banner">
+      <div class="msu-crest"><img src="data:image/png;base64,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" alt="Sj Gems logo"></div>
     </div>
-    <div class="auth-body">
-      <div class="auth-err" id="adminLoginErr">Incorrect password.</div>
-      <div class="auth-field">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
-        <input type="password" id="adminPasswordInput" placeholder="Admin password" autocomplete="off" onkeydown="if(event.key==='Enter')submitAdminLogin()">
-        <button type="button" class="auth-toggle-pw" onclick="toggleAdminPwVisibility()" aria-label="Show password">
-          <svg id="adminPwEye" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
+    <div class="msu-body">
+      <div class="msu-title">
+        <h3>Admin Login</h3>
+        <p>Manage the Sj Gems Jewelry Store catalogue</p>
       </div>
-      <a class="btn-primary" onclick="submitAdminLogin()">Log In</a>
+      <div class="auth-err" id="adminLoginErr">Incorrect password.</div>
+      <div class="msu-row">
+        <label for="adminPasswordInput">Password:</label>
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+          <input type="password" id="adminPasswordInput" placeholder="Password" autocomplete="off" onkeydown="if(event.key==='Enter')submitAdminLogin()">
+          <button type="button" class="auth-toggle-pw" onclick="toggleAdminPwVisibility()" aria-label="Show password">
+            <svg id="adminPwEye" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="msu-divider"></div>
+      <div class="msu-actions">
+        <button type="button" class="msu-forgot" onclick="alert('Contact the store owner to reset the admin password.')">Forgot password?</button>
+        <a class="btn-primary msu-signin" onclick="submitAdminLogin()">Sign In</a>
+      </div>
       <p class="auth-note">Restricted to store administrators only.</p>
     </div>
   </div>
