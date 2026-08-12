@@ -467,6 +467,97 @@
   .wa-btn:hover{transform:scale(1.08);}
   .wa-btn svg{width:28px;height:28px;fill:#fff;}
 
+  /* ---------- Sunzly AI chat widget ---------- */
+  .sunzly-bubble{
+    position:fixed;bottom:90px;right:24px;z-index:241;
+    width:56px;height:56px;border-radius:50%;
+    background:linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 100%);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 24px rgba(184,134,11,0.45);
+    transition:transform .25s ease;
+  }
+  .sunzly-bubble:hover{transform:scale(1.08);}
+  .sunzly-bubble svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.6;}
+  .sunzly-bubble .sunzly-dot{
+    position:absolute;top:-2px;right:-2px;width:14px;height:14px;border-radius:50%;
+    background:#e0433f;border:2px solid var(--bg);
+  }
+
+  .sunzly-panel{
+    position:fixed;bottom:158px;right:24px;z-index:240;
+    width:350px;max-width:calc(100vw - 32px);
+    height:min(520px, 70vh);
+    background:var(--bg);border-radius:16px;overflow:hidden;
+    box-shadow:0 20px 50px rgba(34,28,22,0.25);
+    display:flex;flex-direction:column;
+    opacity:0;visibility:hidden;transform:translateY(16px);
+    transition:opacity .22s ease, transform .22s ease, visibility .22s;
+    border:1px solid var(--line);
+  }
+  .sunzly-panel.open{opacity:1;visibility:visible;transform:translateY(0);}
+
+  .sunzly-head{
+    background:linear-gradient(135deg, var(--ink) 0%, #3a2f22 100%);
+    padding:16px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;
+  }
+  .sunzly-head-icon{
+    width:34px;height:34px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 100%);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .sunzly-head-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.8;}
+  .sunzly-head-text h4{color:#fff;font-family:'Jost',sans-serif;font-weight:500;font-size:0.92rem;letter-spacing:0.02em;}
+  .sunzly-head-text p{color:rgba(255,255,255,0.55);font-size:0.7rem;margin-top:1px;}
+  .sunzly-head-close{margin-left:auto;flex-shrink:0;}
+  .sunzly-head-close svg{width:18px;height:18px;stroke:rgba(255,255,255,0.7);fill:none;stroke-width:1.6;}
+  .sunzly-head-close:hover svg{stroke:#fff;}
+
+  .sunzly-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--surface);}
+  .sunzly-msg{max-width:84%;padding:9px 13px;border-radius:14px;font-size:0.85rem;line-height:1.5;}
+  .sunzly-msg.bot{background:#fff;color:var(--ink);align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 2px 6px rgba(34,28,22,0.06);}
+  .sunzly-msg.user{background:var(--ink);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+  .sunzly-msg ul{margin:6px 0 0 16px;}
+  .sunzly-msg li{margin-bottom:3px;}
+
+  .sunzly-typing{align-self:flex-start;background:#fff;border-radius:14px;border-bottom-left-radius:4px;padding:11px 14px;box-shadow:0 2px 6px rgba(34,28,22,0.06);display:flex;gap:4px;}
+  .sunzly-typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:0.5;animation:sunzlyBlink 1.2s infinite;}
+  .sunzly-typing span:nth-child(2){animation-delay:.2s;}
+  .sunzly-typing span:nth-child(3){animation-delay:.4s;}
+  @keyframes sunzlyBlink{0%,80%,100%{opacity:0.3;}40%{opacity:1;}}
+
+  .sunzly-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;flex-shrink:0;background:var(--surface);}
+  .sunzly-chip{
+    font-size:0.72rem;padding:6px 12px;border-radius:20px;background:#fff;
+    border:1px solid var(--line);color:var(--ink);white-space:nowrap;transition:background .2s ease;
+  }
+  .sunzly-chip:hover{background:var(--xuping-sets);}
+
+  .sunzly-handoff-btn{
+    display:inline-flex;align-items:center;gap:6px;margin-top:8px;
+    background:#25D366;color:#fff;padding:8px 14px;border-radius:20px;font-size:0.78rem;font-weight:500;
+  }
+  .sunzly-handoff-btn svg{width:14px;height:14px;fill:#fff;}
+
+  .sunzly-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);flex-shrink:0;background:var(--bg);}
+  .sunzly-input-row input{
+    flex:1;border:1px solid var(--line);border-radius:20px;padding:9px 14px;font-size:0.85rem;
+    font-family:inherit;color:var(--ink);background:var(--surface);
+  }
+  .sunzly-input-row input:focus{outline:none;border-color:var(--gold);}
+  .sunzly-send{
+    width:36px;height:36px;border-radius:50%;background:var(--gold);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;transition:background .2s ease;
+  }
+  .sunzly-send:hover{background:var(--gold-bright);}
+  .sunzly-send svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;}
+
+  @media(max-width:480px){
+    .sunzly-panel{
+      right:12px;left:12px;bottom:88px;width:auto;max-width:none;height:66vh;
+    }
+    .sunzly-bubble{right:16px;bottom:84px;}
+  }
+
   .auth-box{
     max-width:380px;text-align:center;padding:0;overflow:hidden;position:relative;
   }
@@ -856,6 +947,40 @@
   <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.7-.8-2-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.2-.1.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.5 7.8 9.3 7.3c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2.1 3.2 5.1 4.4.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4z"/><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20z"/></svg>
 </a>
 
+<!-- Sunzly AI chat widget -->
+<button class="sunzly-bubble" id="sunzlyBubble" aria-label="Chat with Sunzly AI" onclick="toggleSunzly()">
+  <span class="sunzly-dot" id="sunzlyDot"></span>
+  <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-8.9 8.4 8.6 8.6 0 01-3.4-.8L3 20l1.1-5.5A8.4 8.4 0 013.6 12 8.4 8.4 0 0112 3.6a8.4 8.4 0 019 7.9z"/></svg>
+</button>
+
+<div class="sunzly-panel" id="sunzlyPanel">
+  <div class="sunzly-head">
+    <div class="sunzly-head-icon">
+      <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-8.9 8.4 8.6 8.6 0 01-3.4-.8L3 20l1.1-5.5A8.4 8.4 0 013.6 12 8.4 8.4 0 0112 3.6a8.4 8.4 0 019 7.9z"/></svg>
+    </div>
+    <div class="sunzly-head-text">
+      <h4>Sunzly AI</h4>
+      <p>Sj Gems Jewelry Store assistant</p>
+    </div>
+    <button class="sunzly-head-close" aria-label="Close chat" onclick="toggleSunzly(false)">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="sunzly-body" id="sunzlyBody"></div>
+  <div class="sunzly-chips" id="sunzlyChips">
+    <button class="sunzly-chip" onclick="sunzlySend('Delivery info')">Delivery</button>
+    <button class="sunzly-chip" onclick="sunzlySend('How do I pay?')">Payment</button>
+    <button class="sunzly-chip" onclick="sunzlySend('Show me new arrivals')">New arrivals</button>
+    <button class="sunzly-chip" onclick="sunzlySend('I want to talk to a human')">Talk to a human</button>
+  </div>
+  <div class="sunzly-input-row">
+    <input type="text" id="sunzlyInput" placeholder="Ask about delivery, payment, products…" onkeydown="if(event.key==='Enter')sunzlySend()">
+    <button class="sunzly-send" aria-label="Send" onclick="sunzlySend()">
+      <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+    </button>
+  </div>
+</div>
+
 <div class="modal" id="adminLoginModal">
   <div class="modal-box auth-box">
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -989,10 +1114,15 @@ function normalizeProduct(p) {
     price: p.price,
     desc: p.description || "",
     quantity: typeof p.quantity === "number" ? p.quantity : 0,
+    isNew: !!p.is_new,
     color: meta.color,
     ink: meta.ink,
     img: p.image_url || PLACEHOLDER_IMG,
   };
+}
+
+function escapeHtml(str){
+  return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 function stockInfo(qty){
@@ -1049,11 +1179,11 @@ function renderGrid(filter=currentCategory){
         <div class="wish" onclick="event.stopPropagation(); this.classList.toggle('active')">
           <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg>
         </div>
-        <img class="tray-img" src="${p.img}" alt="${p.name}" loading="lazy">
+        <img class="tray-img" src="${escapeHtml(p.img)}" alt="${escapeHtml(p.name)}" loading="lazy">
       </div>
       <div class="card-info">
-        <div class="card-cat">${p.catLabel}</div>
-        <div class="card-name">${p.name}</div>
+        <div class="card-cat">${escapeHtml(p.catLabel)}</div>
+        <div class="card-name">${escapeHtml(p.name)}</div>
         ${badge ? `<div style="margin-bottom:8px;">${badge}</div>` : ''}
         <div class="card-row">
           <span class="price">${fmt(p.price)}</span>
@@ -1124,10 +1254,10 @@ function updateCartUI(){
     wrap.innerHTML = cart.map(i => `
       <div class="drawer-item">
         <div class="tray" style="background:var(--${i.color})">
-          <img class="tray-img" src="${i.img}" alt="${i.name}" loading="lazy">
+          <img class="tray-img" src="${escapeHtml(i.img)}" alt="${escapeHtml(i.name)}" loading="lazy">
         </div>
         <div class="di-info">
-          <div class="card-name">${i.name}</div>
+          <div class="card-name">${escapeHtml(i.name)}</div>
           <div class="price">${fmt(i.price)}</div>
           <div class="di-qty">
             <button onclick="changeQty(${i.id}, -1)">−</button>
@@ -1145,7 +1275,7 @@ function updateCartUI(){
 
 function modalMarkup(p, images){
   const thumbs = images.length > 1
-    ? `<div class="modal-thumbs">${images.map((src,idx) => `<img src="${src}" class="${idx===0?'active':''}" onclick="event.stopPropagation(); swapModalImage(this,'${src}')">`).join('')}</div>`
+    ? `<div class="modal-thumbs">${images.map((src,idx) => `<img src="${escapeHtml(src)}" class="${idx===0?'active':''}" onclick="event.stopPropagation(); swapModalImage(this, ${JSON.stringify(src)})">`).join('')}</div>`
     : '';
   const stock = stockInfo(p.quantity);
   const stockLine = p.quantity <= 0
@@ -1157,14 +1287,14 @@ function modalMarkup(p, images){
   return `
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="modal-tray" style="background:var(--${p.color});">
-      <img class="tray-img" id="modalMainImg" src="${images[0] || p.img}" alt="${p.name}" loading="lazy">
+      <img class="tray-img" id="modalMainImg" src="${escapeHtml(images[0] || p.img)}" alt="${escapeHtml(p.name)}" loading="lazy">
       ${thumbs}
     </div>
     <div class="modal-info">
-      <div class="card-cat">${p.catLabel}</div>
-      <h2>${p.name}</h2>
+      <div class="card-cat">${escapeHtml(p.catLabel)}</div>
+      <h2>${escapeHtml(p.name)}</h2>
       <div class="modal-price">${fmt(p.price)}</div>
-      <p class="modal-desc">${p.desc}</p>
+      <p class="modal-desc">${escapeHtml(p.desc)}</p>
       ${stockLine}
       ${addBtn}
     </div>
@@ -1254,7 +1384,7 @@ function adminFetch(url, options = {}){
 
 function openAdminEntry(){
   if (getAdminSecret()){
-    adminFetch(`${API_URL}/admin/ping`).then(res => {
+    adminFetch(`${API_URL}/admin/ping`, { method: 'POST' }).then(res => {
       if (res.ok) { openAdminPanel(); } else { sessionStorage.removeItem(ADMIN_STORAGE_KEY); showAdminLogin(); }
     }).catch(() => showAdminLogin());
     return;
@@ -1276,7 +1406,7 @@ async function submitAdminLogin(){
   if (!pw) return;
   sessionStorage.setItem(ADMIN_STORAGE_KEY, pw);
   try {
-    const res = await adminFetch(`${API_URL}/admin/ping`);
+    const res = await adminFetch(`${API_URL}/admin/ping`, { method: 'POST' });
     if (res.ok) {
       closeAll();
       openAdminPanel();
@@ -1378,12 +1508,30 @@ function showAdminTab(tab){
 }
 
 const ADMIN_MAX_IMAGES = 3;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
+
+// Client-side check only speeds up feedback -- the server (upload.js)
+// re-validates type and size itself, since client checks are trivially
+// bypassed by anyone calling the API directly.
+function invalidImageReason(file){
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return `"${file.name}" isn't a supported image type (jpg, png, webp, gif only).`;
+  if (file.size > MAX_IMAGE_BYTES) return `"${file.name}" is over the 5MB limit.`;
+  return null;
+}
 
 document.getElementById('apImageFiles').addEventListener('change', function(e){
   const files = Array.from(e.target.files);
   const status = document.getElementById('apStatus');
   if (files.length > ADMIN_MAX_IMAGES){
     status.textContent = `❌ Choose at most ${ADMIN_MAX_IMAGES} images.`;
+    e.target.value = '';
+    document.getElementById('apPreviewRow').innerHTML = '';
+    return;
+  }
+  const badFile = files.map(invalidImageReason).find(Boolean);
+  if (badFile){
+    status.textContent = `❌ ${badFile}`;
     e.target.value = '';
     document.getElementById('apPreviewRow').innerHTML = '';
     return;
@@ -1486,10 +1634,10 @@ async function loadManageList(){
     }
     list.innerHTML = products.map(p => `
       <div class="a-prow" id="prow-${p.id}">
-        <img src="${p.image_url || 'https://placehold.co/100x100?text=No+Image'}" alt="${p.name}">
+        <img src="${escapeHtml(p.image_url || 'https://placehold.co/100x100?text=No+Image')}" alt="${escapeHtml(p.name)}">
         <div class="a-pinfo">
-          <div class="a-pname">${p.name}</div>
-          <div class="a-pmeta">${fmt(p.price)}  ${(CATEGORY_META[p.category]||{label:p.category}).label}  Qty: ${p.quantity}</div>
+          <div class="a-pname">${escapeHtml(p.name)}</div>
+          <div class="a-pmeta">${fmt(p.price)}  ${escapeHtml((CATEGORY_META[p.category]||{label:p.category}).label)}  Qty: ${p.quantity}</div>
         </div>
         <button onclick="openEditPanel(${p.id})">Edit</button>
         <button class="a-del" onclick="deleteManagedProduct(${p.id})">Delete</button>
@@ -1522,7 +1670,7 @@ async function openEditPanel(id){
   const currentImagesHtml = (p.images && p.images.length)
     ? p.images.map(im => `
         <div class="a-current-img" id="curimg-${im.id}">
-          <img src="${im.url}">
+          <img src="${escapeHtml(im.url)}">
           <div class="a-img-remove" onclick="removeProductImage(${id}, ${im.id})">×</div>
         </div>
       `).join('')
@@ -1530,8 +1678,8 @@ async function openEditPanel(id){
 
   panelWrap.innerHTML = `
     <div class="a-edit-panel">
-      <div class="a-field"><label>Product Name</label><input type="text" id="edName-${id}" value="${p.name.replace(/"/g,'&quot;')}"></div>
-      <div class="a-field"><label>Description</label><textarea id="edDescription-${id}" rows="3">${p.description || ''}</textarea></div>
+      <div class="a-field"><label>Product Name</label><input type="text" id="edName-${id}" value="${escapeHtml(p.name)}"></div>
+      <div class="a-field"><label>Description</label><textarea id="edDescription-${id}" rows="3">${escapeHtml(p.description || '')}</textarea></div>
       <div class="a-field"><label>Price (KES)</label><input type="number" id="edPrice-${id}" value="${p.price}"></div>
       <div class="a-field"><label>Category</label><select id="edCategory-${id}">${catOptions}</select></div>
       <div class="a-field"><label>Quantity Available</label><input type="number" id="edQuantity-${id}" min="0" value="${p.quantity}"></div>
@@ -1554,6 +1702,13 @@ async function openEditPanel(id){
 
   document.getElementById(`edImageFiles-${id}`).addEventListener('change', (e) => {
     const files = Array.from(e.target.files);
+    const badFile = files.map(invalidImageReason).find(Boolean);
+    if (badFile){
+      alert(badFile);
+      e.target.value = '';
+      document.getElementById(`edPreviewRow-${id}`).innerHTML = '';
+      return;
+    }
     document.getElementById(`edPreviewRow-${id}`).innerHTML = files.map(f => `<img src="${URL.createObjectURL(f)}">`).join('');
   });
 }
@@ -1621,6 +1776,223 @@ async function saveEditedProduct(id){
 
   } catch (err) {
     status.textContent = '❌ ' + err.message;
+  }
+}
+
+/* ================= Sunzly AI  rule-based storefront assistant ================= */
+const SUNZLY_WA_NUMBER = "254741573866";
+const SUNZLY_STORE_NAME = "Sj Gems Jewelry Store";
+let sunzlyOpened = false;
+let sunzlyBusy = false;
+
+const SUNZLY_ESCALATION = [
+  {
+    reason: "human",
+    test: /\b(human|real person|speak to (someone|somebody)|talk to (someone|somebody)|customer care|customer support|representative|agent)\b/,
+    msg: "Sure  connecting you with our team on WhatsApp now."
+  },
+  {
+    reason: "complaint",
+    test: /\b(complain|complaint|refund|broken|damaged|wrong (item|order|product)|not happy|unhappy|angry|disappointed|poor quality|faulty|defective|scam|cheated|exchange)\b/,
+    msg: "I'm sorry to hear that. This is best handled directly by our team  let me connect you on WhatsApp."
+  },
+  {
+    reason: "order",
+    test: /\b(my order|order status|track (my )?order|where is my order|haven'?t received|did ?n'?t receive|cancel (my )?order)\b/,
+    msg: "For order status or changes, our team can look that up for you directly  connecting you on WhatsApp."
+  },
+  {
+    reason: "negotiate",
+    test: /\b(negotiate|discount|lower the price|reduce the price|best price|bargain|lowest price|cheaper price|can you reduce)\b/,
+    msg: "For special pricing, our team can chat with you directly  connecting you on WhatsApp."
+  },
+  {
+    reason: "policy",
+    test: /\b(return polic|returns polic|sizing guide|ring size|what size|size guide)\b/,
+    msg: "For exact sizing and returns details on a specific piece, our team can confirm that for you  connecting you on WhatsApp."
+  }
+];
+
+const SUNZLY_FAQ = [
+  {
+    test: /\b(deliver|delivery|shipping|ship|how long|when will i get)\b/,
+    reply: "We deliver country-wide from our Ruaka store, with new stock arriving every week, gift-boxed. Exact delivery time depends on your location  happy to have our team confirm timing if you'd like."
+  },
+  {
+    test: /\b(mpesa|m-pesa|pay|payment|checkout|stk)\b/,
+    reply: "Checkout is by M-Pesa: add items to your bag, tap <strong>Checkout with M-Pesa</strong>, and you'll get an STK push on your phone  just enter your PIN to complete the order."
+  },
+  {
+    test: /\b(material|materials|gold|silver|plated|genuine|real gold|certified)\b/,
+    reply: "Our pieces use certified materials  Emerald, Silver, Brass and Gold-plated metals, plus genuine leather and pearl products."
+  },
+  {
+    test: /\b(location|address|where are you|shop location|find you|visit|directions)\b/,
+    reply: `You'll find us in Ruaka, Kiambu. You can also reach us on WhatsApp/call at +${SUNZLY_WA_NUMBER.replace(/^254/, "254 ")} or email hello@sjgemsjewelrystore.co.ke.`
+  },
+  {
+    test: /\b(open|hours|opening time|closing time)\b/,
+    reply: "For our exact opening hours, our team can confirm on WhatsApp  they're quick to respond!"
+  },
+  {
+    test: /\b(new|latest|new arrivals|just in|newest)\b/,
+    reply: null, // handled dynamically below
+    dynamic: "newArrivals"
+  }
+];
+
+function sunzlyTokenize(s){
+  return s.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(t => t.length >= 3);
+}
+
+function sunzlySearchProducts(text){
+  const tokens = sunzlyTokenize(text);
+  if (!tokens.length || !PRODUCTS.length) return [];
+  const scored = PRODUCTS.map(p => {
+    const hay = `${p.name} ${p.catLabel} ${p.cat}`.toLowerCase();
+    let score = 0;
+    tokens.forEach(t => { if (hay.includes(t)) score++; });
+    return { p, score };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+  return scored.slice(0, 3).map(x => x.p);
+}
+
+function sunzlyProductListHtml(products){
+  const items = products.map(p => {
+    const stock = stockInfo(p.quantity);
+    const stockTxt = stock ? `  <em>${stock.text}</em>` : "";
+    return `<li>${p.name} (${p.catLabel})  ${fmt(p.price)}${stockTxt}</li>`;
+  }).join("");
+  return `<ul>${items}</ul>`;
+}
+
+function sunzlyHandoffLink(userText){
+  const preset = `Hi! I was chatting with Sunzly AI on the site about: "${userText.slice(0, 180)}". Could you help me further?`;
+  return `https://wa.me/${SUNZLY_WA_NUMBER}?text=${encodeURIComponent(preset)}`;
+}
+
+function sunzlyRenderMessage(role, html){
+  const body = document.getElementById("sunzlyBody");
+  const div = document.createElement("div");
+  div.className = `sunzly-msg ${role}`;
+  div.innerHTML = html;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+
+function sunzlyShowTyping(){
+  const body = document.getElementById("sunzlyBody");
+  const div = document.createElement("div");
+  div.className = "sunzly-typing";
+  div.id = "sunzlyTypingIndicator";
+  div.innerHTML = "<span></span><span></span><span></span>";
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+
+function sunzlyHideTyping(){
+  const el = document.getElementById("sunzlyTypingIndicator");
+  if (el) el.remove();
+}
+
+function sunzlyEscalate(reason, msg, userText){
+  const link = sunzlyHandoffLink(userText);
+  const html = `${msg}
+    <a class="sunzly-handoff-btn" href="${link}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.7-.8-2-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.2-.1.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.5 7.8 9.3 7.3c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2.1 3.2 5.1 4.4.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4z"/><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20z"/></svg>
+      Continue on WhatsApp
+    </a>`;
+  sunzlyRenderMessage("bot", html);
+}
+
+function sunzlyRespond(text){
+  const lower = text.toLowerCase();
+
+  // 1. Escalation triggers take priority
+  for (const rule of SUNZLY_ESCALATION) {
+    if (rule.test.test(lower)) {
+      sunzlyEscalate(rule.reason, rule.msg, text);
+      return;
+    }
+  }
+
+  // 2. Greetings
+  if (/\b(hi|hello|hey|habari|mambo|niaje)\b/.test(lower)) {
+    sunzlyRenderMessage("bot", `Hi! I'm Sunzly AI 👋 How can I help  delivery, payment, or finding a piece from our collection?`);
+    return;
+  }
+
+  // 3. About the bot
+  if (/\b(who are you|what are you|sunzly)\b/.test(lower)) {
+    sunzlyRenderMessage("bot", `I'm Sunzly AI, the assistant for ${SUNZLY_STORE_NAME}. I can help with delivery, payment, materials, and finding pieces in our catalogue  and I'll bring in our team for anything trickier.`);
+    return;
+  }
+
+  // 4. Thanks / bye
+  if (/\b(thank you|thanks|asante|cheers)\b/.test(lower)) {
+    sunzlyRenderMessage("bot", "You're welcome! Anything else I can help with?");
+    return;
+  }
+  if (/\b(bye|goodbye|see you)\b/.test(lower)) {
+    sunzlyRenderMessage("bot", `Thanks for stopping by ${SUNZLY_STORE_NAME}! 💛`);
+    return;
+  }
+
+  // 5. Static FAQ rules
+  for (const rule of SUNZLY_FAQ) {
+    if (rule.test.test(lower)) {
+      if (rule.dynamic === "newArrivals") {
+        const fresh = PRODUCTS.filter(p => p.isNew);
+        if (fresh.length) {
+          sunzlyRenderMessage("bot", `Here's what's new right now:${sunzlyProductListHtml(fresh.slice(0, 3))}Browse the full collection below for more.`);
+        } else {
+          sunzlyRenderMessage("bot", "New pieces drop every week! Browse the collection below and look out for the 'New' tag.");
+        }
+        return;
+      }
+      sunzlyRenderMessage("bot", rule.reply);
+      return;
+    }
+  }
+
+  // 6. Product catalogue search
+  const matches = sunzlySearchProducts(text);
+  if (matches.length) {
+    sunzlyRenderMessage("bot", `Here's what I found in our collection:${sunzlyProductListHtml(matches)}Scroll down to the Collection section to see more, or ask me anything else.`);
+    return;
+  }
+
+  // 7. Fallback  can't answer confidently
+  sunzlyEscalate("unsure", "I'm not fully sure about that one  let me connect you with our team so they can help directly.", text);
+}
+
+function sunzlySend(preset){
+  if (sunzlyBusy) return;
+  const input = document.getElementById("sunzlyInput");
+  const text = (typeof preset === "string" ? preset : input.value).trim();
+  if (!text) return;
+  sunzlyRenderMessage("user", text.replace(/</g, "&lt;"));
+  input.value = "";
+  sunzlyBusy = true;
+  sunzlyShowTyping();
+  setTimeout(() => {
+    sunzlyHideTyping();
+    sunzlyRespond(text);
+    sunzlyBusy = false;
+  }, 500 + Math.random() * 400);
+}
+
+function toggleSunzly(force){
+  const panel = document.getElementById("sunzlyPanel");
+  const willOpen = typeof force === "boolean" ? force : !panel.classList.contains("open");
+  panel.classList.toggle("open", willOpen);
+  if (willOpen) {
+    document.getElementById("sunzlyDot").style.display = "none";
+    if (!sunzlyOpened) {
+      sunzlyOpened = true;
+      sunzlyRenderMessage("bot", `Hi, I'm Sunzly AI 👋 the virtual assistant for ${SUNZLY_STORE_NAME}. Ask me about delivery, payment, or our collection  I'll bring in our team for anything I can't handle myself.`);
+    }
+    document.getElementById("sunzlyInput").focus();
   }
 }
 

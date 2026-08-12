@@ -1,19 +1,43 @@
-from fastapi import FastAPI, HTTPException, Header, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import psycopg2
+import hmac
 import os
+import re
+import time
+from collections import defaultdict
+
+from fastapi import FastAPI, HTTPException, Header, Depends, Request
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, field_validator
+import psycopg2
 from dotenv import load_dotenv
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 load_dotenv()
 
 app = FastAPI()
 
+# ── Rate limiting (per-IP, applied per-route below) ─────────────────────────
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# ── CORS: restrict to known frontend origins instead of "*" ────────────────
+# Set ALLOWED_ORIGINS in the environment as a comma-separated list, e.g.
+# "https://your-storefront.vercel.app,https://yourdomain.co.ke"
+_default_origins = [
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "http://localhost:3000",
+]
+_env_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
+ALLOWED_ORIGINS = _env_origins or _default_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Content-Type", "X-Admin-Secret"],
 )
 
 VALID_CATEGORIES = {
@@ -31,20 +55,69 @@ VALID_CATEGORIES = {
 
 MAX_PRODUCT_IMAGES = 3
 
+# ── Simple input sanitization helpers ───────────────────────────────────────
+_TAG_RE = re.compile(r"<[^>]*>")
+_KENYA_PHONE_RE = re.compile(r"^(?:\+254|0)7\d{8}$|^(?:\+254|0)1\d{8}$")
+
+
+def strip_tags(value: str) -> str:
+    """Removes any HTML/script tags from user-supplied text. We don't store
+    or render rich text anywhere, so tags are never legitimate input."""
+    return _TAG_RE.sub("", value).strip()
+
 
 def get_conn():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
 
 
-def require_admin(x_admin_secret: str | None = Header(default=None, alias="X-Admin-Secret")):
-    """Dependency guarding every /admin/* route. Reject the request unless it
-    carries the shared secret configured via the ADMIN_SECRET env var."""
+# ── Admin auth: constant-time comparison + IP lockout after repeated fails ─
+_failed_attempts: dict[str, list[float]] = defaultdict(list)
+LOCKOUT_THRESHOLD = 5
+LOCKOUT_WINDOW_SECONDS = 15 * 60  # failures older than this don't count
+LOCKOUT_DURATION_SECONDS = 15 * 60
+
+
+def _record_failure(ip: str) -> None:
+    now = time.time()
+    attempts = [t for t in _failed_attempts[ip] if now - t < LOCKOUT_WINDOW_SECONDS]
+    attempts.append(now)
+    _failed_attempts[ip] = attempts
+
+
+def _is_locked_out(ip: str) -> bool:
+    now = time.time()
+    attempts = [t for t in _failed_attempts[ip] if now - t < LOCKOUT_WINDOW_SECONDS]
+    _failed_attempts[ip] = attempts
+    if len(attempts) < LOCKOUT_THRESHOLD:
+        return False
+    return now - attempts[-1] < LOCKOUT_DURATION_SECONDS
+
+
+def require_admin(
+    request: Request,
+    x_admin_secret: str | None = Header(default=None, alias="X-Admin-Secret"),
+):
+    """Dependency guarding every /admin/* route. Rejects unless the request
+    carries the shared secret configured via ADMIN_SECRET, using a
+    constant-time comparison so response timing can't leak how much of the
+    guess was correct. Also locks out an IP for 15 minutes after 5
+    consecutive failures, with the same generic message either way."""
     expected = os.getenv("ADMIN_SECRET")
     if not expected:
         # Fail closed: if the server isn't configured with a secret, refuse
         # rather than silently letting everyone in.
         raise HTTPException(status_code=500, detail="Server misconfigured: ADMIN_SECRET not set")
-    if not x_admin_secret or x_admin_secret != expected:
+
+    ip = get_remote_address(request)
+    if _is_locked_out(ip):
+        # Same generic message as a bad secret -- never reveal *why* access
+        # was denied (wrong secret vs. too many attempts).
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    provided = x_admin_secret or ""
+    valid = bool(x_admin_secret) and hmac.compare_digest(provided, expected)
+    if not valid:
+        _record_failure(ip)
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
@@ -65,14 +138,41 @@ class ProductCreate(BaseModel):
     quantity: int = 0
     is_new: bool = False
 
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        v = strip_tags(v)
+        if not (1 <= len(v) <= 200):
+            raise ValueError("name must be between 1 and 200 characters")
+        return v
 
-class ProductUpdate(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
-    category: str
-    quantity: int = 0
-    is_new: bool = False
+    @field_validator("description")
+    @classmethod
+    def validate_description(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = strip_tags(v)
+        if len(v) > 2000:
+            raise ValueError("description must be at most 2000 characters")
+        return v or None
+
+    @field_validator("price")
+    @classmethod
+    def validate_price(cls, v: float) -> float:
+        if v < 0 or v > 10_000_000:
+            raise ValueError("price out of range")
+        return round(v, 2)
+
+    @field_validator("quantity")
+    @classmethod
+    def validate_quantity(cls, v: int) -> int:
+        if v < 0 or v > 1_000_000:
+            raise ValueError("quantity out of range")
+        return v
+
+
+class ProductUpdate(ProductCreate):
+    pass
 
 
 class ProductImageCreate(BaseModel):
@@ -80,10 +180,36 @@ class ProductImageCreate(BaseModel):
     is_primary: bool = False
     sort_order: int = 0
 
+    @field_validator("blob_url")
+    @classmethod
+    def validate_blob_url(cls, v: str) -> str:
+        v = v.strip()
+        if not (v.startswith("https://") or v.startswith("http://")):
+            raise ValueError("blob_url must be an absolute http(s) URL")
+        if len(v) > 2000:
+            raise ValueError("blob_url too long")
+        return v
+
 
 class CustomerCreate(BaseModel):
     name: str
     phone: str
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        v = strip_tags(v)
+        if not (1 <= len(v) <= 120):
+            raise ValueError("name must be between 1 and 120 characters")
+        return v
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, v: str) -> str:
+        v = v.strip()
+        if not _KENYA_PHONE_RE.match(v):
+            raise ValueError("phone must be a valid Kenyan number, e.g. 07XXXXXXXX or +2547XXXXXXXX")
+        return v
 
 
 @app.get("/")
@@ -91,16 +217,22 @@ def read_root():
     return {"status": "running"}
 
 
-@app.get("/admin/ping", dependencies=[Depends(require_admin)])
-def admin_ping():
+@app.post("/admin/ping", dependencies=[Depends(require_admin)])
+@limiter.limit("10/minute")
+def admin_ping(request: Request):
     """Used purely to validate an admin password from the client before
     revealing the admin dashboard \u2014 returns 200 if the secret is correct,
-    401 (via require_admin) otherwise."""
+    401 (via require_admin) otherwise. POST (not GET) so the secret never
+    ends up in a query string / access log, and rate-limited since it's the
+    brute-force target for ADMIN_SECRET."""
     return {"ok": True}
 
 
 @app.get("/products")
-def get_products(category: str | None = None):
+@limiter.limit("60/minute")
+def get_products(request: Request, category: str | None = None):
+    if category is not None and category not in VALID_CATEGORIES:
+        raise HTTPException(status_code=422, detail="Invalid category")
     conn = get_conn()
     cur = conn.cursor()
     if category:
@@ -147,7 +279,8 @@ def get_products(category: str | None = None):
 
 
 @app.get("/products/{product_id}")
-def get_product(product_id: int):
+@limiter.limit("60/minute")
+def get_product(request: Request, product_id: int):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
@@ -181,7 +314,8 @@ def get_product(product_id: int):
 
 
 @app.post("/admin/products", dependencies=[Depends(require_admin)])
-def create_product(product: ProductCreate):
+@limiter.limit("30/minute")
+def create_product(request: Request, product: ProductCreate):
     validate_category(product.category)
     conn = get_conn()
     cur = conn.cursor()
@@ -201,7 +335,8 @@ def create_product(product: ProductCreate):
 
 
 @app.post("/admin/products/{product_id}/images", dependencies=[Depends(require_admin)])
-def add_product_image(product_id: int, image: ProductImageCreate):
+@limiter.limit("30/minute")
+def add_product_image(request: Request, product_id: int, image: ProductImageCreate):
     conn = get_conn()
     cur = conn.cursor()
 
@@ -234,7 +369,8 @@ def add_product_image(product_id: int, image: ProductImageCreate):
 
 
 @app.delete("/admin/products/{product_id}/images/{image_id}", dependencies=[Depends(require_admin)])
-def delete_product_image(product_id: int, image_id: int):
+@limiter.limit("30/minute")
+def delete_product_image(request: Request, product_id: int, image_id: int):
     """Removes a single image from a product. Lets the admin UI offer a
     per-image remove button instead of only a wipe-and-replace-all flow."""
     conn = get_conn()
@@ -253,7 +389,8 @@ def delete_product_image(product_id: int, image_id: int):
 
 
 @app.delete("/admin/products/{product_id}/images", dependencies=[Depends(require_admin)])
-def clear_product_images(product_id: int):
+@limiter.limit("30/minute")
+def clear_product_images(request: Request, product_id: int):
     """Removes every image on a product in one call."""
     conn = get_conn()
     cur = conn.cursor()
@@ -271,7 +408,8 @@ def clear_product_images(product_id: int):
 
 
 @app.put("/admin/products/{product_id}", dependencies=[Depends(require_admin)])
-def update_product(product_id: int, product: ProductUpdate):
+@limiter.limit("30/minute")
+def update_product(request: Request, product_id: int, product: ProductUpdate):
     validate_category(product.category)
     conn = get_conn()
     cur = conn.cursor()
@@ -296,7 +434,8 @@ def update_product(product_id: int, product: ProductUpdate):
 
 
 @app.delete("/admin/products/{product_id}", dependencies=[Depends(require_admin)])
-def delete_product(product_id: int):
+@limiter.limit("30/minute")
+def delete_product(request: Request, product_id: int):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("DELETE FROM products WHERE id = %s RETURNING id;", (product_id,))
@@ -310,19 +449,17 @@ def delete_product(product_id: int):
 
 
 @app.post("/customers")
-def create_customer(customer: CustomerCreate):
+@limiter.limit("5/minute")
+def create_customer(request: Request, customer: CustomerCreate):
     """Records a customer's name + phone before they can add an item to
-    their bag. No password, no login  this is a lightweight lead capture,
-    not an account system."""
-    name = customer.name.strip()
-    phone = customer.phone.strip()
-    if not name or not phone:
-        raise HTTPException(status_code=422, detail="name and phone are required")
+    their bag. No password, no login \u2014 this is a lightweight lead capture,
+    not an account system. Rate-limited since it's a public, unauthenticated
+    write endpoint and otherwise an easy target for spamming the table."""
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
         "INSERT INTO customers (name, phone) VALUES (%s, %s) RETURNING id;",
-        (name, phone),
+        (customer.name, customer.phone),
     )
     new_id = cur.fetchone()[0]
     conn.commit()
@@ -332,7 +469,8 @@ def create_customer(customer: CustomerCreate):
 
 
 @app.get("/admin/customers", dependencies=[Depends(require_admin)])
-def list_customers():
+@limiter.limit("20/minute")
+def list_customers(request: Request):
     """Not yet wired into the admin dashboard UI, but available if you want
     to pull your list of registered customers later."""
     conn = get_conn()

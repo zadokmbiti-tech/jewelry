@@ -31,6 +31,15 @@ CREATE TABLE IF NOT EXISTS product_images (
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON product_images(product_id);
 
+-- Referenced by /customers and /admin/customers in main.py but was missing
+-- from this file -- added so a fresh database actually has the table.
+CREATE TABLE IF NOT EXISTS customers (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ─────────────────────────────────────────────────────────────────────────
 -- MIGRATION: run this instead of the CREATE TABLE above if you already have
 -- a live database from before (it drops the old materials column and adds
