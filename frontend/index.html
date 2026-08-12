@@ -924,7 +924,7 @@
   <div class="drawer-foot">
     <div class="subtotal-row"><span>Subtotal</span><span id="subtotal">KES 0</span></div>
     <button class="checkout-btn" onclick="openStk()">Checkout with M-Pesa</button>
-    <p class="mpesa-note">You'll receive an STK push prompt on your phone.</p>
+    <p class="mpesa-note">We'll contact you on your registered number to confirm M-Pesa payment.</p>
   </div>
 </div>
 
@@ -936,9 +936,8 @@
   <div class="modal-box stk-box">
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <svg class="phone-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.4"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg>
-    <h3>Check your phone</h3>
-    <p>We've sent an M-Pesa payment prompt to your number.</p>
-    <p>Enter your PIN to complete the order.</p>
+    <h3>Order received</h3>
+    <p>We've logged your order and will call or WhatsApp you on your registered number shortly to confirm M-Pesa payment.</p>
     <div class="stk-pulse"></div>
   </div>
 </div>
@@ -1035,6 +1034,8 @@
     <div class="admin-tabs">
       <button class="admin-tab active" id="tabAddBtn" onclick="showAdminTab('add')">Add Product</button>
       <button class="admin-tab" id="tabManageBtn" onclick="showAdminTab('manage')">Manage Products</button>
+      <button class="admin-tab" id="tabOrdersBtn" onclick="showAdminTab('orders')">Orders</button>
+      <button class="admin-tab" id="tabCustomersBtn" onclick="showAdminTab('customers')">Customers</button>
     </div>
     <div>
       <a class="admin-logout" onclick="adminLogout()">Log Out &amp; Close</a>
@@ -1077,6 +1078,16 @@
   <div class="admin-body" id="adminManageView" style="display:none;">
     <h2>Manage Products</h2>
     <div id="manageList"><p style="color:var(--muted);">Loading…</p></div>
+  </div>
+
+  <div class="admin-body" id="adminOrdersView" style="display:none;">
+    <h2>Orders</h2>
+    <div id="ordersList"><p style="color:var(--muted);">Loading…</p></div>
+  </div>
+
+  <div class="admin-body" id="adminCustomersView" style="display:none;">
+    <h2>Customers</h2>
+    <div id="customersList"><p style="color:var(--muted);">Loading…</p></div>
   </div>
 </div>
 
@@ -1331,8 +1342,34 @@ function closeCart(){
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('overlay').classList.remove('open');
 }
-function openStk(){
+async function openStk(){
   if(cart.length === 0) return;
+  const info = getCustomerInfo();
+  if(!info){ showRegisterModal(); return; }
+
+  const checkoutBtn = document.querySelector('.checkout-btn');
+  if (checkoutBtn){ checkoutBtn.style.pointerEvents = 'none'; checkoutBtn.style.opacity = '0.6'; }
+
+  try {
+    const res = await fetch(`${API_URL}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_name: info.name,
+        customer_phone: info.phone,
+        items: cart.map(i => ({ product_id: i.id, quantity: i.qty })),
+      }),
+    });
+    if (!res.ok) throw new Error('order failed');
+  } catch (err) {
+    if (checkoutBtn){ checkoutBtn.style.pointerEvents = ''; checkoutBtn.style.opacity = ''; }
+    alert("Couldn't place your order right now. Please check your connection and try again, or message us on WhatsApp.");
+    return;
+  }
+
+  if (checkoutBtn){ checkoutBtn.style.pointerEvents = ''; checkoutBtn.style.opacity = ''; }
+  cart = [];
+  updateCartUI();
   document.getElementById('overlay').classList.add('open');
   document.getElementById('stkModal').classList.add('open');
 }
@@ -1502,9 +1539,86 @@ function openAdminPanel(){
 function showAdminTab(tab){
   document.getElementById('tabAddBtn').classList.toggle('active', tab === 'add');
   document.getElementById('tabManageBtn').classList.toggle('active', tab === 'manage');
+  document.getElementById('tabOrdersBtn').classList.toggle('active', tab === 'orders');
+  document.getElementById('tabCustomersBtn').classList.toggle('active', tab === 'customers');
   document.getElementById('adminAddView').style.display = tab === 'add' ? 'block' : 'none';
   document.getElementById('adminManageView').style.display = tab === 'manage' ? 'block' : 'none';
+  document.getElementById('adminOrdersView').style.display = tab === 'orders' ? 'block' : 'none';
+  document.getElementById('adminCustomersView').style.display = tab === 'customers' ? 'block' : 'none';
   if (tab === 'manage') loadManageList();
+  if (tab === 'orders') loadOrdersList();
+  if (tab === 'customers') loadCustomersList();
+}
+
+const ORDER_STATUS_LABEL = { pending: 'Pending', paid: 'Paid', cancelled: 'Cancelled' };
+
+async function loadOrdersList(){
+  const list = document.getElementById('ordersList');
+  list.innerHTML = '<p style="color:var(--muted);">Loading…</p>';
+  try {
+    const res = await adminFetch(`${API_URL}/admin/orders`);
+    if (!res.ok) throw new Error('failed');
+    const orders = await res.json();
+    if (orders.length === 0){
+      list.innerHTML = '<p style="color:var(--muted);">No orders yet.</p>';
+      return;
+    }
+    list.innerHTML = orders.map(o => `
+      <div class="a-prow" style="flex-direction:column;align-items:stretch;gap:8px;">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+          <div>
+            <div class="a-pname">Order #${o.id}  ${escapeHtml(o.customer_name)}</div>
+            <div class="a-pmeta">${escapeHtml(o.customer_phone)}  ${new Date(o.created_at).toLocaleString()}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="a-pname">${fmt(o.subtotal)}</div>
+            <select onchange="updateOrderStatus(${o.id}, this.value)" style="margin-top:4px;">
+              <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+              <option value="paid" ${o.status==='paid'?'selected':''}>Paid</option>
+              <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="a-pmeta">${o.items.map(i => `${escapeHtml(i.name)} × ${i.quantity} (${fmt(i.price)})`).join(', ')}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    list.innerHTML = '<p style="color:#a3423f;">Could not load orders.</p>';
+  }
+}
+
+async function updateOrderStatus(orderId, status){
+  const res = await adminFetch(`${API_URL}/admin/orders/${orderId}/status`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok){ alert('Could not update order status.'); loadOrdersList(); }
+}
+
+async function loadCustomersList(){
+  const list = document.getElementById('customersList');
+  list.innerHTML = '<p style="color:var(--muted);">Loading…</p>';
+  try {
+    const res = await adminFetch(`${API_URL}/admin/customers`);
+    if (!res.ok) throw new Error('failed');
+    const customers = await res.json();
+    if (customers.length === 0){
+      list.innerHTML = '<p style="color:var(--muted);">No registered customers yet.</p>';
+      return;
+    }
+    list.innerHTML = customers.map(c => `
+      <div class="a-prow">
+        <div class="a-pinfo">
+          <div class="a-pname">${escapeHtml(c.name)}</div>
+          <div class="a-pmeta">${escapeHtml(c.phone)}  Registered ${new Date(c.created_at).toLocaleDateString()}</div>
+        </div>
+        <a class="btn-primary" style="padding:8px 14px;" href="https://wa.me/${c.phone.replace(/^0/, '254').replace(/\D/g,'')}" target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    `).join('');
+  } catch (err) {
+    list.innerHTML = '<p style="color:#a3423f;">Could not load customers.</p>';
+  }
 }
 
 const ADMIN_MAX_IMAGES = 3;
@@ -1820,7 +1934,7 @@ const SUNZLY_FAQ = [
   },
   {
     test: /\b(mpesa|m-pesa|pay|payment|checkout|stk)\b/,
-    reply: "Checkout is by M-Pesa: add items to your bag, tap <strong>Checkout with M-Pesa</strong>, and you'll get an STK push on your phone  just enter your PIN to complete the order."
+    reply: "Checkout is by M-Pesa: add items to your bag and tap <strong>Checkout with M-Pesa</strong> to place your order. We'll confirm payment details with you directly by phone or WhatsApp before it's dispatched."
   },
   {
     test: /\b(material|materials|gold|silver|plated|genuine|real gold|certified)\b/,

@@ -212,6 +212,60 @@ class CustomerCreate(BaseModel):
         return v
 
 
+class OrderItemCreate(BaseModel):
+    product_id: int
+    quantity: int
+
+    @field_validator("quantity")
+    @classmethod
+    def validate_quantity(cls, v: int) -> int:
+        if v < 1 or v > 1000:
+            raise ValueError("quantity must be between 1 and 1000")
+        return v
+
+
+class OrderCreate(BaseModel):
+    customer_name: str
+    customer_phone: str
+    items: list[OrderItemCreate]
+
+    @field_validator("customer_name")
+    @classmethod
+    def validate_customer_name(cls, v: str) -> str:
+        v = strip_tags(v)
+        if not (1 <= len(v) <= 120):
+            raise ValueError("customer_name must be between 1 and 120 characters")
+        return v
+
+    @field_validator("customer_phone")
+    @classmethod
+    def validate_customer_phone(cls, v: str) -> str:
+        v = v.strip()
+        if not _KENYA_PHONE_RE.match(v):
+            raise ValueError("customer_phone must be a valid Kenyan number, e.g. 07XXXXXXXX or +2547XXXXXXXX")
+        return v
+
+    @field_validator("items")
+    @classmethod
+    def validate_items(cls, v: list) -> list:
+        if not v:
+            raise ValueError("items must contain at least one product")
+        if len(v) > 100:
+            raise ValueError("too many distinct items")
+        return v
+
+
+class OrderStatusUpdate(BaseModel):
+    status: str
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, v: str) -> str:
+        if v not in {"pending", "paid", "cancelled"}:
+            raise ValueError("status must be one of: pending, paid, cancelled")
+        return v
+
+
 @app.get("/")
 def read_root():
     return {"status": "running"}
@@ -471,8 +525,8 @@ def create_customer(request: Request, customer: CustomerCreate):
 @app.get("/admin/customers", dependencies=[Depends(require_admin)])
 @limiter.limit("20/minute")
 def list_customers(request: Request):
-    """Not yet wired into the admin dashboard UI, but available if you want
-    to pull your list of registered customers later."""
+    """Powers the admin panel's Customers tab: name, phone, and signup date
+    for everyone who's registered via the Add-to-Bag flow."""
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("SELECT id, name, phone, created_at FROM customers ORDER BY created_at DESC;")
@@ -480,3 +534,132 @@ def list_customers(request: Request):
     cur.close()
     conn.close()
     return [{"id": r[0], "name": r[1], "phone": r[2], "created_at": r[3].isoformat()} for r in rows]
+
+
+@app.post("/orders")
+@limiter.limit("10/minute")
+def create_order(request: Request, order: OrderCreate):
+    """Logs a checkout. Payment isn't wired to the real M-Pesa Daraja API
+    yet -- the order is saved with status 'pending' and an admin marks it
+    'paid' manually from the admin panel once payment is confirmed by other
+    means (call/SMS). Item prices are looked up fresh from the products
+    table server-side rather than trusting whatever price the client sent,
+    so a tampered request can't under-charge."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        line_items = []
+        subtotal = 0.0
+        for item in order.items:
+            cur.execute(
+                "SELECT name, price FROM products WHERE id = %s;",
+                (item.product_id,),
+            )
+            row = cur.fetchone()
+            if not row:
+                raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
+            name, price = row[0], float(row[1])
+            line_items.append((item.product_id, name, price, item.quantity))
+            subtotal += price * item.quantity
+
+        # Best-effort link to an existing customer record by phone; the
+        # order still carries its own name/phone regardless, since the
+        # /customers registration call is fire-and-forget on the frontend
+        # and may not have landed.
+        cur.execute(
+            "SELECT id FROM customers WHERE phone = %s ORDER BY created_at DESC LIMIT 1;",
+            (order.customer_phone,),
+        )
+        cust_row = cur.fetchone()
+        customer_id = cust_row[0] if cust_row else None
+
+        cur.execute(
+            """
+            INSERT INTO orders (customer_id, customer_name, customer_phone, subtotal, status)
+            VALUES (%s, %s, %s, %s, 'pending')
+            RETURNING id;
+            """,
+            (customer_id, order.customer_name, order.customer_phone, round(subtotal, 2)),
+        )
+        order_id = cur.fetchone()[0]
+
+        for product_id, name, price, quantity in line_items:
+            cur.execute(
+                """
+                INSERT INTO order_items (order_id, product_id, product_name, price, quantity)
+                VALUES (%s, %s, %s, %s, %s);
+                """,
+                (order_id, product_id, name, price, quantity),
+            )
+
+        conn.commit()
+        return {"id": order_id, "subtotal": round(subtotal, 2), "message": "Order placed"}
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail="Could not place order")
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.get("/admin/orders", dependencies=[Depends(require_admin)])
+@limiter.limit("20/minute")
+def list_orders(request: Request):
+    """Powers the admin panel's Orders tab: every order with its line items,
+    so admin can see what was ordered, by whom, and whether it's been paid."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT id, customer_name, customer_phone, subtotal, status, created_at
+        FROM orders ORDER BY created_at DESC;
+        """
+    )
+    orders = cur.fetchall()
+
+    result = []
+    for o in orders:
+        order_id = o[0]
+        cur.execute(
+            "SELECT product_name, price, quantity FROM order_items WHERE order_id = %s;",
+            (order_id,),
+        )
+        items = [{"name": r[0], "price": float(r[1]), "quantity": r[2]} for r in cur.fetchall()]
+        result.append(
+            {
+                "id": order_id,
+                "customer_name": o[1],
+                "customer_phone": o[2],
+                "subtotal": float(o[3]),
+                "status": o[4],
+                "created_at": o[5].isoformat(),
+                "items": items,
+            }
+        )
+
+    cur.close()
+    conn.close()
+    return result
+
+
+@app.put("/admin/orders/{order_id}/status", dependencies=[Depends(require_admin)])
+@limiter.limit("30/minute")
+def update_order_status(request: Request, order_id: int, body: OrderStatusUpdate):
+    """Lets admin manually mark an order paid or cancelled until real M-Pesa
+    STK push confirmation is integrated."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE orders SET status = %s WHERE id = %s RETURNING id;",
+        (body.status, order_id),
+    )
+    updated = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    if not updated:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return {"message": "Order updated"}

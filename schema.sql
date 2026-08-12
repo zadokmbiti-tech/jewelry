@@ -40,6 +40,31 @@ CREATE TABLE IF NOT EXISTS customers (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Orders placed via "Checkout with M-Pesa". Payment isn't wired to the real
+-- Daraja API yet -- status starts 'pending' and admin marks it 'paid' (or
+-- 'cancelled') manually from the admin panel until STK push is integrated.
+CREATE TABLE IF NOT EXISTS orders (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER REFERENCES customers(id) ON DELETE SET NULL,
+    customer_name TEXT NOT NULL,
+    customer_phone TEXT NOT NULL,
+    subtotal NUMERIC(10, 2) NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'cancelled')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    product_id INTEGER REFERENCES products(id) ON DELETE SET NULL,
+    product_name TEXT NOT NULL,
+    price NUMERIC(10, 2) NOT NULL,
+    quantity INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+
 -- ─────────────────────────────────────────────────────────────────────────
 -- MIGRATION: run this instead of the CREATE TABLE above if you already have
 -- a live database from before (it drops the old materials column and adds
