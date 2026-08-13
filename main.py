@@ -48,6 +48,39 @@ VALID_CATEGORIES = {
     "male-stainless-steel-sets",
     "statement-stainless-earrings",
     "fashion-jewelry-necklace-sets",
+    "hypoallergenic-watches",
+    "genuine-leather-watches",
+    "elite-compact-jewelry-case",
+    "charger-protectors",
+    "brass-jewelry",
+    "hair-clips",
+    "twist-fabric-headband",
+    "pearl-twist-headband",
+    "magnetic-and-generic-watches",
+    "kids-pocket-mirrors",
+    "adult-pocket-mirrors",
+    "anxiety-rings",
+    "brass-rings",
+    "stainless-steel-rings",
+    "xuping-rings",
+    "classic-jewelry-organizers",
+    "statement-rings",
+    "kids-digital-watches",
+    "sunglasses",
+    "photochromic-glasses",
+    "premium-wine-bottle-gift-box",
+    "anti-blue-light-glasses",
+    "ruched-rhinestone-headband",
+    "pearl-and-rhinestones-headband",
+    "crystal-satin-ruche-headband",
+    "travel-bags",
+    "stainless-steel-necklaces",
+    "mens-watches",
+    "tennis-bracelets",
+    "xuping-bangles",
+    "xuping-tennis-bracelets",
+    "xuping-bracelets",
+    "brass-necklaces",
 }
 
 MAX_PRODUCT_IMAGES = 3
@@ -553,10 +586,6 @@ def create_order(request: Request, order: OrderCreate):
             line_items.append((item.product_id, name, price, item.quantity))
             subtotal += price * item.quantity
 
-        # Best-effort link to an existing customer record by phone; the
-        # order still carries its own name/phone regardless, since the
-        # /customers registration call is fire-and-forget on the frontend
-        # and may not have landed.
         cur.execute(
             "SELECT id FROM customers WHERE phone = %s ORDER BY created_at DESC LIMIT 1;",
             (order.customer_phone,),

@@ -34,6 +34,72 @@
     --statement-stainless-earrings-ink:#3f6b5c;
     --fashion-jewelry-necklace-sets:#f3e8fb;
     --fashion-jewelry-necklace-sets-ink:#7a3fa3;
+    --hypoallergenic-watches:#f5dfdf;
+    --hypoallergenic-watches-ink:#8e2929;
+    --genuine-leather-watches:#f5e3df;
+    --genuine-leather-watches-ink:#8e3b29;
+    --elite-compact-jewelry-case:#f5e7df;
+    --elite-compact-jewelry-case-ink:#8e4e29;
+    --charger-protectors:#f5ebdf;
+    --charger-protectors-ink:#8e6029;
+    --brass-jewelry:#f5efdf;
+    --brass-jewelry-ink:#8e7229;
+    --hair-clips:#f5f3df;
+    --hair-clips-ink:#8e8529;
+    --twist-fabric-headband:#f3f5df;
+    --twist-fabric-headband-ink:#858e29;
+    --pearl-twist-headband:#eff5df;
+    --pearl-twist-headband-ink:#728e29;
+    --magnetic-and-generic-watches:#ebf5df;
+    --magnetic-and-generic-watches-ink:#608e29;
+    --kids-pocket-mirrors:#e7f5df;
+    --kids-pocket-mirrors-ink:#4e8e29;
+    --adult-pocket-mirrors:#e3f5df;
+    --adult-pocket-mirrors-ink:#3b8e29;
+    --anxiety-rings:#dff5df;
+    --anxiety-rings-ink:#298e29;
+    --brass-rings:#dff5e3;
+    --brass-rings-ink:#298e3b;
+    --stainless-steel-rings:#dff5e7;
+    --stainless-steel-rings-ink:#298e4e;
+    --xuping-rings:#dff5eb;
+    --xuping-rings-ink:#298e60;
+    --classic-jewelry-organizers:#dff5ef;
+    --classic-jewelry-organizers-ink:#298e72;
+    --statement-rings:#dff5f3;
+    --statement-rings-ink:#298e85;
+    --kids-digital-watches:#dff3f5;
+    --kids-digital-watches-ink:#29858e;
+    --sunglasses:#dfeff5;
+    --sunglasses-ink:#29728e;
+    --photochromic-glasses:#dfebf5;
+    --photochromic-glasses-ink:#29608e;
+    --premium-wine-bottle-gift-box:#dfe7f5;
+    --premium-wine-bottle-gift-box-ink:#294e8e;
+    --anti-blue-light-glasses:#dfe3f5;
+    --anti-blue-light-glasses-ink:#293b8e;
+    --ruched-rhinestone-headband:#dfdff5;
+    --ruched-rhinestone-headband-ink:#29298e;
+    --pearl-and-rhinestones-headband:#e3dff5;
+    --pearl-and-rhinestones-headband-ink:#3b298e;
+    --crystal-satin-ruche-headband:#e7dff5;
+    --crystal-satin-ruche-headband-ink:#4e298e;
+    --travel-bags:#ebdff5;
+    --travel-bags-ink:#60298e;
+    --stainless-steel-necklaces:#efdff5;
+    --stainless-steel-necklaces-ink:#72298e;
+    --mens-watches:#f3dff5;
+    --mens-watches-ink:#85298e;
+    --tennis-bracelets:#f5dff3;
+    --tennis-bracelets-ink:#8e2985;
+    --xuping-bangles:#f5dfef;
+    --xuping-bangles-ink:#8e2972;
+    --xuping-tennis-bracelets:#f5dfeb;
+    --xuping-tennis-bracelets-ink:#8e2960;
+    --xuping-bracelets:#f5dfe7;
+    --xuping-bracelets-ink:#8e294e;
+    --brass-necklaces:#f5dfe3;
+    --brass-necklaces-ink:#8e293b;
     --line:rgba(184,134,11,0.22);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -107,7 +173,7 @@
   .nav-dropdown-menu{
     position:absolute;top:calc(100% + 18px);left:50%;transform:translateX(-50%) translateY(6px);
     background:#fff;border:1px solid var(--line);border-radius:10px;
-    min-width:250px;padding:10px;box-shadow:0 18px 40px rgba(34,28,22,0.14);
+    min-width:250px;max-height:min(70vh,560px);overflow-y:auto;padding:10px;box-shadow:0 18px 40px rgba(34,28,22,0.14);
     opacity:0;visibility:hidden;transition:opacity .22s ease, transform .22s ease, visibility .22s;
     z-index:150;
   }
@@ -121,6 +187,11 @@
   }
   .nav-dropdown-menu a:hover{background:var(--surface);color:var(--gold);}
   .nav-dropdown-menu .nd-all{border-bottom:1px solid var(--line);margin-bottom:6px;padding-bottom:12px;font-weight:600;}
+  .nav-dropdown-menu .nd-group-title{
+    font-size:0.66rem;text-transform:uppercase;letter-spacing:0.09em;
+    color:var(--muted);font-weight:600;padding:12px 12px 2px;
+  }
+  .nav-dropdown-menu .nd-group-title:first-of-type{padding-top:0;}
   .nav-icons{display:flex;align-items:center;gap:22px;}
   .cart-btn{position:relative;}
   .cart-count{
@@ -735,16 +806,62 @@
         </button>
         <div class="nav-dropdown-menu">
           <a class="nd-all" onclick="goToCategory('all')">✦ All Pieces</a>
-          <a onclick="goToCategory('xuping-sets')">Xuping Sets</a>
-          <a onclick="goToCategory('xuping-earrings')">Xuping Earrings</a>
-          <a onclick="goToCategory('genuine-leather-belts')">Genuine Leather Belts</a>
-          <a onclick="goToCategory('kids-xuping-earrings')">Kids Xuping Earrings</a>
+          <div class="nd-group-title">Necklaces</div>
           <a onclick="goToCategory('xuping-necklaces')">Xuping Necklaces</a>
           <a onclick="goToCategory('pearl-necklaces')">Pearl Necklaces</a>
-          <a onclick="goToCategory('pu-leather-belts')">P.U Leather Belts</a>
-          <a onclick="goToCategory('male-stainless-steel-sets')">Male Stainless Steel Sets</a>
+          <a onclick="goToCategory('stainless-steel-necklaces')">Stainless Steel Necklaces</a>
+          <a onclick="goToCategory('brass-necklaces')">Brass Necklaces</a>
+          <div class="nd-group-title">Earrings</div>
+          <a onclick="goToCategory('xuping-earrings')">Xuping Earrings</a>
+          <a onclick="goToCategory('kids-xuping-earrings')">Kids Xuping Earrings</a>
           <a onclick="goToCategory('statement-stainless-earrings')">Statement Stainless Earrings</a>
+          <div class="nd-group-title">Rings</div>
+          <a onclick="goToCategory('anxiety-rings')">Anxiety Rings</a>
+          <a onclick="goToCategory('brass-rings')">Brass Rings</a>
+          <a onclick="goToCategory('stainless-steel-rings')">Stainless Steel Rings</a>
+          <a onclick="goToCategory('xuping-rings')">Xuping Rings</a>
+          <a onclick="goToCategory('statement-rings')">Statement Rings</a>
+          <div class="nd-group-title">Bracelets &amp; Bangles</div>
+          <a onclick="goToCategory('tennis-bracelets')">Tennis Bracelets</a>
+          <a onclick="goToCategory('xuping-bangles')">Xuping Bangles</a>
+          <a onclick="goToCategory('xuping-tennis-bracelets')">Xuping Tennis Bracelets</a>
+          <a onclick="goToCategory('xuping-bracelets')">Xuping Bracelets</a>
+          <div class="nd-group-title">Jewelry Sets</div>
+          <a onclick="goToCategory('xuping-sets')">Xuping Sets</a>
+          <a onclick="goToCategory('male-stainless-steel-sets')">Male Stainless Steel Sets</a>
           <a onclick="goToCategory('fashion-jewelry-necklace-sets')">Fashion Jewelry Necklace Sets</a>
+          <div class="nd-group-title">Watches</div>
+          <a onclick="goToCategory('hypoallergenic-watches')">Hypoallergenic Watches</a>
+          <a onclick="goToCategory('genuine-leather-watches')">Genuine Leather Watches</a>
+          <a onclick="goToCategory('magnetic-and-generic-watches')">Magnetic and Generic Watches</a>
+          <a onclick="goToCategory('kids-digital-watches')">Kids Digital Watches</a>
+          <a onclick="goToCategory('mens-watches')">Men's Watches</a>
+          <div class="nd-group-title">Belts</div>
+          <a onclick="goToCategory('genuine-leather-belts')">Genuine Leather Belts</a>
+          <a onclick="goToCategory('pu-leather-belts')">P.U Leather Belts</a>
+          <div class="nd-group-title">Headbands &amp; Hair Accessories</div>
+          <a onclick="goToCategory('twist-fabric-headband')">Twist Fabric Headband</a>
+          <a onclick="goToCategory('pearl-twist-headband')">Pearl Twist Headband</a>
+          <a onclick="goToCategory('ruched-rhinestone-headband')">Ruched Rhinestone Headband</a>
+          <a onclick="goToCategory('pearl-and-rhinestones-headband')">Pearl &amp; Rhinestones Headband</a>
+          <a onclick="goToCategory('crystal-satin-ruche-headband')">Crystal Satin Ruche Headband</a>
+          <a onclick="goToCategory('hair-clips')">Hair Clips</a>
+          <div class="nd-group-title">Eyewear</div>
+          <a onclick="goToCategory('sunglasses')">Sunglasses</a>
+          <a onclick="goToCategory('photochromic-glasses')">Photochromic Glasses</a>
+          <a onclick="goToCategory('anti-blue-light-glasses')">Anti-Blue Light Glasses</a>
+          <div class="nd-group-title">Bags</div>
+          <a onclick="goToCategory('travel-bags')">Travel Bags</a>
+          <div class="nd-group-title">Mirrors</div>
+          <a onclick="goToCategory('kids-pocket-mirrors')">Kids Pocket Mirrors</a>
+          <a onclick="goToCategory('adult-pocket-mirrors')">Adult Pocket Mirrors</a>
+          <div class="nd-group-title">Jewelry Storage &amp; Cases</div>
+          <a onclick="goToCategory('elite-compact-jewelry-case')">Elite Compact Jewelry Case</a>
+          <a onclick="goToCategory('classic-jewelry-organizers')">Classic Jewelry Organizers</a>
+          <div class="nd-group-title">Other Accessories &amp; Gifts</div>
+          <a onclick="goToCategory('brass-jewelry')">Brass Jewelry</a>
+          <a onclick="goToCategory('charger-protectors')">Charger Protectors</a>
+          <a onclick="goToCategory('premium-wine-bottle-gift-box')">Premium Wine Bottle Gift Box</a>
         </div>
       </div>
     </nav>
@@ -829,6 +946,39 @@
     <button class="cat-chip" data-filter="male-stainless-steel-sets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="7" r="2"/><circle cx="18" cy="7" r="2"/></svg> Male Stainless Steel Sets</button>
     <button class="cat-chip" data-filter="statement-stainless-earrings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 3v6"/><path d="M8 9h8l-2 10a2 2 0 01-4 0z"/></svg> Statement Stainless Earrings</button>
     <button class="cat-chip" data-filter="fashion-jewelry-necklace-sets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.4"/></svg> Fashion Jewelry Necklace Sets</button>
+    <button class="cat-chip" data-filter="hypoallergenic-watches"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><path d="M12 9v3l2 2"/><path d="M9 3h6M9 21h6"/></svg> Hypoallergenic Watches</button>
+    <button class="cat-chip" data-filter="genuine-leather-watches"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><path d="M12 9v3l2 2"/><path d="M9 3h6M9 21h6"/></svg> Genuine Leather Watches</button>
+    <button class="cat-chip" data-filter="elite-compact-jewelry-case"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="4" y="8" width="16" height="12" rx="1.5"/><path d="M4 12h16"/><path d="M9 8V6a3 3 0 016 0v2"/></svg> Elite Compact Jewelry Case</button>
+    <button class="cat-chip" data-filter="charger-protectors"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="4" y="8" width="16" height="12" rx="1.5"/><path d="M4 12h16"/><path d="M9 8V6a3 3 0 016 0v2"/></svg> Charger Protectors</button>
+    <button class="cat-chip" data-filter="brass-jewelry"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="4" y="8" width="16" height="12" rx="1.5"/><path d="M4 12h16"/><path d="M9 8V6a3 3 0 016 0v2"/></svg> Brass Jewelry</button>
+    <button class="cat-chip" data-filter="hair-clips"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="10" y="3" width="4" height="18" rx="2"/><path d="M7 8h10M7 16h10"/></svg> Hair Clips</button>
+    <button class="cat-chip" data-filter="twist-fabric-headband"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 14a8 8 0 0116 0"/><circle cx="6" cy="16" r="1.4"/><circle cx="18" cy="16" r="1.4"/></svg> Twist Fabric Headband</button>
+    <button class="cat-chip" data-filter="pearl-twist-headband"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 14a8 8 0 0116 0"/><circle cx="6" cy="16" r="1.4"/><circle cx="18" cy="16" r="1.4"/></svg> Pearl Twist Headband</button>
+    <button class="cat-chip" data-filter="magnetic-and-generic-watches"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><path d="M12 9v3l2 2"/><path d="M9 3h6M9 21h6"/></svg> Magnetic and Generic Watches</button>
+    <button class="cat-chip" data-filter="kids-pocket-mirrors"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="10" r="6"/><path d="M12 16v6"/></svg> Kids Pocket Mirrors</button>
+    <button class="cat-chip" data-filter="adult-pocket-mirrors"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="10" r="6"/><path d="M12 16v6"/></svg> Adult Pocket Mirrors</button>
+    <button class="cat-chip" data-filter="anxiety-rings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="14" r="6"/><path d="M9 8l1.5-5h3L15 8"/></svg> Anxiety Rings</button>
+    <button class="cat-chip" data-filter="brass-rings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="14" r="6"/><path d="M9 8l1.5-5h3L15 8"/></svg> Brass Rings</button>
+    <button class="cat-chip" data-filter="stainless-steel-rings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="14" r="6"/><path d="M9 8l1.5-5h3L15 8"/></svg> Stainless Steel Rings</button>
+    <button class="cat-chip" data-filter="xuping-rings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="14" r="6"/><path d="M9 8l1.5-5h3L15 8"/></svg> Xuping Rings</button>
+    <button class="cat-chip" data-filter="classic-jewelry-organizers"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="4" y="8" width="16" height="12" rx="1.5"/><path d="M4 12h16"/><path d="M9 8V6a3 3 0 016 0v2"/></svg> Classic Jewelry Organizers</button>
+    <button class="cat-chip" data-filter="statement-rings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="14" r="6"/><path d="M9 8l1.5-5h3L15 8"/></svg> Statement Rings</button>
+    <button class="cat-chip" data-filter="kids-digital-watches"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><path d="M12 9v3l2 2"/><path d="M9 3h6M9 21h6"/></svg> Kids Digital Watches</button>
+    <button class="cat-chip" data-filter="sunglasses"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="7" cy="13" r="3.2"/><circle cx="17" cy="13" r="3.2"/><path d="M10.2 13h3.6M3 12l1-2M21 12l-1-2"/></svg> Sunglasses</button>
+    <button class="cat-chip" data-filter="photochromic-glasses"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="7" cy="13" r="3.2"/><circle cx="17" cy="13" r="3.2"/><path d="M10.2 13h3.6M3 12l1-2M21 12l-1-2"/></svg> Photochromic Glasses</button>
+    <button class="cat-chip" data-filter="premium-wine-bottle-gift-box"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="4" y="8" width="16" height="12" rx="1.5"/><path d="M4 12h16"/><path d="M9 8V6a3 3 0 016 0v2"/></svg> Premium Wine Bottle Gift Box</button>
+    <button class="cat-chip" data-filter="anti-blue-light-glasses"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="7" cy="13" r="3.2"/><circle cx="17" cy="13" r="3.2"/><path d="M10.2 13h3.6M3 12l1-2M21 12l-1-2"/></svg> Anti-Blue Light Glasses</button>
+    <button class="cat-chip" data-filter="ruched-rhinestone-headband"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 14a8 8 0 0116 0"/><circle cx="6" cy="16" r="1.4"/><circle cx="18" cy="16" r="1.4"/></svg> Ruched Rhinestone Headband</button>
+    <button class="cat-chip" data-filter="pearl-and-rhinestones-headband"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 14a8 8 0 0116 0"/><circle cx="6" cy="16" r="1.4"/><circle cx="18" cy="16" r="1.4"/></svg> Pearl &amp; Rhinestones Headband</button>
+    <button class="cat-chip" data-filter="crystal-satin-ruche-headband"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 14a8 8 0 0116 0"/><circle cx="6" cy="16" r="1.4"/><circle cx="18" cy="16" r="1.4"/></svg> Crystal Satin Ruche Headband</button>
+    <button class="cat-chip" data-filter="travel-bags"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="4" y="8" width="16" height="12" rx="1.5"/><path d="M4 12h16"/><path d="M9 8V6a3 3 0 016 0v2"/></svg> Travel Bags</button>
+    <button class="cat-chip" data-filter="stainless-steel-necklaces"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.4"/></svg> Stainless Steel Necklaces</button>
+    <button class="cat-chip" data-filter="mens-watches"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><path d="M12 9v3l2 2"/><path d="M9 3h6M9 21h6"/></svg> Men's Watches</button>
+    <button class="cat-chip" data-filter="tennis-bracelets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><ellipse cx="12" cy="12" rx="8" ry="5.5"/></svg> Tennis Bracelets</button>
+    <button class="cat-chip" data-filter="xuping-bangles"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><ellipse cx="12" cy="12" rx="8" ry="5.5"/></svg> Xuping Bangles</button>
+    <button class="cat-chip" data-filter="xuping-tennis-bracelets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><ellipse cx="12" cy="12" rx="8" ry="5.5"/></svg> Xuping Tennis Bracelets</button>
+    <button class="cat-chip" data-filter="xuping-bracelets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><ellipse cx="12" cy="12" rx="8" ry="5.5"/></svg> Xuping Bracelets</button>
+    <button class="cat-chip" data-filter="brass-necklaces"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M4 4c0 8 16 8 16 0"/><circle cx="12" cy="16" r="2.4"/></svg> Brass Necklaces</button>
   </div>
   <div class="grid" id="grid"></div>
 </section>
@@ -1095,16 +1245,75 @@
       <div class="a-field">
         <label>Category</label>
         <select id="apCategory" required>
-          <option value="xuping-sets">Xuping Sets</option>
-          <option value="xuping-earrings">Xuping Earrings</option>
-          <option value="genuine-leather-belts">Genuine Leather Belts</option>
-          <option value="kids-xuping-earrings">Kids Xuping Earrings</option>
-          <option value="xuping-necklaces">Xuping Necklaces</option>
-          <option value="pearl-necklaces">Pearl Necklaces</option>
-          <option value="pu-leather-belts">P.U Leather Belts</option>
-          <option value="male-stainless-steel-sets">Male Stainless Steel Sets</option>
-          <option value="statement-stainless-earrings">Statement Stainless Earrings</option>
-          <option value="fashion-jewelry-necklace-sets">Fashion Jewelry Necklace Sets</option>
+          <optgroup label="Necklaces">
+            <option value="xuping-necklaces">Xuping Necklaces</option>
+            <option value="pearl-necklaces">Pearl Necklaces</option>
+            <option value="stainless-steel-necklaces">Stainless Steel Necklaces</option>
+            <option value="brass-necklaces">Brass Necklaces</option>
+          </optgroup>
+          <optgroup label="Earrings">
+            <option value="xuping-earrings">Xuping Earrings</option>
+            <option value="kids-xuping-earrings">Kids Xuping Earrings</option>
+            <option value="statement-stainless-earrings">Statement Stainless Earrings</option>
+          </optgroup>
+          <optgroup label="Rings">
+            <option value="anxiety-rings">Anxiety Rings</option>
+            <option value="brass-rings">Brass Rings</option>
+            <option value="stainless-steel-rings">Stainless Steel Rings</option>
+            <option value="xuping-rings">Xuping Rings</option>
+            <option value="statement-rings">Statement Rings</option>
+          </optgroup>
+          <optgroup label="Bracelets &amp; Bangles">
+            <option value="tennis-bracelets">Tennis Bracelets</option>
+            <option value="xuping-bangles">Xuping Bangles</option>
+            <option value="xuping-tennis-bracelets">Xuping Tennis Bracelets</option>
+            <option value="xuping-bracelets">Xuping Bracelets</option>
+          </optgroup>
+          <optgroup label="Jewelry Sets">
+            <option value="xuping-sets">Xuping Sets</option>
+            <option value="male-stainless-steel-sets">Male Stainless Steel Sets</option>
+            <option value="fashion-jewelry-necklace-sets">Fashion Jewelry Necklace Sets</option>
+          </optgroup>
+          <optgroup label="Watches">
+            <option value="hypoallergenic-watches">Hypoallergenic Watches</option>
+            <option value="genuine-leather-watches">Genuine Leather Watches</option>
+            <option value="magnetic-and-generic-watches">Magnetic and Generic Watches</option>
+            <option value="kids-digital-watches">Kids Digital Watches</option>
+            <option value="mens-watches">Men's Watches</option>
+          </optgroup>
+          <optgroup label="Belts">
+            <option value="genuine-leather-belts">Genuine Leather Belts</option>
+            <option value="pu-leather-belts">P.U Leather Belts</option>
+          </optgroup>
+          <optgroup label="Headbands &amp; Hair Accessories">
+            <option value="twist-fabric-headband">Twist Fabric Headband</option>
+            <option value="pearl-twist-headband">Pearl Twist Headband</option>
+            <option value="ruched-rhinestone-headband">Ruched Rhinestone Headband</option>
+            <option value="pearl-and-rhinestones-headband">Pearl & Rhinestones Headband</option>
+            <option value="crystal-satin-ruche-headband">Crystal Satin Ruche Headband</option>
+            <option value="hair-clips">Hair Clips</option>
+          </optgroup>
+          <optgroup label="Eyewear">
+            <option value="sunglasses">Sunglasses</option>
+            <option value="photochromic-glasses">Photochromic Glasses</option>
+            <option value="anti-blue-light-glasses">Anti-Blue Light Glasses</option>
+          </optgroup>
+          <optgroup label="Bags">
+            <option value="travel-bags">Travel Bags</option>
+          </optgroup>
+          <optgroup label="Mirrors">
+            <option value="kids-pocket-mirrors">Kids Pocket Mirrors</option>
+            <option value="adult-pocket-mirrors">Adult Pocket Mirrors</option>
+          </optgroup>
+          <optgroup label="Jewelry Storage &amp; Cases">
+            <option value="elite-compact-jewelry-case">Elite Compact Jewelry Case</option>
+            <option value="classic-jewelry-organizers">Classic Jewelry Organizers</option>
+          </optgroup>
+          <optgroup label="Other Accessories &amp; Gifts">
+            <option value="brass-jewelry">Brass Jewelry</option>
+            <option value="charger-protectors">Charger Protectors</option>
+            <option value="premium-wine-bottle-gift-box">Premium Wine Bottle Gift Box</option>
+          </optgroup>
         </select>
       </div>
       <div class="a-field"><label>Quantity Available</label><input type="number" id="apQuantity" min="0" value="1" required></div>
@@ -1156,7 +1365,69 @@ const CATEGORY_META = {
   "male-stainless-steel-sets":      { label: "Male Stainless Steel Sets",     color: "male-stainless-steel-sets",     ink: "male-stainless-steel-sets-ink" },
   "statement-stainless-earrings":   { label: "Statement Stainless Earrings",  color: "statement-stainless-earrings",  ink: "statement-stainless-earrings-ink" },
   "fashion-jewelry-necklace-sets":  { label: "Fashion Jewelry Necklace Sets", color: "fashion-jewelry-necklace-sets", ink: "fashion-jewelry-necklace-sets-ink" },
+  "hypoallergenic-watches":           { label: "Hypoallergenic Watches", color: "hypoallergenic-watches", ink: "hypoallergenic-watches-ink" },
+  "genuine-leather-watches":          { label: "Genuine Leather Watches", color: "genuine-leather-watches", ink: "genuine-leather-watches-ink" },
+  "elite-compact-jewelry-case":       { label: "Elite Compact Jewelry Case", color: "elite-compact-jewelry-case", ink: "elite-compact-jewelry-case-ink" },
+  "charger-protectors":               { label: "Charger Protectors", color: "charger-protectors", ink: "charger-protectors-ink" },
+  "brass-jewelry":                    { label: "Brass Jewelry", color: "brass-jewelry", ink: "brass-jewelry-ink" },
+  "hair-clips":                       { label: "Hair Clips", color: "hair-clips", ink: "hair-clips-ink" },
+  "twist-fabric-headband":            { label: "Twist Fabric Headband", color: "twist-fabric-headband", ink: "twist-fabric-headband-ink" },
+  "pearl-twist-headband":             { label: "Pearl Twist Headband", color: "pearl-twist-headband", ink: "pearl-twist-headband-ink" },
+  "magnetic-and-generic-watches":     { label: "Magnetic and Generic Watches", color: "magnetic-and-generic-watches", ink: "magnetic-and-generic-watches-ink" },
+  "kids-pocket-mirrors":              { label: "Kids Pocket Mirrors", color: "kids-pocket-mirrors", ink: "kids-pocket-mirrors-ink" },
+  "adult-pocket-mirrors":             { label: "Adult Pocket Mirrors", color: "adult-pocket-mirrors", ink: "adult-pocket-mirrors-ink" },
+  "anxiety-rings":                    { label: "Anxiety Rings", color: "anxiety-rings", ink: "anxiety-rings-ink" },
+  "brass-rings":                      { label: "Brass Rings", color: "brass-rings", ink: "brass-rings-ink" },
+  "stainless-steel-rings":            { label: "Stainless Steel Rings", color: "stainless-steel-rings", ink: "stainless-steel-rings-ink" },
+  "xuping-rings":                     { label: "Xuping Rings", color: "xuping-rings", ink: "xuping-rings-ink" },
+  "classic-jewelry-organizers":       { label: "Classic Jewelry Organizers", color: "classic-jewelry-organizers", ink: "classic-jewelry-organizers-ink" },
+  "statement-rings":                  { label: "Statement Rings", color: "statement-rings", ink: "statement-rings-ink" },
+  "kids-digital-watches":             { label: "Kids Digital Watches", color: "kids-digital-watches", ink: "kids-digital-watches-ink" },
+  "sunglasses":                       { label: "Sunglasses", color: "sunglasses", ink: "sunglasses-ink" },
+  "photochromic-glasses":             { label: "Photochromic Glasses", color: "photochromic-glasses", ink: "photochromic-glasses-ink" },
+  "premium-wine-bottle-gift-box":     { label: "Premium Wine Bottle Gift Box", color: "premium-wine-bottle-gift-box", ink: "premium-wine-bottle-gift-box-ink" },
+  "anti-blue-light-glasses":          { label: "Anti-Blue Light Glasses", color: "anti-blue-light-glasses", ink: "anti-blue-light-glasses-ink" },
+  "ruched-rhinestone-headband":       { label: "Ruched Rhinestone Headband", color: "ruched-rhinestone-headband", ink: "ruched-rhinestone-headband-ink" },
+  "pearl-and-rhinestones-headband":   { label: "Pearl & Rhinestones Headband", color: "pearl-and-rhinestones-headband", ink: "pearl-and-rhinestones-headband-ink" },
+  "crystal-satin-ruche-headband":     { label: "Crystal Satin Ruche Headband", color: "crystal-satin-ruche-headband", ink: "crystal-satin-ruche-headband-ink" },
+  "travel-bags":                      { label: "Travel Bags", color: "travel-bags", ink: "travel-bags-ink" },
+  "stainless-steel-necklaces":        { label: "Stainless Steel Necklaces", color: "stainless-steel-necklaces", ink: "stainless-steel-necklaces-ink" },
+  "mens-watches":                     { label: "Men's Watches", color: "mens-watches", ink: "mens-watches-ink" },
+  "tennis-bracelets":                 { label: "Tennis Bracelets", color: "tennis-bracelets", ink: "tennis-bracelets-ink" },
+  "xuping-bangles":                   { label: "Xuping Bangles", color: "xuping-bangles", ink: "xuping-bangles-ink" },
+  "xuping-tennis-bracelets":          { label: "Xuping Tennis Bracelets", color: "xuping-tennis-bracelets", ink: "xuping-tennis-bracelets-ink" },
+  "xuping-bracelets":                 { label: "Xuping Bracelets", color: "xuping-bracelets", ink: "xuping-bracelets-ink" },
+  "brass-necklaces":                  { label: "Brass Necklaces", color: "brass-necklaces", ink: "brass-necklaces-ink" },
 };
+const CATEGORY_GROUPS = [
+  ["Necklaces", ["xuping-necklaces","pearl-necklaces","stainless-steel-necklaces","brass-necklaces"]],
+  ["Earrings", ["xuping-earrings","kids-xuping-earrings","statement-stainless-earrings"]],
+  ["Rings", ["anxiety-rings","brass-rings","stainless-steel-rings","xuping-rings","statement-rings"]],
+  ["Bracelets & Bangles", ["tennis-bracelets","xuping-bangles","xuping-tennis-bracelets","xuping-bracelets"]],
+  ["Jewelry Sets", ["xuping-sets","male-stainless-steel-sets","fashion-jewelry-necklace-sets"]],
+  ["Watches", ["hypoallergenic-watches","genuine-leather-watches","magnetic-and-generic-watches","kids-digital-watches","mens-watches"]],
+  ["Belts", ["genuine-leather-belts","pu-leather-belts"]],
+  ["Headbands & Hair Accessories", ["twist-fabric-headband","pearl-twist-headband","ruched-rhinestone-headband","pearl-and-rhinestones-headband","crystal-satin-ruche-headband","hair-clips"]],
+  ["Eyewear", ["sunglasses","photochromic-glasses","anti-blue-light-glasses"]],
+  ["Bags", ["travel-bags"]],
+  ["Mirrors", ["kids-pocket-mirrors","adult-pocket-mirrors"]],
+  ["Jewelry Storage & Cases", ["elite-compact-jewelry-case","classic-jewelry-organizers"]],
+  ["Other Accessories & Gifts", ["brass-jewelry","charger-protectors","premium-wine-bottle-gift-box"]],
+];
+// Builds grouped <optgroup> markup for a category <select>, keeping every
+// admin dropdown in sync with CATEGORY_GROUPS instead of listing 43 options
+// in one flat, hard-to-scan list. Pass the current category to pre-select it.
+function buildCategoryOptionsHtml(selectedSlug) {
+  return CATEGORY_GROUPS.map(([groupLabel, slugs]) => {
+    const opts = slugs.map(slug => {
+      const label = (CATEGORY_META[slug] || { label: slug }).label;
+      const sel = slug === selectedSlug ? ' selected' : '';
+      return `<option value="${slug}"${sel}>${escapeHtml(label)}</option>`;
+    }).join('');
+    return `<optgroup label="${escapeHtml(groupLabel)}">${opts}</optgroup>`;
+  }).join('');
+}
+
 const PLACEHOLDER_IMG = "https://placehold.co/800x800/f7f5f1/b8860b?text=Ruaka+Jewelry";
 
 function normalizeProduct(p) {
@@ -1818,9 +2089,7 @@ async function openEditPanel(id){
   if (!res.ok) return alert('Could not load product');
   const p = await res.json();
 
-  const catOptions = Object.keys(CATEGORY_META).map(key =>
-    `<option value="${key}" ${key === p.category ? 'selected' : ''}>${CATEGORY_META[key].label}</option>`
-  ).join('');
+  const catOptions = buildCategoryOptionsHtml(p.category);
 
   const currentImagesHtml = (p.images && p.images.length)
     ? p.images.map(im => `
