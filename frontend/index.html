@@ -482,6 +482,16 @@
   .modal-thumbs{display:flex;gap:8px;position:absolute;left:14px;bottom:14px;z-index:4;}
   .modal-thumbs img{width:44px;height:44px;object-fit:cover;border-radius:4px;border:2px solid rgba(255,255,255,0.7);cursor:pointer;opacity:0.75;transition:opacity .2s ease, border-color .2s ease;}
   .modal-thumbs img:hover{opacity:1;}
+  .modal-thumb-video{
+    width:44px;height:44px;border-radius:4px;cursor:pointer;
+    background:var(--ink);border:2px solid rgba(255,255,255,0.7);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0.75;transition:opacity .2s ease, border-color .2s ease;
+  }
+  .modal-thumb-video svg{width:16px;height:16px;fill:var(--gold-bright);}
+  .modal-thumb-video:hover,.modal-thumb-video.active{opacity:1;}
+  .modal-thumbs img.active,.modal-thumb-video.active{border-color:var(--gold);}
+  .modal-tray video.tray-img{width:100%;height:100%;object-fit:contain;background:#000;}
   .modal-thumbs img.active{opacity:1;border-color:var(--gold);}
   .selector-opts{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
   .opt{
@@ -760,9 +770,16 @@
   .a-status{margin-top:14px;font-size:0.88rem;font-weight:500;}
   .a-preview-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
   .a-preview-row img{width:74px;height:74px;object-fit:cover;border-radius:6px;}
+  .preview-video-wrap{position:relative;width:74px;height:74px;}
+  .preview-video-wrap video{width:100%;height:100%;object-fit:cover;border-radius:6px;background:#000;}
+  .preview-video-badge{
+    position:absolute;bottom:3px;left:3px;right:3px;
+    background:rgba(0,0,0,0.65);color:#fff;font-size:0.55rem;letter-spacing:0.04em;
+    text-align:center;border-radius:3px;padding:2px 0;pointer-events:none;
+  }
   .a-current-images{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
   .a-current-img{position:relative;width:74px;height:74px;}
-  .a-current-img img{width:100%;height:100%;object-fit:cover;border-radius:6px;}
+  .a-current-img img,.a-current-img video{width:100%;height:100%;object-fit:cover;border-radius:6px;background:#000;}
   .a-img-remove{
     position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;
     background:#a3423f;color:#fff;font-size:0.7rem;display:flex;align-items:center;justify-content:center;line-height:1;
@@ -1106,7 +1123,7 @@
     </div>
     <div>
       <h4>Help</h4>
-      <a href="#delivery-info">Delivery</a><a href="https://wa.me/254741573866" target="_blank" rel="noopener">Returns</a><a href="https://wa.me/254741573866" target="_blank" rel="noopener">Sizing Guide</a><a href="#contact">Contact</a>
+      <a href="help-center.html#cat-delivery">Delivery</a><a href="help-center.html#cat-returns">Returns</a><a href="help-center.html#cat-sizing">Sizing Guide</a><a href="help-center.html">Help Center</a><a href="#contact">Contact</a>
     </div>
     <div id="contact">
       <h4>Visit</h4>
@@ -1351,8 +1368,8 @@
       <div class="a-field"><label>Quantity Available</label><input type="number" id="apQuantity" min="0" value="1" required></div>
       <div class="a-check"><input type="checkbox" id="apIsNew" checked><label style="margin:0;text-transform:none;letter-spacing:0;color:var(--ink);">Mark as New</label></div>
       <div class="a-field">
-        <label>Product Images (1–3)</label>
-        <input type="file" id="apImageFiles" accept="image/*" multiple required>
+        <label>Product Photos &amp; Demo Videos (1–3)</label>
+        <input type="file" id="apImageFiles" accept="image/*,video/*" multiple required>
         <div class="a-preview-row" id="apPreviewRow"></div>
       </div>
       <a class="btn-primary a-submit" id="apSubmitBtn" onclick="submitAddProduct(event)">Add Product</a>
@@ -1446,9 +1463,6 @@ const CATEGORY_GROUPS = [
   ["Jewelry Storage & Cases", ["elite-compact-jewelry-case","classic-jewelry-organizers"]],
   ["Other Accessories & Gifts", ["brass-jewelry","charger-protectors","premium-wine-bottle-gift-box"]],
 ];
-// Builds grouped <optgroup> markup for a category <select>, keeping every
-// admin dropdown in sync with CATEGORY_GROUPS instead of listing 43 options
-// in one flat, hard-to-scan list. Pass the current category to pre-select it.
 function buildCategoryOptionsHtml(selectedSlug) {
   return CATEGORY_GROUPS.map(([groupLabel, slugs]) => {
     const opts = slugs.map(slug => {
@@ -1641,9 +1655,12 @@ function updateCartUI(){
   document.getElementById('subtotal').textContent = fmt(subtotal);
 }
 
-function modalMarkup(p, images){
-  const thumbs = images.length > 1
-    ? `<div class="modal-thumbs">${images.map((src,idx) => `<img src="${escapeHtml(src)}" class="${idx===0?'active':''}" onclick="event.stopPropagation(); swapModalImage(this, ${JSON.stringify(src)})">`).join('')}</div>`
+function modalMarkup(p, media){
+  const thumbs = media.length > 1
+    ? `<div class="modal-thumbs">${media.map((m,idx) => m.media_type === 'video'
+        ? `<div class="modal-thumb-video ${idx===0?'active':''}" onclick="event.stopPropagation(); swapModalMedia(this, ${JSON.stringify(m.url)}, 'video')"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>`
+        : `<img src="${escapeHtml(m.url)}" class="${idx===0?'active':''}" onclick="event.stopPropagation(); swapModalMedia(this, ${JSON.stringify(m.url)}, 'image')">`
+      ).join('')}</div>`
     : '';
   const stock = stockInfo(p.quantity);
   const stockLine = p.quantity <= 0
@@ -1652,10 +1669,14 @@ function modalMarkup(p, images){
   const addBtn = p.quantity <= 0
     ? `<a class="btn-primary disabled" style="width:100%;justify-content:center;">Out of Stock</a>`
     : `<a class="btn-primary" style="width:100%;justify-content:center;" onclick="requireRegistration(() => { addToCart(${p.id}); closeAll(); })">Add to Bag</a>`;
+  const first = media[0] || { url: p.img, media_type: 'image' };
+  const mainMedia = first.media_type === 'video'
+    ? `<video class="tray-img" id="modalMainMedia" src="${escapeHtml(first.url)}" controls playsinline></video>`
+    : `<img class="tray-img" id="modalMainMedia" src="${escapeHtml(first.url)}" alt="${escapeHtml(p.name)}" loading="lazy">`;
   return `
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="modal-tray" style="background:var(--${p.color});">
-      <img class="tray-img" id="modalMainImg" src="${escapeHtml(images[0] || p.img)}" alt="${escapeHtml(p.name)}" loading="lazy">
+      ${mainMedia}
       ${thumbs}
     </div>
     <div class="modal-info">
@@ -1669,15 +1690,20 @@ function modalMarkup(p, images){
   `;
 }
 
-function swapModalImage(thumbEl, src){
-  document.getElementById('modalMainImg').src = src;
-  document.querySelectorAll('.modal-thumbs img').forEach(img => img.classList.remove('active'));
+function swapModalMedia(thumbEl, url, mediaType){
+  const tray = thumbEl.closest('.modal-tray');
+  const current = document.getElementById('modalMainMedia');
+  const replacement = mediaType === 'video'
+    ? `<video class="tray-img" id="modalMainMedia" src="${escapeHtml(url)}" controls playsinline autoplay></video>`
+    : `<img class="tray-img" id="modalMainMedia" src="${escapeHtml(url)}" loading="lazy">`;
+  current.outerHTML = replacement;
+  tray.querySelectorAll('.modal-thumbs img, .modal-thumb-video').forEach(el => el.classList.remove('active'));
   thumbEl.classList.add('active');
 }
 
 async function openModal(id){
   const p = PRODUCTS.find(x => x.id === id);
-  document.getElementById('modalBox').innerHTML = modalMarkup(p, [p.img]);
+  document.getElementById('modalBox').innerHTML = modalMarkup(p, [{ url: p.img, media_type: 'image' }]);
   document.getElementById('overlay').classList.add('open');
   document.getElementById('modal').classList.add('open');
 
@@ -1685,8 +1711,10 @@ async function openModal(id){
     const res = await fetch(`${API_URL}/products/${id}`);
     if (!res.ok) return;
     const detail = await res.json();
-    const images = (detail.images && detail.images.length) ? detail.images.map(im => im.url) : [p.img];
-    document.getElementById('modalBox').innerHTML = modalMarkup(p, images);
+    const media = (detail.images && detail.images.length)
+      ? detail.images.map(im => ({ url: im.url, media_type: im.media_type || 'image' }))
+      : [{ url: p.img, media_type: 'image' }];
+    document.getElementById('modalBox').innerHTML = modalMarkup(p, media);
   } catch (err) {
   }
 }
@@ -1980,19 +2008,36 @@ async function loadCustomersList(){
 
 const ADMIN_MAX_IMAGES = 3;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_VIDEO_INPUT_BYTES = 150 * 1024 * 1024;
+
+function isVideoFile(file){ return file.type.startsWith('video/'); }
 
 function invalidImageReason(file){
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return `"${file.name}" isn't a supported image type (jpg, png, webp, gif only).`;
+  if (isVideoFile(file)){
+    if (!ALLOWED_VIDEO_TYPES.includes(file.type)) return `"${file.name}" isn't a supported video type (mp4, webm, mov only).`;
+    if (file.size > MAX_VIDEO_INPUT_BYTES) return `"${file.name}" is over the 150MB limit -- trim it before uploading.`;
+    return null;
+  }
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return `"${file.name}" isn't a supported file type (jpg, png, webp, gif, mp4, webm, mov only).`;
   if (file.size > MAX_IMAGE_BYTES) return `"${file.name}" is over the 5MB limit.`;
   return null;
+}
+
+function mediaPreviewHtml(file){
+  const url = URL.createObjectURL(file);
+  if (isVideoFile(file)){
+    return `<div class="preview-video-wrap"><video src="${url}" muted playsinline preload="metadata"></video><span class="preview-video-badge">▶ VIDEO</span></div>`;
+  }
+  return `<img src="${url}">`;
 }
 
 document.getElementById('apImageFiles').addEventListener('change', function(e){
   const files = Array.from(e.target.files);
   const status = document.getElementById('apStatus');
   if (files.length > ADMIN_MAX_IMAGES){
-    status.textContent = `❌ Choose at most ${ADMIN_MAX_IMAGES} images.`;
+    status.textContent = `❌ Choose at most ${ADMIN_MAX_IMAGES} files.`;
     e.target.value = '';
     document.getElementById('apPreviewRow').innerHTML = '';
     return;
@@ -2005,9 +2050,7 @@ document.getElementById('apImageFiles').addEventListener('change', function(e){
     return;
   }
   status.textContent = '';
-  document.getElementById('apPreviewRow').innerHTML = files.map(f =>
-    `<img src="${URL.createObjectURL(f)}">`
-  ).join('');
+  document.getElementById('apPreviewRow').innerHTML = files.map(mediaPreviewHtml).join('');
 });
 
 function fileToBase64(file){
@@ -2018,16 +2061,11 @@ function fileToBase64(file){
     reader.readAsDataURL(file);
   });
 }
-
-// Downscales + compresses a product photo in the browser before it's uploaded,
-// so pages load fast on mobile data instead of shipping full-resolution camera
-// photos straight from the phone. Caps the longest edge and re-encodes as JPEG.
 const UPLOAD_MAX_DIMENSION = 1600;
 const UPLOAD_JPEG_QUALITY = 0.82;
 
 function resizeImageForUpload(file, maxDim = UPLOAD_MAX_DIMENSION, quality = UPLOAD_JPEG_QUALITY){
   return new Promise((resolve, reject) => {
-    // GIFs can be animated -- resizing would flatten them to one frame, so upload as-is.
     if (file.type === 'image/gif'){
       fileToBase64(file).then(base64 => resolve({ base64, contentType: file.type })).catch(reject);
       return;
@@ -2044,13 +2082,12 @@ function resizeImageForUpload(file, maxDim = UPLOAD_MAX_DIMENSION, quality = UPL
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff'; // flatten any transparency (e.g. PNG) onto white
+      ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, width, height);
       ctx.drawImage(img, 0, 0, width, height);
       URL.revokeObjectURL(objectUrl);
       const dataUrl = canvas.toDataURL('image/jpeg', quality);
       if (!dataUrl || dataUrl === 'data:,'){
-        // Canvas export failed (e.g. tainted canvas) -- fall back to the original file.
         fileToBase64(file).then(base64 => resolve({ base64, contentType: file.type })).catch(reject);
         return;
       }
@@ -2058,10 +2095,118 @@ function resizeImageForUpload(file, maxDim = UPLOAD_MAX_DIMENSION, quality = UPL
     };
     img.onerror = () => {
       URL.revokeObjectURL(objectUrl);
-      // Fall back to uploading the original file untouched rather than failing the upload.
       fileToBase64(file).then(base64 => resolve({ base64, contentType: file.type })).catch(reject);
     };
     img.src = objectUrl;
+  });
+}
+
+const VIDEO_MAX_DIMENSION = 960;
+const VIDEO_BITRATE = 1_500_000;
+const VIDEO_FPS = 30;
+const VIDEO_SKIP_COMPRESSION_UNDER_BYTES = 2 * 1024 * 1024;
+
+function pickSupportedVideoMimeType(){
+  const candidates = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+  for (const type of candidates){
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(type)) return type;
+  }
+  return null;
+}
+
+function compressVideoForUpload(file){
+  return new Promise((resolve, reject) => {
+    const fallbackToOriginal = () => fileToBase64(file)
+      .then(base64 => resolve({ base64, contentType: file.type }))
+      .catch(() => reject(new Error(`Could not read "${file.name}".`)));
+
+    const mimeType = pickSupportedVideoMimeType();
+    const canCapture = typeof HTMLCanvasElement !== 'undefined' && HTMLCanvasElement.prototype.captureStream;
+    if (file.size <= VIDEO_SKIP_COMPRESSION_UNDER_BYTES || !mimeType || !canCapture || !window.MediaRecorder){
+      fallbackToOriginal();
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.src = objectUrl;
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'auto';
+
+    let settled = false;
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      URL.revokeObjectURL(objectUrl);
+      if (result) resolve(result); else fallbackToOriginal();
+    };
+
+    video.onerror = () => finish(null);
+
+    video.onloadedmetadata = () => {
+      let { videoWidth: width, videoHeight: height } = video;
+      if (!width || !height){ finish(null); return; }
+      if (width > VIDEO_MAX_DIMENSION || height > VIDEO_MAX_DIMENSION){
+        if (width >= height){ height = Math.round(height * (VIDEO_MAX_DIMENSION / width)); width = VIDEO_MAX_DIMENSION; }
+        else { width = Math.round(width * (VIDEO_MAX_DIMENSION / height)); height = VIDEO_MAX_DIMENSION; }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      let combinedStream;
+      try {
+        const canvasStream = canvas.captureStream(VIDEO_FPS);
+        combinedStream = canvasStream;
+        if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined'){
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          const audioCtx = new Ctx();
+          audioCtx.resume().catch(() => {});
+          const source = audioCtx.createMediaElementSource(video);
+          const dest = audioCtx.createMediaStreamDestination();
+          source.connect(dest);
+          dest.stream.getAudioTracks().forEach(t => combinedStream.addTrack(t));
+        }
+      } catch (err) {
+        finish(null);
+        return;
+      }
+
+      let recorder;
+      try {
+        recorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: VIDEO_BITRATE });
+      } catch (err) {
+        finish(null);
+        return;
+      }
+
+      const chunks = [];
+      recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      recorder.onerror = () => finish(null);
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: mimeType.split(';')[0] });
+        if (!blob.size){ finish(null); return; }
+        const reader = new FileReader();
+        reader.onload = () => finish({ base64: reader.result.split(',')[1], contentType: mimeType.split(';')[0] });
+        reader.onerror = () => finish(null);
+        reader.readAsDataURL(blob);
+      };
+
+      let rafId;
+      const drawFrame = () => {
+        if (video.paused || video.ended) return;
+        ctx.drawImage(video, 0, 0, width, height);
+        rafId = requestAnimationFrame(drawFrame);
+      };
+
+      video.onended = () => { cancelAnimationFrame(rafId); if (recorder.state !== 'inactive') recorder.stop(); };
+      video.onplay = () => { recorder.start(); drawFrame(); };
+
+      video.play().catch(() => finish(null));
+    };
   });
 }
 
@@ -2106,22 +2251,27 @@ async function submitAddProduct(e){
 
     for (let i = 0; i < imageFiles.length; i++){
       const file = imageFiles[i];
-      status.textContent = `Uploading image ${i + 1} of ${imageFiles.length}...`;
-      const { base64: dataBase64, contentType } = await resizeImageForUpload(file);
+      const kind = isVideoFile(file) ? 'video' : 'image';
+      status.textContent = kind === 'video'
+        ? `Compressing & uploading video ${i + 1} of ${imageFiles.length}...`
+        : `Uploading image ${i + 1} of ${imageFiles.length}...`;
+      const { base64: dataBase64, contentType } = kind === 'video'
+        ? await compressVideoForUpload(file)
+        : await resizeImageForUpload(file);
       const uploadRes = await adminFetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename: file.name, contentType, dataBase64 })
       });
       const uploadData = await uploadRes.json();
-      if (!uploadRes.ok) throw new Error(uploadData.error || `Image ${i + 1} upload failed`);
+      if (!uploadRes.ok) throw new Error(uploadData.error || `${kind === 'video' ? 'Video' : 'Image'} ${i + 1} upload failed`);
 
       const imgRes = await adminFetch(`${API_URL}/admin/products/${productData.id}/images`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blob_url: uploadData.url, is_primary: i === 0, sort_order: i })
+        body: JSON.stringify({ blob_url: uploadData.url, is_primary: i === 0, sort_order: i, media_type: kind })
       });
-      if (!imgRes.ok) throw new Error(`Linking image ${i + 1} failed`);
+      if (!imgRes.ok) throw new Error(`Linking ${kind} ${i + 1} failed`);
     }
 
     status.textContent = '✅ Product added!';
@@ -2182,11 +2332,13 @@ async function openEditPanel(id){
   const currentImagesHtml = (p.images && p.images.length)
     ? p.images.map(im => `
         <div class="a-current-img" id="curimg-${im.id}">
-          <img src="${escapeHtml(im.url)}">
+          ${im.media_type === 'video'
+            ? `<video src="${escapeHtml(im.url)}" muted playsinline preload="metadata"></video>`
+            : `<img src="${escapeHtml(im.url)}">`}
           <div class="a-img-remove" onclick="removeProductImage(${id}, ${im.id})">×</div>
         </div>
       `).join('')
-    : '<span style="color:var(--muted); font-size:0.85rem;">No images</span>';
+    : '<span style="color:var(--muted); font-size:0.85rem;">No photos or videos</span>';
 
   panelWrap.innerHTML = `
     <div class="a-edit-panel">
@@ -2202,8 +2354,8 @@ async function openEditPanel(id){
         <div class="a-current-images" id="curImagesRow-${id}">${currentImagesHtml}</div>
       </div>
       <div class="a-field">
-        <label>Add Images (up to ${ADMIN_MAX_IMAGES} total)</label>
-        <input type="file" id="edImageFiles-${id}" accept="image/*" multiple>
+        <label>Add Photos or Videos (up to ${ADMIN_MAX_IMAGES} total)</label>
+        <input type="file" id="edImageFiles-${id}" accept="image/*,video/*" multiple>
         <div class="a-preview-row" id="edPreviewRow-${id}"></div>
       </div>
 
@@ -2221,7 +2373,7 @@ async function openEditPanel(id){
       document.getElementById(`edPreviewRow-${id}`).innerHTML = '';
       return;
     }
-    document.getElementById(`edPreviewRow-${id}`).innerHTML = files.map(f => `<img src="${URL.createObjectURL(f)}">`).join('');
+    document.getElementById(`edPreviewRow-${id}`).innerHTML = files.map(mediaPreviewHtml).join('');
   });
 }
 
@@ -2263,22 +2415,27 @@ async function saveEditedProduct(id){
       }
       for (let i = 0; i < newFiles.length; i++){
         const file = newFiles[i];
-        status.textContent = `Uploading image ${i + 1} of ${newFiles.length}...`;
-        const { base64: dataBase64, contentType } = await resizeImageForUpload(file);
+        const kind = isVideoFile(file) ? 'video' : 'image';
+        status.textContent = kind === 'video'
+          ? `Compressing & uploading video ${i + 1} of ${newFiles.length}...`
+          : `Uploading image ${i + 1} of ${newFiles.length}...`;
+        const { base64: dataBase64, contentType } = kind === 'video'
+          ? await compressVideoForUpload(file)
+          : await resizeImageForUpload(file);
         const uploadRes = await adminFetch('/api/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ filename: file.name, contentType, dataBase64 })
         });
         const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || `Image ${i + 1} upload failed`);
+        if (!uploadRes.ok) throw new Error(uploadData.error || `${kind === 'video' ? 'Video' : 'Image'} ${i + 1} upload failed`);
 
         const imgRes = await adminFetch(`${API_URL}/admin/products/${id}/images`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ blob_url: uploadData.url, is_primary: currentImgCount === 0 && i === 0, sort_order: currentImgCount + i })
+          body: JSON.stringify({ blob_url: uploadData.url, is_primary: currentImgCount === 0 && i === 0, sort_order: currentImgCount + i, media_type: kind })
         });
-        if (!imgRes.ok) throw new Error(`Linking image ${i + 1} failed`);
+        if (!imgRes.ok) throw new Error(`Linking ${kind} ${i + 1} failed`);
       }
     }
 

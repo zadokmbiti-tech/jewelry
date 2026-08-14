@@ -9,8 +9,22 @@ import crypto from 'crypto';
 // default body parser handles reliably in both `vercel dev` and production,
 // so this sidesteps that problem entirely instead of fighting it.
 
-const ALLOWED_CONTENT_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
-const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB
+const ALLOWED_IMAGE_CONTENT_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+// webm is what the browser-side compressor (resizeImageForUpload's video
+// counterpart, in the admin panel) re-encodes everything to via
+// MediaRecorder, so it's the type actually hitting this endpoint in
+// practice. mp4/quicktime are still accepted for a file that's small enough
+// to skip client compression and upload as-is.
+const ALLOWED_VIDEO_CONTENT_TYPES = new Set(['video/webm', 'video/mp4', 'video/quicktime']);
+const ALLOWED_CONTENT_TYPES = new Set([...ALLOWED_IMAGE_CONTENT_TYPES, ...ALLOWED_VIDEO_CONTENT_TYPES]);
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
+// Demo clips are compressed in the browser before upload (capped resolution
+// + bitrate -- see compressVideoForUpload in the admin panel JS), so they
+// should land well under this. It's a backstop, not the primary control.
+// NOTE: Vercel Serverless Functions have their own request body size cap
+// (device-dependent on your plan/config) -- if uploads start failing with a
+// 413 here even under this limit, raise the body size in vercel.json.
+const MAX_VIDEO_BYTES = 20 * 1024 * 1024; // 20MB
 
 // In-memory per-IP rate limit / lockout for this function instance. Serverless
 // instances are ephemeral and this doesn't share state across regions/cold
@@ -77,8 +91,11 @@ export default async function handler(request, response) {
     }
 
     if (!ALLOWED_CONTENT_TYPES.has(contentType)) {
-      return response.status(400).json({ error: 'Unsupported file type. Only JPEG, PNG, WEBP, and GIF images are allowed.' });
+      return response.status(400).json({ error: 'Unsupported file type. Images: JPEG, PNG, WEBP, GIF. Videos: WEBM, MP4, MOV.' });
     }
+
+    const isVideo = ALLOWED_VIDEO_CONTENT_TYPES.has(contentType);
+    const maxBytes = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
 
     const fileBuffer = Buffer.from(dataBase64, 'base64');
 
@@ -86,8 +103,9 @@ export default async function handler(request, response) {
       return response.status(400).json({ error: 'Upload body was empty  decoded file had 0 bytes.' });
     }
 
-    if (fileBuffer.length > MAX_FILE_BYTES) {
-      return response.status(400).json({ error: 'File is too large. Max size is 5MB.' });
+    if (fileBuffer.length > maxBytes) {
+      const limitMb = maxBytes / (1024 * 1024);
+      return response.status(400).json({ error: `File is too large. Max size is ${limitMb}MB for ${isVideo ? 'video' : 'image'} uploads.` });
     }
 
     const safeName = (rawName || `image-${Date.now()}.jpg`).replace(/[^a-zA-Z0-9._-]/g, '_');

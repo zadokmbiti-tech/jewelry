@@ -58,7 +58,11 @@ CREATE TABLE IF NOT EXISTS product_images (
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     blob_url TEXT NOT NULL,
     is_primary BOOLEAN NOT NULL DEFAULT FALSE,
-    sort_order INTEGER NOT NULL DEFAULT 0
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    -- 'video' lets a product carry short demo clips alongside its photos in
+    -- the same gallery/table, instead of a separate table -- the storefront
+    -- and admin panel both key off this to decide <img> vs <video>.
+    media_type TEXT NOT NULL DEFAULT 'image' CHECK (media_type IN ('image', 'video'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
@@ -105,3 +109,10 @@ CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 -- ─────────────────────────────────────────────────────────────────────────
 -- ALTER TABLE products DROP COLUMN IF EXISTS materials;
 -- ALTER TABLE products ADD COLUMN IF NOT EXISTS quantity INTEGER NOT NULL DEFAULT 0;
+
+-- ─────────────────────────────────────────────────────────────────────────
+-- MIGRATION: adds video-demo support to an existing product_images table
+-- (safe to re-run -- IF NOT EXISTS guards it). Existing rows default to
+-- 'image', which is what they already are.
+-- ─────────────────────────────────────────────────────────────────────────
+-- ALTER TABLE product_images ADD COLUMN IF NOT EXISTS media_type TEXT NOT NULL DEFAULT 'image' CHECK (media_type IN ('image', 'video'));

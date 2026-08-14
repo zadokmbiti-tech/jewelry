@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help Center Sj Gems Jewelry Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;
+    --surface:#f7f5f1;
+    --ink:#221c16;
+    --muted:#8c8073;
+    --gold:#b8860b;
+    --gold-bright:#d9a520;
+    --line:rgba(184,134,11,0.22);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Jost',sans-serif;
+    font-weight:300;
+    line-height:1.65;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.serif{font-family:'Cormorant Garamond',serif;font-weight:600;letter-spacing:0.01em;}
+  a{color:inherit;text-decoration:none;}
+  img,svg{display:block;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  .eyebrow{
+    text-transform:uppercase;
+    letter-spacing:0.28em;
+    font-size:0.7rem;
+    color:var(--gold);
+    font-weight:500;
+  }
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 5vw;
+    background:rgba(255,255,255,0.94);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{font-family:'Cormorant Garamond',serif;font-size:1.5rem;letter-spacing:0.1em;font-weight:700;}
+  .logo span{color:var(--gold);}
+  .back-link{
+    display:flex;align-items:center;gap:8px;
+    font-size:0.8rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);
+    transition:color .25s ease;
+  }
+  .back-link:hover{color:var(--gold);}
+  .back-link svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.6;}
+
+  .hero{
+    padding:170px 5vw 70px;
+    text-align:center;
+    position:relative;
+  }
+  .hero .eyebrow{display:block;margin-bottom:18px;}
+  .hero h1{font-size:clamp(2.4rem,5vw,3.6rem);max-width:720px;margin:0 auto 18px;}
+  .hero h1 em{color:var(--gold);font-style:italic;}
+  .hero p{max-width:520px;margin:0 auto;color:var(--muted);font-size:1rem;}
+
+  .ring-deco{position:absolute;top:60px;right:6vw;width:110px;height:110px;opacity:0.5;pointer-events:none;}
+  .ring-deco circle{fill:none;stroke:var(--gold);stroke-width:1;}
+
+  .search-wrap{max-width:560px;margin:38px auto 0;padding:0 5vw;position:relative;}
+  .search-wrap input{
+    width:100%;
+    padding:16px 20px 16px 46px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    background:var(--surface);
+    font-family:'Jost',sans-serif;font-weight:300;font-size:0.95rem;
+    color:var(--ink);
+  }
+  .search-wrap input::placeholder{color:var(--muted);}
+  .search-wrap input:focus{outline:none;border-color:var(--gold);}
+  .search-wrap svg{
+    position:absolute;left:20px;top:50%;transform:translateY(-50%);
+    width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.6;
+  }
+  .search-empty{
+    display:none;text-align:center;color:var(--muted);font-size:0.9rem;
+    padding:60px 5vw;
+  }
+
+  .cat-nav{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:14px;
+    max-width:920px;margin:46px auto 0;padding:0 5vw;
+  }
+  .cat-nav button{
+    display:flex;align-items:center;gap:9px;
+    padding:12px 20px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    font-size:0.82rem;letter-spacing:0.02em;
+    color:var(--ink);
+    background:var(--bg);
+    transition:border-color .25s ease, background .25s ease, color .25s ease;
+  }
+  .cat-nav button svg{width:15px;height:15px;stroke:var(--gold);fill:none;stroke-width:1.5;}
+  .cat-nav button:hover, .cat-nav button.active{
+    border-color:var(--gold);
+    background:var(--surface);
+  }
+
+  .divider{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    margin:0 auto;width:100%;max-width:220px;
+  }
+  .divider span{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:0.55;}
+  .divider span:nth-child(3n){opacity:0.9;}
+
+  main{max-width:760px;margin:0 auto;padding:70px 5vw 40px;}
+  .cat-section{margin-bottom:64px;scroll-margin-top:110px;}
+  .cat-head{display:flex;align-items:center;gap:14px;margin-bottom:28px;}
+  .cat-head .icon-wrap{
+    width:44px;height:44px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--surface);
+  }
+  .cat-head .icon-wrap svg{width:20px;height:20px;stroke:var(--gold);fill:none;stroke-width:1.4;}
+  .cat-head h2{font-size:1.7rem;}
+  .cat-head p{font-size:0.85rem;color:var(--muted);margin-top:2px;}
+
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-q{
+    width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:20px 2px;
+    text-align:left;
+    font-family:'Jost',sans-serif;font-weight:400;font-size:1rem;
+    color:var(--ink);
+  }
+  .faq-q .plus{
+    flex-shrink:0;width:20px;height:20px;position:relative;
+  }
+  .faq-q .plus::before,.faq-q .plus::after{
+    content:"";position:absolute;top:50%;left:50%;
+    background:var(--gold);transform:translate(-50%,-50%);
+    transition:transform .3s ease, opacity .3s ease;
+  }
+  .faq-q .plus::before{width:12px;height:1.4px;}
+  .faq-q .plus::after{width:1.4px;height:12px;}
+  .faq-item.open .faq-q .plus::after{transform:translate(-50%,-50%) rotate(90deg);opacity:0;}
+  .faq-item.open .faq-q{color:var(--gold);}
+
+  .faq-a{
+    max-height:0;overflow:hidden;
+    transition:max-height .35s ease;
+  }
+  .faq-a-inner{padding:0 2px 22px;color:var(--muted);font-size:0.92rem;max-width:640px;}
+  .faq-a-inner p + p{margin-top:10px;}
+  .faq-a-inner ul{margin:10px 0 0 18px;}
+  .faq-a-inner a{color:var(--gold);border-bottom:1px solid var(--line);}
+
+  .size-table{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:0.88rem;}
+  .size-table th,.size-table td{
+    text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);color:var(--muted);
+  }
+  .size-table th{color:var(--ink);font-weight:500;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.08em;}
+
+  .help-cta{
+    background:var(--surface);
+    border:1px solid var(--line);
+    padding:46px 6vw;
+    text-align:center;
+    margin:0 5vw 90px;
+  }
+  .help-cta h3{font-size:1.6rem;margin-bottom:10px;}
+  .help-cta p{color:var(--muted);font-size:0.9rem;max-width:420px;margin:0 auto 26px;}
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:13px 26px;
+    font-size:0.82rem;letter-spacing:0.06em;text-transform:uppercase;
+  }
+  .btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.6;}
+  .btn-primary{background:var(--ink);color:#fff;}
+  .btn-primary:hover{background:var(--gold);}
+  .btn-ghost{border:1px solid var(--line);color:var(--ink);}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+
+  footer{
+    padding:40px 5vw;text-align:center;
+    border-top:1px solid var(--line);
+    color:var(--muted);font-size:0.78rem;
+  }
+  footer a{color:var(--muted);}
+  footer a:hover{color:var(--gold);}
+
+  @media(max-width:640px){
+    header{padding:18px 6vw;}
+    .back-link span{display:none;}
+    .hero{padding:140px 6vw 50px;}
+    .ring-deco{display:none;}
+    main{padding:50px 6vw 20px;}
+    .cat-nav{gap:10px;}
+  }
+</style>
+</head>
+<body>
+
+<header id="header">
+  <div class="logo">Sj Gems Jewelry Store<span>.</span></div>
+  <a href="/#top" class="back-link">
+    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span>Back to Store</span>
+  </a>
+</header>
+
+<section class="hero">
+  <svg class="ring-deco" viewBox="0 0 110 110"><circle cx="55" cy="55" r="52"/><circle cx="55" cy="55" r="38"/></svg>
+  <span class="eyebrow">Customer Help Center</span>
+  <h1>How can we <em>help</em> you today?</h1>
+  <p>Answers on ordering, delivery, sizing and returns or reach us directly on WhatsApp any time.</p>
+
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input type="text" id="faqSearch" placeholder="Search for a topic e.g. “delivery to Nairobi”" autocomplete="off">
+  </div>
+
+  <nav class="cat-nav" id="catNav">
+    <button data-target="cat-orders" class="active">
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 3v6M8 3v6M2 11h20"/></svg>
+      Orders &amp; Payment
+    </button>
+    <button data-target="cat-delivery">
+      <svg viewBox="0 0 24 24"><path d="M3 12l4-8h10l4 8-4 8H7l-4-8z"/><path d="M3 12h18"/></svg>
+      Delivery
+    </button>
+    <button data-target="cat-sizing">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+      Sizing Guide
+    </button>
+    <button data-target="cat-returns">
+      <svg viewBox="0 0 24 24"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-6.7L3 9"/></svg>
+      Returns &amp; Exchanges
+    </button>
+    <button data-target="cat-care">
+      <svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg>
+      Product Care
+    </button>
+    <button data-target="cat-contact">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Contact Us
+    </button>
+  </nav>
+</section>
+
+<div class="divider" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<main id="faqRoot">
+
+  <p class="search-empty" id="searchEmpty">No matches try a different word, or message us on WhatsApp below and we'll answer directly.</p>
+
+  <section class="cat-section" id="cat-orders">
+    <div class="cat-head">
+      <div class="icon-wrap"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 3v6M8 3v6M2 11h20"/></svg></div>
+      <div><h2>Orders &amp; Payment</h2><p>Placing an order and paying with M‑Pesa</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>How do I place an order?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Add the pieces you'd like to your cart, then go to checkout. Enter your name, phone number and delivery address, and confirm the M‑Pesa STK push prompt that's sent to your phone no card or account needed.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>Is M‑Pesa the only way to pay?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Yes, for now all checkout is done through M‑Pesa (STK push), so you'll never need to enter a card number. If M‑Pesa isn't working for you, message us on WhatsApp and we'll sort out an alternative.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>I paid but my order still shows "pending" what happens next?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Payments are confirmed by our team rather than instantly, so a short "pending" window right after you pay is completely normal it usually clears within a few hours.</p>
+        <p>If it's been longer than that, message us on WhatsApp with your name and the M‑Pesa confirmation code and we'll confirm it manually right away.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>Can I cancel or change my order after paying?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>If your order hasn't shipped yet, message us on WhatsApp as soon as possible with your order details we can usually adjust the size, piece, or delivery address, or cancel and refund via M‑Pesa.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="cat-section" id="cat-delivery">
+    <div class="cat-head">
+      <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M3 12l4-8h10l4 8-4 8H7l-4-8z"/><path d="M3 12h18"/></svg></div>
+      <div><h2>Delivery</h2><p>Timelines and coverage from our Ruaka workshop</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>Where do you deliver, and how long does it take?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>We're based in Ruaka, Kiambu, with same‑day or next‑day delivery around Ruaka and greater Nairobi. Countrywide orders are shipped via courier and typically arrive within 2–4 business days.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>How much does delivery cost?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Delivery cost depends on your location and is shown at checkout before you pay. For custom or bulk orders, message us on WhatsApp for a delivery quote.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>How do I track my order?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Since we're a small workshop, tracking is handled personally rather than through an automated system message us on WhatsApp with your name or order details any time and we'll give you a live update.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="cat-section" id="cat-sizing">
+    <div class="cat-head">
+      <div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <div><h2>Sizing Guide</h2><p>Getting rings, necklaces and bracelets to fit right</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>How do I find my ring size at home?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Wrap a strip of paper or string around the base of your finger, mark where it overlaps, then measure that length in millimetres. Match it against the table below, or send us the number on WhatsApp and we'll confirm the closest fit.</p>
+        <table class="size-table">
+          <tr><th>Finger circumference</th><th>Size (approx.)</th></tr>
+          <tr><td>49 mm</td><td>Small</td></tr>
+          <tr><td>52 mm</td><td>Medium</td></tr>
+          <tr><td>56 mm</td><td>Large</td></tr>
+          <tr><td>60 mm</td><td>Extra Large</td></tr>
+        </table>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>What necklace length should I choose?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <table class="size-table">
+          <tr><th>Style</th><th>Length</th><th>Sits at</th></tr>
+          <tr><td>Choker</td><td>35–40 cm</td><td>Base of the neck</td></tr>
+          <tr><td>Princess</td><td>45 cm</td><td>Collarbone</td></tr>
+          <tr><td>Matinee</td><td>55–60 cm</td><td>Above the bust</td></tr>
+          <tr><td>Opera</td><td>70–90 cm</td><td>Below the bust</td></tr>
+        </table>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>What if my piece doesn't fit when it arrives?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>No problem message us on WhatsApp within 3 days of delivery. Ring sizing and bangle/bracelet adjustments are usually free; we'll let you know if an exchange is needed instead.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="cat-section" id="cat-returns">
+    <div class="cat-head">
+      <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-6.7L3 9"/></svg></div>
+      <div><h2>Returns &amp; Exchanges</h2><p>Our policy on sending pieces back</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>What's your return window and condition requirements?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>You can return most pieces within 3 days of delivery, as long as they're unworn, undamaged, and in their original gift box with tags attached.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>What can't be returned?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>For hygiene reasons, pierced earrings can only be returned if they arrive faulty. Custom or personalised pieces (engraved or made to a specific size) are also final sale unless there's a defect.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>How and when will I get refunded?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Once we've received and checked the returned piece, we send your refund straight to the M‑Pesa number used for the order. This usually takes 1–3 business days after inspection.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="cat-section" id="cat-care">
+    <div class="cat-head">
+      <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg></div>
+      <div><h2>Product Care &amp; Materials</h2><p>Keeping your jewelry looking new</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>What do "Xuping", "gold‑plated" and "brass" mean?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>Xuping pieces are gold‑plated over a brass or alloy base a lightweight, affordable way to get a solid‑gold look. Stainless steel and pearl pieces are listed separately in each product's description so you always know exactly what you're getting.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>How should I store and clean my jewelry?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <ul>
+          <li><strong>Gold‑plated (Xuping) &amp; brass:</strong> keep away from water, perfume and lotion; store in the pouch provided.</li>
+          <li><strong>Stainless steel:</strong> low maintenance  wipe with a soft, dry cloth.</li>
+          <li><strong>Pearl:</strong> avoid moisture and spray perfume before putting pieces on, not after; store flat, wrapped in soft cloth.</li>
+          <li><strong>Leather (belts &amp; watches):</strong> keep dry and away from direct sun; condition occasionally.</li>
+        </ul>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="cat-section" id="cat-contact" style="margin-bottom:0;">
+    <div class="cat-head">
+      <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div><h2>Contact Us</h2><p>Real people, based in Ruaka</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q"><span>What's the fastest way to reach you?</span><span class="plus"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">
+        <p>WhatsApp  we reply fastest there, usually within a few hours during the day. You can also email <a href="mailto:hello@sjgemsjewelrystore.co.ke">hello@sjgemsjewelrystore.co.ke</a> or call/text <a href="tel:+254741573866">+254 741 573 866</a>.</p>
+      </div></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="help-cta">
+  <h3 class="serif">Still need a hand?</h3>
+  <p>Message us directly and we'll get back to you personally no bots, no ticket numbers.</p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="https://wa.me/254741573866" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat on WhatsApp
+    </a>
+    <a class="btn btn-ghost" href="mailto:hello@sjgemsjewelrystore.co.ke">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+      Email Us
+    </a>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 Sj Gems Jewelry Store  Ruaka, Kiambu &nbsp;·&nbsp; <a href="mailto:hello@sjgemsjewelrystore.co.ke">hello@sjgemsjewelrystore.co.ke</a> &nbsp;·&nbsp; <a href="tel:+254741573866">+254 741 573 866</a></p>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    const q = item.querySelector('.faq-q');
+    const a = item.querySelector('.faq-a');
+    q.addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      // close siblings in same section for a tidier reading flow
+      item.parentElement.querySelectorAll('.faq-item.open').forEach(sib=>{
+        if(sib!==item){
+          sib.classList.remove('open');
+          sib.querySelector('.faq-a').style.maxHeight = null;
+        }
+      });
+      if(isOpen){
+        item.classList.remove('open');
+        a.style.maxHeight = null;
+      } else {
+        item.classList.add('open');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+    });
+  });
+
+  const navButtons = document.querySelectorAll('#catNav button');
+  navButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.getElementById(btn.dataset.target).scrollIntoView({behavior:'smooth'});
+    });
+  });
+  const sections = document.querySelectorAll('.cat-section');
+  const observer = new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        navButtons.forEach(b=>b.classList.toggle('active', b.dataset.target===entry.target.id));
+      }
+    });
+  }, {rootMargin:'-40% 0px -50% 0px'});
+  sections.forEach(s=>observer.observe(s));
+
+  const searchInput = document.getElementById('faqSearch');
+  const searchEmpty = document.getElementById('searchEmpty');
+  searchInput.addEventListener('input', ()=>{
+    const term = searchInput.value.trim().toLowerCase();
+    let anyVisible = false;
+    document.querySelectorAll('.cat-section').forEach(section=>{
+      let sectionHasMatch = false;
+      section.querySelectorAll('.faq-item').forEach(item=>{
+        const text = item.textContent.toLowerCase();
+        const match = term === '' || text.includes(term);
+        item.style.display = match ? '' : 'none';
+        if(match) sectionHasMatch = true;
+      });
+      section.style.display = sectionHasMatch ? '' : 'none';
+      if(sectionHasMatch) anyVisible = true;
+    });
+    searchEmpty.style.display = (!anyVisible && term !== '') ? 'block' : 'none';
+  });
+</script>
+
+</body>
+</html>

@@ -203,6 +203,7 @@ class ProductImageCreate(BaseModel):
     blob_url: str
     is_primary: bool = False
     sort_order: int = 0
+    media_type: str = "image"
 
     @field_validator("blob_url")
     @classmethod
@@ -212,6 +213,14 @@ class ProductImageCreate(BaseModel):
             raise ValueError("blob_url must be an absolute http(s) URL")
         if len(v) > 2000:
             raise ValueError("blob_url too long")
+        return v
+
+    @field_validator("media_type")
+    @classmethod
+    def validate_media_type(cls, v: str) -> str:
+        v = v.strip().lower()
+        if v not in {"image", "video"}:
+            raise ValueError("media_type must be 'image' or 'video'")
         return v
 
 
@@ -333,8 +342,14 @@ def get_products(request: Request, category: str | None = None):
     products = []
     for r in rows:
         product_id = r[0]
+        # Grid thumbnails always prefer a photo over a demo video when a
+        # product has both -- the video still plays in the product detail
+        # view, but a still photo makes a better catalogue-card thumbnail.
         cur.execute(
-            "SELECT blob_url FROM product_images WHERE product_id = %s ORDER BY is_primary DESC, sort_order ASC LIMIT 1;",
+            """
+            SELECT blob_url FROM product_images WHERE product_id = %s
+            ORDER BY (media_type = 'image') DESC, is_primary DESC, sort_order ASC LIMIT 1;
+            """,
             (product_id,),
         )
         img_row = cur.fetchone()
@@ -372,10 +387,10 @@ def get_product(request: Request, product_id: int):
         raise HTTPException(status_code=404, detail="Product not found")
 
     cur.execute(
-        "SELECT id, blob_url FROM product_images WHERE product_id = %s ORDER BY is_primary DESC, sort_order ASC;",
+        "SELECT id, blob_url, media_type FROM product_images WHERE product_id = %s ORDER BY is_primary DESC, sort_order ASC;",
         (product_id,),
     )
-    images = [{"id": r[0], "url": r[1]} for r in cur.fetchall()]
+    images = [{"id": r[0], "url": r[1], "media_type": r[2]} for r in cur.fetchall()]
     cur.close()
     conn.close()
 
@@ -433,11 +448,11 @@ def add_product_image(request: Request, product_id: int, image: ProductImageCrea
 
     cur.execute(
         """
-        INSERT INTO product_images (product_id, blob_url, is_primary, sort_order)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO product_images (product_id, blob_url, is_primary, sort_order, media_type)
+        VALUES (%s, %s, %s, %s, %s)
         RETURNING id;
         """,
-        (product_id, image.blob_url, image.is_primary, image.sort_order),
+        (product_id, image.blob_url, image.is_primary, image.sort_order, image.media_type),
     )
     new_id = cur.fetchone()[0]
     conn.commit()
