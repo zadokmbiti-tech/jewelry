@@ -239,15 +239,13 @@
   .hero-art{flex:1;display:flex;align-items:center;justify-content:center;position:relative;animation:heroRise 1.1s cubic-bezier(.16,1,.3,1) both;animation-delay:.1s;}
   .hero-art svg{width:min(420px,38vw);height:auto;position:relative;z-index:2;}
   .hero-brand-mark{
-    position:absolute;top:50%;left:50%;
-    width:min(480px,42vw);aspect-ratio:520/387;
-    transform:translate(-50%,-50%);
+    position:absolute;inset:0;
     background-image:url('https://sc4xgzhdjkrcx5cy.public.blob.vercel-storage.com/sjgems-logo.png');
-    background-size:contain;background-position:center;background-repeat:no-repeat;
-    opacity:0.4;
+    background-size:cover;background-position:center;background-repeat:no-repeat;
+    opacity:0.5;
     mix-blend-mode:multiply;
-    -webkit-mask-image:radial-gradient(ellipse 65% 65% at center, #000 65%, transparent 92%);
-    mask-image:radial-gradient(ellipse 65% 65% at center, #000 65%, transparent 92%);
+    -webkit-mask-image:radial-gradient(ellipse 80% 80% at center, #000 60%, transparent 100%);
+    mask-image:radial-gradient(ellipse 80% 80% at center, #000 60%, transparent 100%);
     z-index:1;pointer-events:none;
   }
   .glint{
