@@ -18,13 +18,16 @@ const ALLOWED_IMAGE_CONTENT_TYPES = new Set(['image/jpeg', 'image/png', 'image/w
 const ALLOWED_VIDEO_CONTENT_TYPES = new Set(['video/webm', 'video/mp4', 'video/quicktime']);
 const ALLOWED_CONTENT_TYPES = new Set([...ALLOWED_IMAGE_CONTENT_TYPES, ...ALLOWED_VIDEO_CONTENT_TYPES]);
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
-// Demo clips are compressed in the browser before upload (capped resolution
-// + bitrate -- see compressVideoForUpload in the admin panel JS), so they
-// should land well under this. It's a backstop, not the primary control.
-// NOTE: Vercel Serverless Functions have their own request body size cap
-// (device-dependent on your plan/config) -- if uploads start failing with a
-// 413 here even under this limit, raise the body size in vercel.json.
-const MAX_VIDEO_BYTES = 20 * 1024 * 1024; // 20MB
+// Vercel Serverless Functions hard-cap the total request body at ~4.5MB --
+// a platform limit, not something raisable here or in vercel.json. This
+// endpoint receives the file base64-encoded inside a JSON body, and base64
+// inflates size by ~33%, so the raw (decoded) file has to be well under
+// that 4.5MB body cap or Vercel rejects the request before this handler
+// even runs (returning its own plain-text "Request Entity Too Large", not
+// JSON). The browser-side compressor (compressVideoForUpload in the admin
+// panel) targets ~2.8MB output for exactly this reason -- this check is a
+// backstop for anything that skips or exceeds that, not the primary control.
+const MAX_VIDEO_BYTES = 3.2 * 1024 * 1024; // ~3.2MB raw -- keeps base64'd body under Vercel's cap
 
 // In-memory per-IP rate limit / lockout for this function instance. Serverless
 // instances are ephemeral and this doesn't share state across regions/cold

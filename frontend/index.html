@@ -1370,7 +1370,7 @@
       <div class="a-field"><label>Quantity Available</label><input type="number" id="apQuantity" min="0" value="1" required></div>
       <div class="a-check"><input type="checkbox" id="apIsNew" checked><label style="margin:0;text-transform:none;letter-spacing:0;color:var(--ink);">Mark as New</label></div>
       <div class="a-field">
-        <label>Product Photos &amp; Demo Videos (1–3)</label>
+        <label>Product Photos &amp; Demo Videos (1–10)</label>
         <input type="file" id="apImageFiles" accept="image/*,video/*" multiple required>
         <div class="a-preview-row" id="apPreviewRow"></div>
       </div>
@@ -2012,7 +2012,7 @@ async function loadCustomersList(){
   }
 }
 
-const ADMIN_MAX_IMAGES = 3;
+const ADMIN_MAX_IMAGES = 10;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -2072,6 +2072,21 @@ function fileToBase64(file){
   });
 }
 
+// fetch() only rejects on network failure -- a 413/500/etc. still resolves
+// with a response whose body might be plain text (e.g. Vercel's own
+// "Request Entity Too Large" for an oversized body, returned before our
+// handler even runs). Calling .json() on that throws a cryptic
+// "Unexpected token" instead of a message that says what actually happened.
+async function parseJsonResponse(res, context){
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    const snippet = text.trim().slice(0, 120) || `HTTP ${res.status}`;
+    throw new Error(`${context} failed (${res.status}): ${snippet}`);
+  }
+}
+
 // Downscales + compresses a product photo in the browser before it's uploaded,
 // so pages load fast on mobile data instead of shipping full-resolution camera
 // photos straight from the phone. Caps the longest edge and re-encodes as JPEG.
@@ -2124,10 +2139,27 @@ function resizeImageForUpload(file, maxDim = UPLOAD_MAX_DIMENSION, quality = UPL
 // content itself (no cropping, trimming, or muting -- full clip, full audio,
 // same framing, just re-compressed). Falls back to uploading the original
 // file untouched if the browser can't do the capture/record dance.
-const VIDEO_MAX_DIMENSION = 960;   // long edge, in px -- plenty for a product demo clip
-const VIDEO_BITRATE = 1_500_000;   // ~1.5 Mbps -- good enough quality for web playback, far smaller than raw phone footage
+//
+// The byte budget below isn't arbitrary: uploads go through /api/upload as
+// a JSON body with the file base64-encoded inside it, and Vercel Serverless
+// Functions hard-cap the total request body at ~4.5MB -- a limit set by the
+// platform, not something raisable from our own code or vercel.json. Base64
+// inflates the raw file by ~33%, so the compressed video itself has to land
+// under ~3MB or the upload gets rejected by Vercel before our handler (or
+// its own size check) ever runs -- which is what the raw "Request Entity
+// Too Large" text response (not JSON) was, when this was still a fixed
+// bitrate regardless of clip length.
+const VIDEO_MAX_DIMENSION = 720;    // long edge, in px -- plenty for a product demo clip
+const VIDEO_BYTE_BUDGET = 2_800_000; // ~2.8MB raw output target, leaving headroom under the ~3MB ceiling above
+const VIDEO_BITRATE_MAX = 1_800_000; // ceiling for short clips, so a 5s clip isn't needlessly low quality
+const VIDEO_BITRATE_MIN = 250_000;   // floor -- below this it stops looking like a usable demo
 const VIDEO_FPS = 30;
 const VIDEO_SKIP_COMPRESSION_UNDER_BYTES = 2 * 1024 * 1024; // already small enough, don't bother
+// Even at the bitrate floor, a clip this long still won't fit the budget --
+// there's nothing left to trade off without cropping the clip (which we
+// won't do), so this is surfaced as an upfront error instead of a silent,
+// doomed-to-fail upload.
+const VIDEO_MAX_VIABLE_SECONDS = Math.floor((VIDEO_BYTE_BUDGET * 8) / VIDEO_BITRATE_MIN);
 
 function pickSupportedVideoMimeType(){
   const candidates = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
@@ -2172,8 +2204,31 @@ function compressVideoForUpload(file){
     video.onerror = () => finish(null);
 
     video.onloadedmetadata = () => {
-      let { videoWidth: width, videoHeight: height } = video;
+      let { videoWidth: width, videoHeight: height, duration } = video;
       if (!width || !height){ finish(null); return; }
+      if (!duration || !isFinite(duration) || duration <= 0){
+        // Some browsers report Infinity for certain containers until a seek happens.
+        duration = 30; // fall back to a conservative guess rather than blocking the upload
+      }
+
+      if (duration > VIDEO_MAX_VIABLE_SECONDS){
+        settled = true;
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error(
+          `"${file.name}" is about ${Math.round(duration)}s long -- even fully compressed that's too large for a single upload (Vercel's ~4.5MB request limit). ` +
+          `Please trim it to under ~${VIDEO_MAX_VIABLE_SECONDS}s and try again.`
+        ));
+        return;
+      }
+
+      // Longer clips get a lower bitrate so the total output still lands
+      // inside the byte budget; short clips get to keep more quality
+      // instead of wasting the extra headroom.
+      const targetBitrate = Math.min(
+        VIDEO_BITRATE_MAX,
+        Math.max(VIDEO_BITRATE_MIN, Math.floor((VIDEO_BYTE_BUDGET * 8) / duration))
+      );
+
       if (width > VIDEO_MAX_DIMENSION || height > VIDEO_MAX_DIMENSION){
         if (width >= height){ height = Math.round(height * (VIDEO_MAX_DIMENSION / width)); width = VIDEO_MAX_DIMENSION; }
         else { width = Math.round(width * (VIDEO_MAX_DIMENSION / height)); height = VIDEO_MAX_DIMENSION; }
@@ -2207,18 +2262,30 @@ function compressVideoForUpload(file){
 
       let recorder;
       try {
-        recorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: VIDEO_BITRATE });
+        recorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: targetBitrate });
       } catch (err) {
         finish(null);
         return;
       }
 
       const chunks = [];
-      recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      let recordedBytes = 0;
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0){ chunks.push(e.data); recordedBytes += e.data.size; }
+      };
       recorder.onerror = () => finish(null);
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: mimeType.split(';')[0] });
         if (!blob.size){ finish(null); return; }
+        if (blob.size > VIDEO_BYTE_BUDGET * 1.3){
+          // Bitrate targeting can still overshoot on some content (fast
+          // motion, scene cuts) -- catch it here rather than uploading
+          // something that Vercel will just reject anyway.
+          settled = true;
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error(`"${file.name}" compressed to ${(blob.size / (1024*1024)).toFixed(1)}MB, still too large to upload. Try a shorter clip.`));
+          return;
+        }
         const reader = new FileReader();
         reader.onload = () => finish({ base64: reader.result.split(',')[1], contentType: mimeType.split(';')[0] });
         reader.onerror = () => finish(null);
@@ -2251,11 +2318,11 @@ async function submitAddProduct(e){
     return;
   }
   if (imageFiles.length === 0){
-    status.textContent = '❌ Choose at least 1 image.';
+    status.textContent = '❌ Choose at least 1 photo or video.';
     return;
   }
   if (imageFiles.length > ADMIN_MAX_IMAGES){
-    status.textContent = `❌ Choose at most ${ADMIN_MAX_IMAGES} images.`;
+    status.textContent = `❌ Choose at most ${ADMIN_MAX_IMAGES} files.`;
     return;
   }
 
@@ -2276,7 +2343,7 @@ async function submitAddProduct(e){
         is_new: document.getElementById('apIsNew').checked
       })
     });
-    const productData = await productRes.json();
+    const productData = await parseJsonResponse(productRes, 'Product creation');
     if (!productRes.ok) throw new Error(productData.detail || 'Product creation failed');
 
     for (let i = 0; i < imageFiles.length; i++){
@@ -2293,7 +2360,7 @@ async function submitAddProduct(e){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename: file.name, contentType, dataBase64 })
       });
-      const uploadData = await uploadRes.json();
+      const uploadData = await parseJsonResponse(uploadRes, `${kind === 'video' ? 'Video' : 'Image'} ${i + 1} upload`);
       if (!uploadRes.ok) throw new Error(uploadData.error || `${kind === 'video' ? 'Video' : 'Image'} ${i + 1} upload failed`);
 
       const imgRes = await adminFetch(`${API_URL}/admin/products/${productData.id}/images`, {
@@ -2441,7 +2508,7 @@ async function saveEditedProduct(id){
     const newFiles = Array.from(document.getElementById(`edImageFiles-${id}`).files);
     if (newFiles.length > 0){
       if (currentImgCount + newFiles.length > ADMIN_MAX_IMAGES){
-        throw new Error(`A product can have at most ${ADMIN_MAX_IMAGES} images total (${currentImgCount} already there).`);
+        throw new Error(`A product can have at most ${ADMIN_MAX_IMAGES} files total (${currentImgCount} already there).`);
       }
       for (let i = 0; i < newFiles.length; i++){
         const file = newFiles[i];
@@ -2457,7 +2524,7 @@ async function saveEditedProduct(id){
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ filename: file.name, contentType, dataBase64 })
         });
-        const uploadData = await uploadRes.json();
+        const uploadData = await parseJsonResponse(uploadRes, `${kind === 'video' ? 'Video' : 'Image'} ${i + 1} upload`);
         if (!uploadRes.ok) throw new Error(uploadData.error || `${kind === 'video' ? 'Video' : 'Image'} ${i + 1} upload failed`);
 
         const imgRes = await adminFetch(`${API_URL}/admin/products/${id}/images`, {

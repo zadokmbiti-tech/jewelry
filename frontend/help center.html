@@ -39,6 +39,7 @@
   }
   :focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
 
+  /* ---------- header ---------- */
   header{
     position:fixed;top:0;left:0;right:0;z-index:100;
     display:flex;align-items:center;justify-content:space-between;
@@ -57,6 +58,7 @@
   .back-link:hover{color:var(--gold);}
   .back-link svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.6;}
 
+  /* ---------- hero ---------- */
   .hero{
     padding:170px 5vw 70px;
     text-align:center;
@@ -70,6 +72,7 @@
   .ring-deco{position:absolute;top:60px;right:6vw;width:110px;height:110px;opacity:0.5;pointer-events:none;}
   .ring-deco circle{fill:none;stroke:var(--gold);stroke-width:1;}
 
+  /* ---------- search ---------- */
   .search-wrap{max-width:560px;margin:38px auto 0;padding:0 5vw;position:relative;}
   .search-wrap input{
     width:100%;
@@ -91,6 +94,7 @@
     padding:60px 5vw;
   }
 
+  /* ---------- category nav ---------- */
   .cat-nav{
     display:flex;flex-wrap:wrap;justify-content:center;gap:14px;
     max-width:920px;margin:46px auto 0;padding:0 5vw;
@@ -111,6 +115,7 @@
     background:var(--surface);
   }
 
+  /* ---------- sections ---------- */
   .divider{
     display:flex;align-items:center;justify-content:center;gap:10px;
     margin:0 auto;width:100%;max-width:220px;
@@ -161,12 +166,14 @@
   .faq-a-inner ul{margin:10px 0 0 18px;}
   .faq-a-inner a{color:var(--gold);border-bottom:1px solid var(--line);}
 
+  /* ---------- sizing tables ---------- */
   .size-table{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:0.88rem;}
   .size-table th,.size-table td{
     text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);color:var(--muted);
   }
   .size-table th{color:var(--ink);font-weight:500;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.08em;}
 
+  /* ---------- still need help ---------- */
   .help-cta{
     background:var(--surface);
     border:1px solid var(--line);
@@ -188,6 +195,7 @@
   .btn-ghost{border:1px solid var(--line);color:var(--ink);}
   .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
 
+  /* ---------- footer ---------- */
   footer{
     padding:40px 5vw;text-align:center;
     border-top:1px solid var(--line);
@@ -261,6 +269,7 @@
 
   <p class="search-empty" id="searchEmpty">No matches try a different word, or message us on WhatsApp below and we'll answer directly.</p>
 
+  <!-- ORDERS & PAYMENT -->
   <section class="cat-section" id="cat-orders">
     <div class="cat-head">
       <div class="icon-wrap"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 3v6M8 3v6M2 11h20"/></svg></div>
@@ -297,6 +306,7 @@
     </div>
   </section>
 
+  <!-- DELIVERY -->
   <section class="cat-section" id="cat-delivery">
     <div class="cat-head">
       <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M3 12l4-8h10l4 8-4 8H7l-4-8z"/><path d="M3 12h18"/></svg></div>
@@ -325,6 +335,7 @@
     </div>
   </section>
 
+  <!-- SIZING GUIDE -->
   <section class="cat-section" id="cat-sizing">
     <div class="cat-head">
       <div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></div>
@@ -366,6 +377,7 @@
     </div>
   </section>
 
+  <!-- RETURNS -->
   <section class="cat-section" id="cat-returns">
     <div class="cat-head">
       <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-6.7L3 9"/></svg></div>
@@ -394,6 +406,7 @@
     </div>
   </section>
 
+  <!-- PRODUCT CARE -->
   <section class="cat-section" id="cat-care">
     <div class="cat-head">
       <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg></div>
@@ -412,7 +425,7 @@
       <div class="faq-a"><div class="faq-a-inner">
         <ul>
           <li><strong>Gold‑plated (Xuping) &amp; brass:</strong> keep away from water, perfume and lotion; store in the pouch provided.</li>
-          <li><strong>Stainless steel:</strong> low maintenance  wipe with a soft, dry cloth.</li>
+          <li><strong>Stainless steel:</strong> low maintenance wipe with a soft, dry cloth.</li>
           <li><strong>Pearl:</strong> avoid moisture and spray perfume before putting pieces on, not after; store flat, wrapped in soft cloth.</li>
           <li><strong>Leather (belts &amp; watches):</strong> keep dry and away from direct sun; condition occasionally.</li>
         </ul>
@@ -420,6 +433,7 @@
     </div>
   </section>
 
+  <!-- CONTACT -->
   <section class="cat-section" id="cat-contact" style="margin-bottom:0;">
     <div class="cat-head">
       <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
@@ -429,7 +443,7 @@
     <div class="faq-item">
       <button class="faq-q"><span>What's the fastest way to reach you?</span><span class="plus"></span></button>
       <div class="faq-a"><div class="faq-a-inner">
-        <p>WhatsApp  we reply fastest there, usually within a few hours during the day. You can also email <a href="mailto:hello@sjgemsjewelrystore.co.ke">hello@sjgemsjewelrystore.co.ke</a> or call/text <a href="tel:+254741573866">+254 741 573 866</a>.</p>
+        <p>WhatsApp we reply fastest there, usually within a few hours during the day. You can also email <a href="mailto:hello@sjgemsjewelrystore.co.ke">hello@sjgemsjewelrystore.co.ke</a> or call/text <a href="tel:+254741573866">+254 741 573 866</a>.</p>
       </div></div>
     </div>
   </section>
@@ -452,7 +466,7 @@
 </div>
 
 <footer>
-  <p>© 2026 Sj Gems Jewelry Store  Ruaka, Kiambu &nbsp;·&nbsp; <a href="mailto:hello@sjgemsjewelrystore.co.ke">hello@sjgemsjewelrystore.co.ke</a> &nbsp;·&nbsp; <a href="tel:+254741573866">+254 741 573 866</a></p>
+  <p>© 2026 Sj Gems Jewelry Store Ruaka, Kiambu &nbsp;·&nbsp; <a href="mailto:hello@sjgemsjewelrystore.co.ke">hello@sjgemsjewelrystore.co.ke</a> &nbsp;·&nbsp; <a href="tel:+254741573866">+254 741 573 866</a></p>
 </footer>
 
 <script>
@@ -461,7 +475,6 @@
     const a = item.querySelector('.faq-a');
     q.addEventListener('click', ()=>{
       const isOpen = item.classList.contains('open');
-      // close siblings in same section for a tidier reading flow
       item.parentElement.querySelectorAll('.faq-item.open').forEach(sib=>{
         if(sib!==item){
           sib.classList.remove('open');

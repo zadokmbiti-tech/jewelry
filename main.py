@@ -83,7 +83,7 @@ VALID_CATEGORIES = {
     "brass-necklaces",
 }
 
-MAX_PRODUCT_IMAGES = 3
+MAX_PRODUCT_IMAGES = 10
 
 _TAG_RE = re.compile(r"<[^>]*>")
 _KENYA_PHONE_RE = re.compile(r"^(?:\+254|0)7\d{8}$|^(?:\+254|0)1\d{8}$")
@@ -444,7 +444,7 @@ def add_product_image(request: Request, product_id: int, image: ProductImageCrea
     if existing_count >= MAX_PRODUCT_IMAGES:
         cur.close()
         conn.close()
-        raise HTTPException(status_code=400, detail=f"A product can have at most {MAX_PRODUCT_IMAGES} images")
+        raise HTTPException(status_code=400, detail=f"A product can have at most {MAX_PRODUCT_IMAGES} photos/videos")
 
     cur.execute(
         """
