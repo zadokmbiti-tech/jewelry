@@ -876,6 +876,7 @@
       <a href="#story">About</a>
       <a href="#ourshop">Our Shop</a>
       <a href="#contact">Contact</a>
+      <a href="help-center.html">Help</a>
       <div class="nav-dropdown" id="menuDropdown">
         <button class="nav-dropdown-toggle" type="button" aria-haspopup="true">
           Menu
@@ -966,6 +967,7 @@
   <a href="#collection" onclick="toggleMobileMenu()">Menu</a>
   <a href="#ourshop" onclick="toggleMobileMenu()">Our Shop</a>
   <a href="#contact" onclick="toggleMobileMenu()">Contact</a>
+  <a href="help-center.html">Help</a>
   <button class="mm-link" onclick="toggleMobileMenu(); openAdminEntry();">Admin</button>
 </div>
 
@@ -1463,6 +1465,9 @@ const CATEGORY_GROUPS = [
   ["Jewelry Storage & Cases", ["elite-compact-jewelry-case","classic-jewelry-organizers"]],
   ["Other Accessories & Gifts", ["brass-jewelry","charger-protectors","premium-wine-bottle-gift-box"]],
 ];
+// Builds grouped <optgroup> markup for a category <select>, keeping every
+// admin dropdown in sync with CATEGORY_GROUPS instead of listing 43 options
+// in one flat, hard-to-scan list. Pass the current category to pre-select it.
 function buildCategoryOptionsHtml(selectedSlug) {
   return CATEGORY_GROUPS.map(([groupLabel, slugs]) => {
     const opts = slugs.map(slug => {
@@ -1656,6 +1661,7 @@ function updateCartUI(){
 }
 
 function modalMarkup(p, media){
+  // media: [{ url, media_type }]
   const thumbs = media.length > 1
     ? `<div class="modal-thumbs">${media.map((m,idx) => m.media_type === 'video'
         ? `<div class="modal-thumb-video ${idx===0?'active':''}" onclick="event.stopPropagation(); swapModalMedia(this, ${JSON.stringify(m.url)}, 'video')"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>`
@@ -2010,6 +2016,10 @@ const ADMIN_MAX_IMAGES = 3;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+// Uncompressed ceiling checked the moment a file is picked, before the
+// browser-side compressor ever runs -- just there to stop someone selecting
+// a multi-hundred-MB phone recording that would take forever to compress.
+// The compressor then brings it well under MAX_VIDEO_BYTES in upload.js.
 const MAX_VIDEO_INPUT_BYTES = 150 * 1024 * 1024;
 
 function isVideoFile(file){ return file.type.startsWith('video/'); }
@@ -2061,11 +2071,16 @@ function fileToBase64(file){
     reader.readAsDataURL(file);
   });
 }
+
+// Downscales + compresses a product photo in the browser before it's uploaded,
+// so pages load fast on mobile data instead of shipping full-resolution camera
+// photos straight from the phone. Caps the longest edge and re-encodes as JPEG.
 const UPLOAD_MAX_DIMENSION = 1600;
 const UPLOAD_JPEG_QUALITY = 0.82;
 
 function resizeImageForUpload(file, maxDim = UPLOAD_MAX_DIMENSION, quality = UPLOAD_JPEG_QUALITY){
   return new Promise((resolve, reject) => {
+    // GIFs can be animated -- resizing would flatten them to one frame, so upload as-is.
     if (file.type === 'image/gif'){
       fileToBase64(file).then(base64 => resolve({ base64, contentType: file.type })).catch(reject);
       return;
@@ -2082,12 +2097,13 @@ function resizeImageForUpload(file, maxDim = UPLOAD_MAX_DIMENSION, quality = UPL
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#ffffff'; // flatten any transparency (e.g. PNG) onto white
       ctx.fillRect(0, 0, width, height);
       ctx.drawImage(img, 0, 0, width, height);
       URL.revokeObjectURL(objectUrl);
       const dataUrl = canvas.toDataURL('image/jpeg', quality);
       if (!dataUrl || dataUrl === 'data:,'){
+        // Canvas export failed (e.g. tainted canvas) -- fall back to the original file.
         fileToBase64(file).then(base64 => resolve({ base64, contentType: file.type })).catch(reject);
         return;
       }
@@ -2095,16 +2111,23 @@ function resizeImageForUpload(file, maxDim = UPLOAD_MAX_DIMENSION, quality = UPL
     };
     img.onerror = () => {
       URL.revokeObjectURL(objectUrl);
+      // Fall back to uploading the original file untouched rather than failing the upload.
       fileToBase64(file).then(base64 => resolve({ base64, contentType: file.type })).catch(reject);
     };
     img.src = objectUrl;
   });
 }
 
-const VIDEO_MAX_DIMENSION = 960;
-const VIDEO_BITRATE = 1_500_000;
+// Re-encodes a demo video in the browser before upload, the same idea as
+// resizeImageForUpload above but for video: caps resolution and bitrate so
+// a phone recording shrinks to a fraction of its size, without touching the
+// content itself (no cropping, trimming, or muting -- full clip, full audio,
+// same framing, just re-compressed). Falls back to uploading the original
+// file untouched if the browser can't do the capture/record dance.
+const VIDEO_MAX_DIMENSION = 960;   // long edge, in px -- plenty for a product demo clip
+const VIDEO_BITRATE = 1_500_000;   // ~1.5 Mbps -- good enough quality for web playback, far smaller than raw phone footage
 const VIDEO_FPS = 30;
-const VIDEO_SKIP_COMPRESSION_UNDER_BYTES = 2 * 1024 * 1024;
+const VIDEO_SKIP_COMPRESSION_UNDER_BYTES = 2 * 1024 * 1024; // already small enough, don't bother
 
 function pickSupportedVideoMimeType(){
   const candidates = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
@@ -2130,6 +2153,10 @@ function compressVideoForUpload(file){
     const objectUrl = URL.createObjectURL(file);
     const video = document.createElement('video');
     video.src = objectUrl;
+    // Muted so autoplay policies never block this (compression can kick off
+    // a while after the last click, once the product-save request finishes)
+    // -- routing through Web Audio below still taps the real audio samples
+    // for the recording, .muted only silences the on-screen element itself.
     video.muted = true;
     video.playsInline = true;
     video.preload = 'auto';
@@ -2161,6 +2188,9 @@ function compressVideoForUpload(file){
       try {
         const canvasStream = canvas.captureStream(VIDEO_FPS);
         combinedStream = canvasStream;
+        // Preserve the original audio track by routing the source video
+        // through a MediaStreamAudioDestinationNode rather than dropping it
+        // -- captureStream() on the canvas only ever carries picture.
         if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined'){
           const Ctx = window.AudioContext || window.webkitAudioContext;
           const audioCtx = new Ctx();
