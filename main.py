@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Header, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
 import psycopg2
+from psycopg2 import pool as pg_pool
 from dotenv import load_dotenv
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -95,8 +96,60 @@ def strip_tags(value: str) -> str:
     return _TAG_RE.sub("", value).strip()
 
 
-def get_conn():
-    return psycopg2.connect(os.getenv("DATABASE_URL"))
+# A small pool reused across requests handled by the same warm serverless
+# instance, so we're not paying for a fresh TCP/TLS handshake to Neon on
+# every request. connect_timeout keeps us from hanging if the DB is
+# unreachable or slow to wake from autosuspend -- we'd rather fail fast
+# and let the frontend show its error state than time out the whole
+# function.
+_db_pool: pg_pool.SimpleConnectionPool | None = None
+
+
+def _get_pool() -> pg_pool.SimpleConnectionPool:
+    global _db_pool
+    if _db_pool is None:
+        _db_pool = pg_pool.SimpleConnectionPool(
+            1,
+            5,
+            dsn=os.getenv("DATABASE_URL"),
+            connect_timeout=5,
+        )
+    return _db_pool
+
+
+class _PooledConnection:
+    """Thin proxy around a pooled connection so existing endpoint code can
+    keep calling conn.cursor() / conn.commit() / conn.rollback() /
+    conn.close() unchanged -- close() returns the connection to the pool
+    instead of actually tearing down the TCP connection."""
+
+    def __init__(self, pool_: pg_pool.SimpleConnectionPool, conn):
+        self._pool = pool_
+        self._conn = conn
+
+    def cursor(self, *args, **kwargs):
+        return self._conn.cursor(*args, **kwargs)
+
+    def commit(self):
+        self._conn.commit()
+
+    def rollback(self):
+        self._conn.rollback()
+
+    def close(self):
+        # If something left the connection mid-transaction or broken,
+        # don't hand that state to the next request -- discard it and
+        # let the pool open a fresh one next time.
+        broken = self._conn.closed or self._conn.get_transaction_status() not in (
+            psycopg2.extensions.TRANSACTION_STATUS_IDLE,
+        )
+        self._pool.putconn(self._conn, close=broken)
+
+
+def get_conn() -> _PooledConnection:
+    p = _get_pool()
+    conn = p.getconn()
+    return _PooledConnection(p, conn)
 
 
 _failed_attempts: dict[str, list[float]] = defaultdict(list)
@@ -338,33 +391,39 @@ def get_products(request: Request, category: str | None = None):
             """
         )
     rows = cur.fetchall()
+    product_ids = [r[0] for r in rows]
 
-    products = []
-    for r in rows:
-        product_id = r[0]
-        # Grid thumbnails always prefer a photo over a demo video when a
-        # product has both -- the video still plays in the product detail
-        # view, but a still photo makes a better catalogue-card thumbnail.
+    # One query for every product's thumbnail instead of one query per
+    # product (was causing 50+ sequential round trips to the DB on a
+    # full catalogue load). DISTINCT ON picks the same "best" image per
+    # product as before -- a photo over a demo video, then is_primary,
+    # then sort_order -- in a single pass.
+    thumbnails: dict[int, str] = {}
+    if product_ids:
         cur.execute(
             """
-            SELECT blob_url FROM product_images WHERE product_id = %s
-            ORDER BY (media_type = 'image') DESC, is_primary DESC, sort_order ASC LIMIT 1;
+            SELECT DISTINCT ON (product_id) product_id, blob_url
+            FROM product_images
+            WHERE product_id = ANY(%s)
+            ORDER BY product_id, (media_type = 'image') DESC, is_primary DESC, sort_order ASC;
             """,
-            (product_id,),
+            (product_ids,),
         )
-        img_row = cur.fetchone()
-        products.append(
-            {
-                "id": r[0],
-                "name": r[1],
-                "description": r[2],
-                "price": float(r[3]),
-                "category": r[4],
-                "quantity": r[5],
-                "is_new": r[6],
-                "image_url": img_row[0] if img_row else None,
-            }
-        )
+        thumbnails = {pid: url for pid, url in cur.fetchall()}
+
+    products = [
+        {
+            "id": r[0],
+            "name": r[1],
+            "description": r[2],
+            "price": float(r[3]),
+            "category": r[4],
+            "quantity": r[5],
+            "is_new": r[6],
+            "image_url": thumbnails.get(r[0]),
+        }
+        for r in rows
+    ]
 
     cur.close()
     conn.close()

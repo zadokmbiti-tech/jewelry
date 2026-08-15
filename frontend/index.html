@@ -503,6 +503,16 @@
   .modal-thumbs img.active,.modal-thumb-video.active{border-color:var(--gold);}
   .modal-tray video.tray-img{width:100%;height:100%;object-fit:contain;background:#000;}
   .modal-thumbs img.active{opacity:1;border-color:var(--gold);}
+  .modal-nav{
+    position:absolute;top:50%;transform:translateY(-50%);z-index:4;
+    width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(0,0,0,0.35);color:#fff;display:flex;align-items:center;justify-content:center;
+    opacity:0.8;transition:opacity .2s ease, background .2s ease;
+  }
+  .modal-nav:hover{opacity:1;background:rgba(0,0,0,0.55);}
+  .modal-nav svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;}
+  .modal-nav-prev{left:12px;}
+  .modal-nav-next{right:12px;}
   .selector-opts{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
   .opt{
     padding:8px 16px;border:1px solid var(--line);border-radius:30px;font-size:0.8rem;color:var(--muted);
@@ -1671,14 +1681,58 @@ function updateCartUI(){
   document.getElementById('subtotal').textContent = fmt(subtotal);
 }
 
+// Tracks the gallery for whichever product is currently open in the modal,
+// so arrow buttons / keyboard nav can move through it without re-fetching.
+let modalMedia = [];
+let modalMediaIndex = 0;
+let modalMediaAlt = '';
+
+function modalMainMediaHtml(m, altName){
+  return m.media_type === 'video'
+    ? `<video class="tray-img" id="modalMainMedia" src="${escapeHtml(m.url)}" controls playsinline autoplay></video>`
+    : `<img class="tray-img" id="modalMainMedia" src="${escapeHtml(m.url)}" alt="${escapeHtml(altName)}" loading="lazy">`;
+}
+
+function modalThumbsHtml(media){
+  if (media.length <= 1) return '';
+  return `<div class="modal-thumbs">${media.map((m, idx) => m.media_type === 'video'
+      ? `<div class="modal-thumb-video ${idx===0?'active':''}" onclick="event.stopPropagation(); setModalMedia(${idx})"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>`
+      : `<img src="${escapeHtml(m.url)}" class="${idx===0?'active':''}" onclick="event.stopPropagation(); setModalMedia(${idx})">`
+    ).join('')}</div>`;
+}
+
+function modalNavHtml(media){
+  if (media.length <= 1) return '';
+  return `
+    <button class="modal-nav modal-nav-prev" onclick="event.stopPropagation(); prevModalMedia()" aria-label="Previous image">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <button class="modal-nav modal-nav-next" onclick="event.stopPropagation(); nextModalMedia()" aria-label="Next image">
+      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  `;
+}
+
+function setModalMedia(idx){
+  if (!modalMedia.length) return;
+  modalMediaIndex = (idx + modalMedia.length) % modalMedia.length;
+  const m = modalMedia[modalMediaIndex];
+  const current = document.getElementById('modalMainMedia');
+  if (current) current.outerHTML = modalMainMediaHtml(m, modalMediaAlt);
+  document.querySelectorAll('#modalBox .modal-thumbs img, #modalBox .modal-thumb-video').forEach((el, i) => el.classList.toggle('active', i === modalMediaIndex));
+}
+
+function nextModalMedia(){ setModalMedia(modalMediaIndex + 1); }
+function prevModalMedia(){ setModalMedia(modalMediaIndex - 1); }
+
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('modal').classList.contains('open')) return;
+  if (e.key === 'ArrowRight') nextModalMedia();
+  if (e.key === 'ArrowLeft') prevModalMedia();
+});
+
 function modalMarkup(p, media){
   // media: [{ url, media_type }]
-  const thumbs = media.length > 1
-    ? `<div class="modal-thumbs">${media.map((m,idx) => m.media_type === 'video'
-        ? `<div class="modal-thumb-video ${idx===0?'active':''}" onclick="event.stopPropagation(); swapModalMedia(this, ${JSON.stringify(m.url)}, 'video')"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>`
-        : `<img src="${escapeHtml(m.url)}" class="${idx===0?'active':''}" onclick="event.stopPropagation(); swapModalMedia(this, ${JSON.stringify(m.url)}, 'image')">`
-      ).join('')}</div>`
-    : '';
   const stock = stockInfo(p.quantity);
   const stockLine = p.quantity <= 0
     ? `<div class="modal-stock stock-out">Out of Stock</div>`
@@ -1687,14 +1741,13 @@ function modalMarkup(p, media){
     ? `<a class="btn-primary disabled" style="width:100%;justify-content:center;">Out of Stock</a>`
     : `<a class="btn-primary" style="width:100%;justify-content:center;" onclick="requireRegistration(() => { addToCart(${p.id}); closeAll(); })">Add to Bag</a>`;
   const first = media[0] || { url: p.img, media_type: 'image' };
-  const mainMedia = first.media_type === 'video'
-    ? `<video class="tray-img" id="modalMainMedia" src="${escapeHtml(first.url)}" controls playsinline></video>`
-    : `<img class="tray-img" id="modalMainMedia" src="${escapeHtml(first.url)}" alt="${escapeHtml(p.name)}" loading="lazy">`;
+  const mainMedia = modalMainMediaHtml(first, p.name);
   return `
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="modal-tray" style="background:var(--${p.color});">
       ${mainMedia}
-      ${thumbs}
+      ${modalNavHtml(media)}
+      ${modalThumbsHtml(media)}
     </div>
     <div class="modal-info">
       <div class="card-cat">${escapeHtml(p.catLabel)}</div>
@@ -1707,20 +1760,12 @@ function modalMarkup(p, media){
   `;
 }
 
-function swapModalMedia(thumbEl, url, mediaType){
-  const tray = thumbEl.closest('.modal-tray');
-  const current = document.getElementById('modalMainMedia');
-  const replacement = mediaType === 'video'
-    ? `<video class="tray-img" id="modalMainMedia" src="${escapeHtml(url)}" controls playsinline autoplay></video>`
-    : `<img class="tray-img" id="modalMainMedia" src="${escapeHtml(url)}" loading="lazy">`;
-  current.outerHTML = replacement;
-  tray.querySelectorAll('.modal-thumbs img, .modal-thumb-video').forEach(el => el.classList.remove('active'));
-  thumbEl.classList.add('active');
-}
-
 async function openModal(id){
   const p = PRODUCTS.find(x => x.id === id);
-  document.getElementById('modalBox').innerHTML = modalMarkup(p, [{ url: p.img, media_type: 'image' }]);
+  modalMedia = [{ url: p.img, media_type: 'image' }];
+  modalMediaIndex = 0;
+  modalMediaAlt = p.name;
+  document.getElementById('modalBox').innerHTML = modalMarkup(p, modalMedia);
   document.getElementById('overlay').classList.add('open');
   document.getElementById('modal').classList.add('open');
 
@@ -1731,6 +1776,8 @@ async function openModal(id){
     const media = (detail.images && detail.images.length)
       ? detail.images.map(im => ({ url: im.url, media_type: im.media_type || 'image' }))
       : [{ url: p.img, media_type: 'image' }];
+    modalMedia = media;
+    modalMediaIndex = 0;
     document.getElementById('modalBox').innerHTML = modalMarkup(p, media);
   } catch (err) {
   }
