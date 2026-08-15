@@ -82,6 +82,7 @@ VALID_CATEGORIES = {
     "xuping-tennis-bracelets",
     "xuping-bracelets",
     "brass-necklaces",
+    "bag-charms",
 }
 
 MAX_PRODUCT_IMAGES = 10

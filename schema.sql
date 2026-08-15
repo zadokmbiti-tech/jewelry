@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS products (
         'xuping-bangles',
         'xuping-tennis-bracelets',
         'xuping-bracelets',
-        'brass-necklaces'
+        'brass-necklaces',
+        'bag-charms'
     )),
     quantity INTEGER NOT NULL DEFAULT 0,
     is_new BOOLEAN NOT NULL DEFAULT FALSE,

@@ -100,6 +100,8 @@
     --xuping-bracelets-ink:#8e294e;
     --brass-necklaces:#f5dfe3;
     --brass-necklaces-ink:#8e293b;
+    --bag-charms:#f5e3df;
+    --bag-charms-ink:#8e3b29;
     --line:rgba(184,134,11,0.22);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -963,6 +965,7 @@
           <a onclick="goToCategory('brass-jewelry')">Brass Jewelry</a>
           <a onclick="goToCategory('charger-protectors')">Charger Protectors</a>
           <a onclick="goToCategory('premium-wine-bottle-gift-box')">Premium Wine Bottle Gift Box</a>
+          <a onclick="goToCategory('bag-charms')">Bag Charms</a>
         </div>
       </div>
     </nav>
@@ -1389,6 +1392,7 @@
             <option value="brass-jewelry">Brass Jewelry</option>
             <option value="charger-protectors">Charger Protectors</option>
             <option value="premium-wine-bottle-gift-box">Premium Wine Bottle Gift Box</option>
+            <option value="bag-charms">Bag Charms</option>
           </optgroup>
         </select>
       </div>
@@ -1474,6 +1478,7 @@ const CATEGORY_META = {
   "xuping-tennis-bracelets":          { label: "Xuping Tennis Bracelets", color: "xuping-tennis-bracelets", ink: "xuping-tennis-bracelets-ink" },
   "xuping-bracelets":                 { label: "Xuping Bracelets", color: "xuping-bracelets", ink: "xuping-bracelets-ink" },
   "brass-necklaces":                  { label: "Brass Necklaces", color: "brass-necklaces", ink: "brass-necklaces-ink" },
+  "bag-charms":                       { label: "Bag Charms", color: "bag-charms", ink: "bag-charms-ink" },
 };
 const CATEGORY_GROUPS = [
   ["Necklaces", ["xuping-necklaces","pearl-necklaces","stainless-steel-necklaces","brass-necklaces"]],
@@ -1488,7 +1493,7 @@ const CATEGORY_GROUPS = [
   ["Bags", ["travel-bags"]],
   ["Mirrors", ["kids-pocket-mirrors","adult-pocket-mirrors"]],
   ["Jewelry Storage & Cases", ["elite-compact-jewelry-case","classic-jewelry-organizers"]],
-  ["Other Accessories & Gifts", ["brass-jewelry","charger-protectors","premium-wine-bottle-gift-box"]],
+  ["Other Accessories & Gifts", ["brass-jewelry","charger-protectors","premium-wine-bottle-gift-box","bag-charms"]],
 ];
 // Builds grouped <optgroup> markup for a category <select>, keeping every
 // admin dropdown in sync with CATEGORY_GROUPS instead of listing 43 options
