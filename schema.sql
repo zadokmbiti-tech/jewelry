@@ -3,8 +3,8 @@ CREATE TABLE IF NOT EXISTS products (
     name TEXT NOT NULL,
     description TEXT,
     price NUMERIC(10, 2) NOT NULL,
+    sale_price NUMERIC(10, 2),
     category TEXT NOT NULL CHECK (category IN (
-        'xuping-sets',
         'xuping-earrings',
         'genuine-leather-belts',
         'kids-xuping-earrings',
@@ -50,8 +50,14 @@ CREATE TABLE IF NOT EXISTS products (
     )),
     quantity INTEGER NOT NULL DEFAULT 0,
     is_new BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT sale_price_below_price CHECK (sale_price IS NULL OR sale_price < price)
 );
+
+-- Existing databases: run this once against your Neon DB to add the column
+-- without dropping/recreating the table.
+-- ALTER TABLE products ADD COLUMN IF NOT EXISTS sale_price NUMERIC(10, 2);
+-- ALTER TABLE products ADD CONSTRAINT sale_price_below_price CHECK (sale_price IS NULL OR sale_price < price);
 
 CREATE TABLE IF NOT EXISTS product_images (
     id SERIAL PRIMARY KEY,

@@ -6,7 +6,7 @@ from collections import defaultdict
 
 from fastapi import FastAPI, HTTPException, Header, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 import psycopg2
 from psycopg2 import pool as pg_pool
 from dotenv import load_dotenv
@@ -211,6 +211,7 @@ class ProductCreate(BaseModel):
     name: str
     description: str | None = None
     price: float
+    sale_price: float | None = None
     category: str
     quantity: int = 0
     is_new: bool = False
@@ -240,12 +241,31 @@ class ProductCreate(BaseModel):
             raise ValueError("price out of range")
         return round(v, 2)
 
+    @field_validator("sale_price")
+    @classmethod
+    def validate_sale_price(cls, v: float | None) -> float | None:
+        if v is None:
+            return v
+        if v < 0 or v > 10_000_000:
+            raise ValueError("sale price out of range")
+        return round(v, 2)
+
     @field_validator("quantity")
     @classmethod
     def validate_quantity(cls, v: int) -> int:
         if v < 0 or v > 1_000_000:
             raise ValueError("quantity out of range")
         return v
+
+    def check_sale_below_price(self) -> None:
+        if self.sale_price is not None and self.sale_price >= self.price:
+            raise ValueError("sale price must be lower than the regular price")
+
+    @model_validator(mode="after")
+    def _validate_sale_price_below_price(self):
+        if self.sale_price is not None and self.sale_price >= self.price:
+            raise ValueError("sale price must be lower than the regular price")
+        return self
 
 
 class ProductUpdate(ProductCreate):
@@ -378,7 +398,7 @@ def get_products(request: Request, category: str | None = None):
     if category:
         cur.execute(
             """
-            SELECT id, name, description, price, category, quantity, is_new
+            SELECT id, name, description, price, sale_price, category, quantity, is_new
             FROM products WHERE category = %s ORDER BY created_at DESC;
             """,
             (category,),
@@ -386,7 +406,7 @@ def get_products(request: Request, category: str | None = None):
     else:
         cur.execute(
             """
-            SELECT id, name, description, price, category, quantity, is_new
+            SELECT id, name, description, price, sale_price, category, quantity, is_new
             FROM products ORDER BY created_at DESC;
             """
         )
@@ -417,9 +437,10 @@ def get_products(request: Request, category: str | None = None):
             "name": r[1],
             "description": r[2],
             "price": float(r[3]),
-            "category": r[4],
-            "quantity": r[5],
-            "is_new": r[6],
+            "sale_price": float(r[4]) if r[4] is not None else None,
+            "category": r[5],
+            "quantity": r[6],
+            "is_new": r[7],
             "image_url": thumbnails.get(r[0]),
         }
         for r in rows
@@ -436,7 +457,7 @@ def get_product(request: Request, product_id: int):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, name, description, price, category, quantity, is_new FROM products WHERE id = %s;",
+        "SELECT id, name, description, price, sale_price, category, quantity, is_new FROM products WHERE id = %s;",
         (product_id,),
     )
     row = cur.fetchone()
@@ -458,9 +479,10 @@ def get_product(request: Request, product_id: int):
         "name": row[1],
         "description": row[2],
         "price": float(row[3]),
-        "category": row[4],
-        "quantity": row[5],
-        "is_new": row[6],
+        "sale_price": float(row[4]) if row[4] is not None else None,
+        "category": row[5],
+        "quantity": row[6],
+        "is_new": row[7],
         "images": images,
     }
 
@@ -473,11 +495,11 @@ def create_product(request: Request, product: ProductCreate):
     cur = conn.cursor()
     cur.execute(
         """
-        INSERT INTO products (name, description, price, category, quantity, is_new)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO products (name, description, price, sale_price, category, quantity, is_new)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         RETURNING id;
         """,
-        (product.name, product.description, product.price, product.category, product.quantity, product.is_new),
+        (product.name, product.description, product.price, product.sale_price, product.category, product.quantity, product.is_new),
     )
     new_id = cur.fetchone()[0]
     conn.commit()
@@ -574,10 +596,10 @@ def update_product(request: Request, product_id: int, product: ProductUpdate):
     cur.execute(
         """
         UPDATE products
-        SET name = %s, description = %s, price = %s, category = %s, quantity = %s, is_new = %s
+        SET name = %s, description = %s, price = %s, sale_price = %s, category = %s, quantity = %s, is_new = %s
         WHERE id = %s;
         """,
-        (product.name, product.description, product.price, product.category, product.quantity, product.is_new, product_id),
+        (product.name, product.description, product.price, product.sale_price, product.category, product.quantity, product.is_new, product_id),
     )
     conn.commit()
     cur.close()
@@ -650,13 +672,16 @@ def create_order(request: Request, order: OrderCreate):
         subtotal = 0.0
         for item in order.items:
             cur.execute(
-                "SELECT name, price FROM products WHERE id = %s;",
+                "SELECT name, price, sale_price FROM products WHERE id = %s;",
                 (item.product_id,),
             )
             row = cur.fetchone()
             if not row:
                 raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
-            name, price = row[0], float(row[1])
+            name, base_price, sale_price = row[0], float(row[1]), (float(row[2]) if row[2] is not None else None)
+            # Charge whatever price is actually displayed on the storefront --
+            # if a sale price is active, that's what the customer agreed to pay.
+            price = sale_price if sale_price is not None else base_price
             line_items.append((item.product_id, name, price, item.quantity))
             subtotal += price * item.quantity
 

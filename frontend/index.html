@@ -360,6 +360,8 @@
   .card-name{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;margin-bottom:8px;}
   .card-row{display:flex;align-items:center;justify-content:space-between;}
   .price{font-size:0.95rem;color:var(--ink);}
+  .price-sale{color:#a3423f;font-weight:600;}
+  .price-was{color:var(--muted);font-weight:400;text-decoration:line-through;margin-right:6px;font-size:0.88em;}
   .add-btn{
     font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;
     color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:2px;
@@ -559,6 +561,7 @@
   .stock-badge{font-size:0.7rem;letter-spacing:0.06em;padding:3px 10px;border-radius:20px;display:inline-block;}
   .stock-low{background:#fbe9e9;color:#a3423f;}
   .stock-out{background:#eee;color:#888;}
+  .sale-badge{background:var(--gold);color:#fff;margin-right:6px;}
   .modal-stock{font-size:0.85rem;margin-bottom:18px;}
   .modal-stock.stock-low{color:#a3423f;}
   .modal-stock.stock-out{color:#888;}
@@ -1314,6 +1317,7 @@
       <div class="a-field"><label>Product Name</label><input type="text" id="apName" required></div>
       <div class="a-field"><label>Description</label><textarea id="apDescription" rows="3"></textarea></div>
       <div class="a-field"><label>Price (KES)</label><input type="number" id="apPrice" required></div>
+      <div class="a-field"><label>Sale Price (optional)</label><input type="number" id="apSalePrice" min="0" placeholder="Leave blank for no sale"></div>
       <div class="a-field">
         <label>Category</label>
         <select id="apCategory" required>
@@ -1510,6 +1514,7 @@ function normalizeProduct(p) {
     cat: p.category,
     catLabel: meta.label,
     price: p.price,
+    salePrice: (typeof p.sale_price === "number") ? p.sale_price : null,
     desc: p.description || "",
     quantity: typeof p.quantity === "number" ? p.quantity : 0,
     isNew: !!p.is_new,
@@ -1547,6 +1552,13 @@ let cart = [];
 
 function fmt(n){ return "KES " + n.toLocaleString(); }
 
+function priceHtml(p){
+  if (p.salePrice != null && p.salePrice < p.price){
+    return `<span class="price price-sale"><span class="price-was">${fmt(p.price)}</span> ${fmt(p.salePrice)}</span>`;
+  }
+  return `<span class="price">${fmt(p.price)}</span>`;
+}
+
 let currentCategory = 'all';
 let currentSearch = '';
 
@@ -1580,6 +1592,7 @@ function renderGrid(filter=currentCategory){
   grid.innerHTML = items.map(p => {
     const stock = stockInfo(p.quantity);
     const badge = stock ? `<span class="stock-badge ${stock.cls}">${stock.text}</span>` : '';
+    const saleBadge = (p.salePrice != null && p.salePrice < p.price) ? `<span class="stock-badge sale-badge">Sale</span>` : '';
     const addDisabled = p.quantity <= 0 ? 'style="opacity:0.4;pointer-events:none;"' : '';
     return `
     <div class="card" onclick="openModal(${p.id})">
@@ -1592,9 +1605,9 @@ function renderGrid(filter=currentCategory){
       <div class="card-info">
         <div class="card-cat">${escapeHtml(p.catLabel)}</div>
         <div class="card-name">${escapeHtml(p.name)}</div>
-        ${badge ? `<div style="margin-bottom:8px;">${badge}</div>` : ''}
+        ${(badge || saleBadge) ? `<div style="margin-bottom:8px;">${saleBadge}${badge}</div>` : ''}
         <div class="card-row">
-          <span class="price">${fmt(p.price)}</span>
+          ${priceHtml(p)}
           <button class="add-btn" ${addDisabled} onclick="event.stopPropagation(); requireRegistration(() => addToCart(${p.id}))">Add to bag</button>
         </div>
       </div>
@@ -1752,7 +1765,7 @@ function modalMarkup(p, media){
     <div class="modal-info">
       <div class="card-cat">${escapeHtml(p.catLabel)}</div>
       <h2>${escapeHtml(p.name)}</h2>
-      <div class="modal-price">${fmt(p.price)}</div>
+      <div class="modal-price">${priceHtml(p)}</div>
       <p class="modal-desc">${escapeHtml(p.desc)}</p>
       ${stockLine}
       ${addBtn}
@@ -2375,6 +2388,11 @@ async function submitAddProduct(e){
     status.textContent = '❌ Fill in the required fields.';
     return;
   }
+  const apSalePriceVal = document.getElementById('apSalePrice').value;
+  if (apSalePriceVal !== '' && parseFloat(apSalePriceVal) >= parseFloat(document.getElementById('apPrice').value)){
+    status.textContent = '❌ Sale price must be lower than the regular price.';
+    return;
+  }
   if (imageFiles.length === 0){
     status.textContent = '❌ Choose at least 1 photo or video.';
     return;
@@ -2396,6 +2414,10 @@ async function submitAddProduct(e){
         name: document.getElementById('apName').value,
         description: document.getElementById('apDescription').value,
         price: parseFloat(document.getElementById('apPrice').value),
+        sale_price: (() => {
+          const v = document.getElementById('apSalePrice').value;
+          return v === '' ? null : parseFloat(v);
+        })(),
         category: document.getElementById('apCategory').value,
         quantity: parseInt(document.getElementById('apQuantity').value, 10) || 0,
         is_new: document.getElementById('apIsNew').checked
@@ -2500,6 +2522,7 @@ async function openEditPanel(id){
       <div class="a-field"><label>Product Name</label><input type="text" id="edName-${id}" value="${escapeHtml(p.name)}"></div>
       <div class="a-field"><label>Description</label><textarea id="edDescription-${id}" rows="3">${escapeHtml(p.description || '')}</textarea></div>
       <div class="a-field"><label>Price (KES)</label><input type="number" id="edPrice-${id}" value="${p.price}"></div>
+      <div class="a-field"><label>Sale Price (optional)</label><input type="number" id="edSalePrice-${id}" min="0" value="${p.sale_price != null ? p.sale_price : ''}" placeholder="Leave blank for no sale"></div>
       <div class="a-field"><label>Category</label><select id="edCategory-${id}">${catOptions}</select></div>
       <div class="a-field"><label>Quantity Available</label><input type="number" id="edQuantity-${id}" min="0" value="${p.quantity}"></div>
       <div class="a-check"><input type="checkbox" id="edIsNew-${id}" ${p.is_new ? 'checked' : ''}><label style="margin:0;text-transform:none;letter-spacing:0;color:var(--ink);">Mark as New</label></div>
@@ -2546,6 +2569,12 @@ async function removeProductImage(productId, imageId){
 
 async function saveEditedProduct(id){
   const status = document.getElementById(`edStatus-${id}`);
+  const edPriceVal = document.getElementById(`edPrice-${id}`).value;
+  const edSalePriceVal = document.getElementById(`edSalePrice-${id}`).value;
+  if (edSalePriceVal !== '' && parseFloat(edSalePriceVal) >= parseFloat(edPriceVal)){
+    status.textContent = '❌ Sale price must be lower than the regular price.';
+    return;
+  }
   status.textContent = 'Saving...';
   try {
     const updateRes = await adminFetch(`${API_URL}/admin/products/${id}`, {
@@ -2555,6 +2584,10 @@ async function saveEditedProduct(id){
         name: document.getElementById(`edName-${id}`).value,
         description: document.getElementById(`edDescription-${id}`).value,
         price: parseFloat(document.getElementById(`edPrice-${id}`).value),
+        sale_price: (() => {
+          const v = document.getElementById(`edSalePrice-${id}`).value;
+          return v === '' ? null : parseFloat(v);
+        })(),
         category: document.getElementById(`edCategory-${id}`).value,
         quantity: parseInt(document.getElementById(`edQuantity-${id}`).value, 10) || 0,
         is_new: document.getElementById(`edIsNew-${id}`).checked
