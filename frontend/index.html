@@ -868,9 +868,21 @@
   .a-submit{width:100%;justify-content:center;}
   .a-status{margin-top:14px;font-size:0.88rem;font-weight:500;}
   .a-preview-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
-  .a-preview-row img{width:74px;height:74px;object-fit:cover;border-radius:6px;}
+  .a-preview-item{position:relative;width:74px;height:74px;}
+  .a-preview-item img{width:100%;height:100%;object-fit:cover;border-radius:6px;}
   .preview-video-wrap{position:relative;width:74px;height:74px;}
   .preview-video-wrap video{width:100%;height:100%;object-fit:cover;border-radius:6px;background:#000;}
+  .a-preview-main-badge{
+    position:absolute;bottom:3px;left:3px;right:3px;
+    background:var(--gold-bright,#b8860b);color:#fff;font-size:0.55rem;letter-spacing:0.04em;font-weight:600;
+    text-align:center;border-radius:3px;padding:2px 0;pointer-events:none;
+  }
+  .a-preview-setmain{
+    position:absolute;bottom:3px;left:3px;right:3px;
+    background:rgba(0,0,0,0.65);color:#fff;font-size:0.55rem;letter-spacing:0.02em;
+    text-align:center;border-radius:3px;padding:2px 0;cursor:pointer;
+  }
+  .a-preview-setmain:hover{background:rgba(0,0,0,0.85);}
   .preview-video-badge{
     position:absolute;bottom:3px;left:3px;right:3px;
     background:rgba(0,0,0,0.65);color:#fff;font-size:0.55rem;letter-spacing:0.04em;
@@ -883,6 +895,17 @@
     position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;
     background:#a3423f;color:#fff;font-size:0.7rem;display:flex;align-items:center;justify-content:center;line-height:1;
   }
+  .a-img-main-badge{
+    position:absolute;bottom:3px;left:3px;right:3px;
+    background:var(--gold-bright,#b8860b);color:#fff;font-size:0.55rem;letter-spacing:0.04em;font-weight:600;
+    text-align:center;border-radius:3px;padding:2px 0;pointer-events:none;
+  }
+  .a-img-setmain{
+    position:absolute;bottom:3px;left:3px;right:3px;
+    background:rgba(0,0,0,0.65);color:#fff;font-size:0.55rem;letter-spacing:0.02em;
+    text-align:center;border-radius:3px;padding:2px 0;cursor:pointer;
+  }
+  .a-img-setmain:hover{background:rgba(0,0,0,0.85);}
   .a-plist{margin-top:10px;}
   .a-prow{
     display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;
@@ -2250,12 +2273,36 @@ function invalidImageReason(file){
   return null;
 }
 
-function mediaPreviewHtml(file){
+// Holds the picked-but-not-yet-uploaded files for each form, in upload
+// order. Index 0 is always what will be sent as the primary/main photo.
+// Keyed by 'ap' for the Add Product form, or `ed-${productId}` for an
+// Edit Product panel's "Add Photos" section.
+const mediaOrderState = {};
+
+function mediaPreviewHtml(file, key, index){
   const url = URL.createObjectURL(file);
-  if (isVideoFile(file)){
-    return `<div class="preview-video-wrap"><video src="${url}" muted playsinline preload="metadata"></video><span class="preview-video-badge">▶ VIDEO</span></div>`;
-  }
-  return `<img src="${url}">`;
+  const inner = isVideoFile(file)
+    ? `<div class="preview-video-wrap"><video src="${url}" muted playsinline preload="metadata"></video><span class="preview-video-badge">▶ VIDEO</span></div>`
+    : `<img src="${url}">`;
+  const control = index === 0
+    ? `<div class="a-preview-main-badge">MAIN</div>`
+    : `<div class="a-preview-setmain" onclick="setMainPreview('${key}', ${index})">★ Set as main</div>`;
+  return `<div class="a-preview-item">${inner}${control}</div>`;
+}
+
+function renderMediaPreview(key, containerId){
+  const files = mediaOrderState[key] || [];
+  document.getElementById(containerId).innerHTML =
+    files.map((f, i) => mediaPreviewHtml(f, key, i)).join('');
+}
+
+function setMainPreview(key, index){
+  const files = mediaOrderState[key];
+  if (!files || index <= 0 || index >= files.length) return;
+  const [chosen] = files.splice(index, 1);
+  files.unshift(chosen);
+  const containerId = key === 'ap' ? 'apPreviewRow' : `edPreviewRow-${key.replace('ed-', '')}`;
+  renderMediaPreview(key, containerId);
 }
 
 document.getElementById('apImageFiles').addEventListener('change', function(e){
@@ -2275,7 +2322,8 @@ document.getElementById('apImageFiles').addEventListener('change', function(e){
     return;
   }
   status.textContent = '';
-  document.getElementById('apPreviewRow').innerHTML = files.map(mediaPreviewHtml).join('');
+  mediaOrderState['ap'] = files;
+  renderMediaPreview('ap', 'apPreviewRow');
 });
 
 function fileToBase64(file){
@@ -2481,7 +2529,9 @@ async function submitAddProduct(e){
   e.preventDefault();
   const status = document.getElementById('apStatus');
   const submitBtn = document.getElementById('apSubmitBtn');
-  const imageFiles = Array.from(document.getElementById('apImageFiles').files);
+  // Use the reordered list (from the preview grid), falling back to raw
+  // file input order if the user never touched a "Set as main" control.
+  const imageFiles = mediaOrderState['ap'] || Array.from(document.getElementById('apImageFiles').files);
 
   if (!document.getElementById('apName').value || !document.getElementById('apPrice').value){
     status.textContent = '❌ Fill in the required fields.';
@@ -2553,6 +2603,7 @@ async function submitAddProduct(e){
     status.textContent = '✅ Product added!';
     document.getElementById('addProductForm').reset();
     document.getElementById('apPreviewRow').innerHTML = '';
+    delete mediaOrderState['ap'];
     loadProducts();
 
   } catch (err) {
@@ -2611,6 +2662,7 @@ async function openEditPanel(id){
           ${im.media_type === 'video'
             ? `<video src="${escapeHtml(im.url)}" muted playsinline preload="metadata"></video>`
             : `<img src="${escapeHtml(im.url)}">`}
+          ${im.is_primary ? `<div class="a-img-main-badge">MAIN</div>` : `<div class="a-img-setmain" onclick="setMainImage(${id}, ${im.id})">★ Set as main</div>`}
           <div class="a-img-remove" onclick="removeProductImage(${id}, ${im.id})">×</div>
         </div>
       `).join('')
@@ -2650,8 +2702,20 @@ async function openEditPanel(id){
       document.getElementById(`edPreviewRow-${id}`).innerHTML = '';
       return;
     }
-    document.getElementById(`edPreviewRow-${id}`).innerHTML = files.map(mediaPreviewHtml).join('');
+    mediaOrderState[`ed-${id}`] = files;
+    renderMediaPreview(`ed-${id}`, `edPreviewRow-${id}`);
   });
+}
+
+async function setMainImage(productId, imageId){
+  const res = await adminFetch(`${API_URL}/admin/products/${productId}/images/${imageId}/primary`, { method: 'PATCH' });
+  if (res.ok){
+    document.getElementById(`editpanel-${productId}`).innerHTML = ''; // force re-render with fresh data
+    await openEditPanel(productId);
+    loadProducts();
+  } else {
+    alert('Could not set main image.');
+  }
 }
 
 async function removeProductImage(productId, imageId){
@@ -2695,7 +2759,7 @@ async function saveEditedProduct(id){
     if (!updateRes.ok) throw new Error('Failed to update product details');
 
     const currentImgCount = document.querySelectorAll(`#curImagesRow-${id} .a-current-img`).length;
-    const newFiles = Array.from(document.getElementById(`edImageFiles-${id}`).files);
+    const newFiles = mediaOrderState[`ed-${id}`] || Array.from(document.getElementById(`edImageFiles-${id}`).files);
     if (newFiles.length > 0){
       if (currentImgCount + newFiles.length > ADMIN_MAX_IMAGES){
         throw new Error(`A product can have at most ${ADMIN_MAX_IMAGES} files total (${currentImgCount} already there).`);
@@ -2727,6 +2791,7 @@ async function saveEditedProduct(id){
     }
 
     status.textContent = '✅ Saved!';
+    delete mediaOrderState[`ed-${id}`];
     loadProducts();
     setTimeout(() => { loadManageList(); }, 500);
 

@@ -469,10 +469,10 @@ def get_product(request: Request, product_id: int):
         raise HTTPException(status_code=404, detail="Product not found")
 
     cur.execute(
-        "SELECT id, blob_url, media_type FROM product_images WHERE product_id = %s ORDER BY is_primary DESC, sort_order ASC;",
+        "SELECT id, blob_url, media_type, is_primary FROM product_images WHERE product_id = %s ORDER BY is_primary DESC, sort_order ASC;",
         (product_id,),
     )
-    images = [{"id": r[0], "url": r[1], "media_type": r[2]} for r in cur.fetchall()]
+    images = [{"id": r[0], "url": r[1], "media_type": r[2], "is_primary": r[3]} for r in cur.fetchall()]
     cur.close()
     conn.close()
 
@@ -542,6 +542,33 @@ def add_product_image(request: Request, product_id: int, image: ProductImageCrea
     cur.close()
     conn.close()
     return {"id": new_id, "message": "Image added"}
+
+
+@app.patch("/admin/products/{product_id}/images/{image_id}/primary", dependencies=[Depends(require_admin)])
+@limiter.limit("30/minute")
+def set_primary_product_image(request: Request, product_id: int, image_id: int):
+    """Marks one image as the product's main/lead photo (e.g. the model shot)
+    and un-sets is_primary on every other image for that product."""
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT id FROM product_images WHERE id = %s AND product_id = %s;",
+        (image_id, product_id),
+    )
+    if not cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Image not found on this product")
+
+    cur.execute(
+        "UPDATE product_images SET is_primary = (id = %s) WHERE product_id = %s;",
+        (image_id, product_id),
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message": "Main image updated"}
 
 
 @app.delete("/admin/products/{product_id}/images/{image_id}", dependencies=[Depends(require_admin)])
