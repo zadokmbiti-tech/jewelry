@@ -103,6 +103,8 @@
     --brass-necklaces-ink:#8e293b;
     --bag-charms:#f5e3df;
     --bag-charms-ink:#8e3b29;
+    --other_items:#f5e7df;
+    --other_items-ink:#8e4e29;
     --line:rgba(184,134,11,0.22);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -1039,6 +1041,7 @@
           <a onclick="goToCategory('charger-protectors')">Charger Protectors</a>
           <a onclick="goToCategory('premium-wine-bottle-gift-box')">Premium Wine Bottle Gift Box</a>
           <a onclick="goToCategory('bag-charms')">Bag Charms</a>
+          <a onclick="gotoCategory(other_items)">other_items</a>
         </div>
       </div>
     </nav>
@@ -1492,6 +1495,7 @@
             <option value="charger-protectors">Charger Protectors</option>
             <option value="premium-wine-bottle-gift-box">Premium Wine Bottle Gift Box</option>
             <option value="bag-charms">Bag Charms</option>
+            <option value="other_items">Other Items</option>
           </optgroup>
         </select>
       </div>
@@ -1578,6 +1582,7 @@ const CATEGORY_META = {
   "xuping-bracelets":                 { label: "Xuping Bracelets", color: "xuping-bracelets", ink: "xuping-bracelets-ink" },
   "brass-necklaces":                  { label: "Brass Necklaces", color: "brass-necklaces", ink: "brass-necklaces-ink" },
   "bag-charms":                       { label: "Bag Charms", color: "bag-charms", ink: "bag-charms-ink" },
+  "other_items":                      { label: "Other Items", color: "other_items", ink: "other_items-ink" },
 };
 const CATEGORY_GROUPS = [
   ["Necklaces", ["xuping-necklaces","pearl-necklaces","stainless-steel-necklaces","brass-necklaces"]],
@@ -1592,7 +1597,7 @@ const CATEGORY_GROUPS = [
   ["Bags", ["travel-bags"]],
   ["Mirrors", ["kids-pocket-mirrors","adult-pocket-mirrors"]],
   ["Jewelry Storage & Cases", ["elite-compact-jewelry-case","classic-jewelry-organizers"]],
-  ["Other Accessories & Gifts", ["brass-jewelry","charger-protectors","premium-wine-bottle-gift-box","bag-charms"]],
+  ["Other Accessories & Gifts", ["brass-jewelry","charger-protectors","premium-wine-bottle-gift-box","bag-charms","other_items"]],
 ];
 function buildCategoryOptionsHtml(selectedSlug) {
   return CATEGORY_GROUPS.map(([groupLabel, slugs]) => {

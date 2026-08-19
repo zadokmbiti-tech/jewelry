@@ -83,6 +83,7 @@ VALID_CATEGORIES = {
     "xuping-bracelets",
     "brass-necklaces",
     "bag-charms",
+    "other_items",
 }
 
 MAX_PRODUCT_IMAGES = 10
