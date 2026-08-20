@@ -2546,7 +2546,7 @@ function compressVideoForUpload(file){
   });
 }
 
-async function submitAddProduct(e){
+async function submitAddProduct(e, force){
   e.preventDefault();
   const status = document.getElementById('apStatus');
   const submitBtn = document.getElementById('apSubmitBtn');
@@ -2577,7 +2577,7 @@ async function submitAddProduct(e){
 
   try {
     status.textContent = 'Saving product...';
-    const productRes = await adminFetch(`${API_URL}/admin/products`, {
+    const productRes = await adminFetch(`${API_URL}/admin/products${force ? '?force=true' : ''}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -2594,7 +2594,27 @@ async function submitAddProduct(e){
       })
     });
     const productData = await parseJsonResponse(productRes, 'Product creation');
-    if (!productRes.ok) throw new Error(productData.detail || 'Product creation failed');
+
+    if (productRes.status === 409 && productData.detail && typeof productData.detail === 'object'){
+      const d = productData.detail;
+      const goAhead = window.confirm(
+        `${d.message}\n\nExisting stock: ${d.existing_quantity}, price: ${d.existing_price}.\n\n` +
+        `Click OK to add this as a separate listing anyway, or Cancel to stop ` +
+        `(then edit the existing product #${d.existing_product_id} instead).`
+      );
+      submitBtn.style.pointerEvents = '';
+      submitBtn.style.opacity = '';
+      if (goAhead){
+        return submitAddProduct(e, true);
+      }
+      status.textContent = `⚠️ Not added — "${document.getElementById('apName').value}" already exists in this category.`;
+      return;
+    }
+
+    if (!productRes.ok) {
+      const msg = productData.detail && typeof productData.detail === 'object' ? productData.detail.message : productData.detail;
+      throw new Error(msg || 'Product creation failed');
+    }
 
     for (let i = 0; i < imageFiles.length; i++){
       const file = imageFiles[i];

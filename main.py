@@ -491,10 +491,39 @@ def get_product(request: Request, product_id: int):
 
 @app.post("/admin/products", dependencies=[Depends(require_admin)])
 @limiter.limit("30/minute")
-def create_product(request: Request, product: ProductCreate):
+def create_product(request: Request, product: ProductCreate, force: bool = False):
     validate_category(product.category)
     conn = get_conn()
     cur = conn.cursor()
+
+    # Duplicate-entry guard: catches the same product being added twice
+    # (forgotten earlier entry, two staff members, a retried request after a
+    # timeout, etc). Matches on name + category, case/whitespace-insensitive.
+    # `force=true` lets an admin deliberately add a second listing that just
+    # happens to share a name (e.g. two colourways of the same design).
+    if not force:
+        cur.execute(
+            """
+            SELECT id, quantity, price FROM products
+            WHERE lower(trim(name)) = lower(trim(%s)) AND category = %s
+            LIMIT 1;
+            """,
+            (product.name, product.category),
+        )
+        existing = cur.fetchone()
+        if existing:
+            cur.close()
+            conn.close()
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "message": f"A product named \"{product.name}\" already exists in this category.",
+                    "existing_product_id": existing[0],
+                    "existing_quantity": existing[1],
+                    "existing_price": float(existing[2]),
+                },
+            )
+
     cur.execute(
         """
         INSERT INTO products (name, description, price, sale_price, category, quantity, is_new)
