@@ -944,6 +944,12 @@
   .a-prow button{padding:7px 14px;border:1px solid var(--line);border-radius:4px;font-size:0.8rem;}
   .a-prow .a-del{color:#a3423f;border-color:#f2c6c1;}
   .a-edit-panel{border:1px solid var(--line);border-radius:8px;padding:22px;margin-bottom:18px;background:var(--surface);}
+  .a-manage-search{
+    width:100%;padding:11px 14px;margin-bottom:18px;border:1px solid var(--line);border-radius:6px;
+    font-family:inherit;font-size:0.92rem;background:var(--bg);color:var(--ink);
+  }
+  .a-manage-search:focus{outline:none;border-color:var(--gold);}
+  .a-manage-count{font-size:0.8rem;color:var(--muted);margin:-10px 0 16px;}
 
   @media(max-width:860px){
     nav.links{display:none;}
@@ -1568,6 +1574,8 @@
 
   <div class="admin-body" id="adminManageView" style="display:none;">
     <h2>Manage Products</h2>
+    <input type="text" class="a-manage-search" id="manageSearchInput" placeholder="Search by product name, category, or price…" oninput="filterManageList()">
+    <div class="a-manage-count" id="manageCount"></div>
     <div id="manageList"><p style="color:var(--muted);">Loading…</p></div>
   </div>
 
@@ -2843,29 +2851,63 @@ async function submitAddProduct(e, force){
   }
 }
 
+let _manageProductsCache = [];
+
 async function loadManageList(){
   const list = document.getElementById('manageList');
   try {
     const res = await fetch(`${API_URL}/products`);
     const products = await res.json();
+    _manageProductsCache = products;
     if (products.length === 0){
       list.innerHTML = '<p style="color:var(--muted);">No products yet.</p>';
+      document.getElementById('manageCount').textContent = '';
       return;
     }
-    list.innerHTML = products.map(p => `
-      <div class="a-prow" id="prow-${p.id}">
+    list.innerHTML = products.map(p => {
+      const categoryLabel = (CATEGORY_META[p.category]||{label:p.category}).label;
+      const searchBlob = `${p.name} ${categoryLabel} ${p.price}`.toLowerCase();
+      return `
+      <div class="a-prow" id="prow-${p.id}" data-search="${escapeHtml(searchBlob)}">
         <img src="${escapeHtml(p.image_url || 'https://placehold.co/100x100?text=No+Image')}" alt="${escapeHtml(p.name)}">
         <div class="a-pinfo">
           <div class="a-pname">${escapeHtml(p.name)}</div>
-          <div class="a-pmeta">${fmt(p.price)}  ${escapeHtml((CATEGORY_META[p.category]||{label:p.category}).label)}  Qty: ${p.quantity}</div>
+          <div class="a-pmeta">${fmt(p.price)}  ${escapeHtml(categoryLabel)}  Qty: ${p.quantity}</div>
         </div>
         <button onclick="openEditPanel(${p.id})">Edit</button>
         <button class="a-del" onclick="deleteManagedProduct(${p.id})">Delete</button>
       </div>
-      <div id="editpanel-${p.id}"></div>
-    `).join('');
+      <div id="editpanel-${p.id}" data-search-group="${p.id}"></div>
+    `;
+    }).join('');
+    filterManageList();
   } catch (err) {
     list.innerHTML = '<p style="color:#a3423f;">Could not load products.</p>';
+  }
+}
+
+function filterManageList(){
+  const input = document.getElementById('manageSearchInput');
+  const countEl = document.getElementById('manageCount');
+  const term = (input && input.value || '').trim().toLowerCase();
+  const rows = document.querySelectorAll('#manageList .a-prow');
+  let visibleCount = 0;
+
+  rows.forEach(row => {
+    const matches = !term || (row.dataset.search || '').includes(term);
+    row.style.display = matches ? '' : 'none';
+    const panel = row.nextElementSibling;
+    if (panel && panel.dataset && panel.dataset.searchGroup) panel.style.display = matches ? '' : 'none';
+    if (matches) visibleCount++;
+  });
+
+  if (!countEl) return;
+  if (!term){
+    countEl.textContent = '';
+  } else if (visibleCount === 0){
+    countEl.textContent = `No products match "${input.value.trim()}".`;
+  } else {
+    countEl.textContent = `${visibleCount} of ${rows.length} product${rows.length === 1 ? '' : 's'} match.`;
   }
 }
 
