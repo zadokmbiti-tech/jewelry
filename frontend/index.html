@@ -882,6 +882,18 @@
   .a-check input{width:auto;}
   .a-submit{width:100%;justify-content:center;}
   .a-status{margin-top:14px;font-size:0.88rem;font-weight:500;}
+  .a-pending-banner{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:22px;}
+  .a-pending-banner-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .a-pending-banner-head strong{font-size:0.88rem;color:var(--ink);}
+  .a-pending-sync-btn{background:var(--ink);color:#fff;border:none;border-radius:4px;padding:7px 14px;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;}
+  .a-pending-sync-btn:disabled{opacity:0.5;cursor:default;}
+  .a-pending-list{list-style:none;margin:10px 0 0;padding:0;}
+  .a-pending-list li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:0.84rem;color:var(--ink);}
+  .a-pending-list li:first-child{border-top:none;}
+  .a-pending-item-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .a-pending-item-err{color:#a3423f;font-size:0.76rem;display:block;}
+  .a-pending-item-actions{display:flex;gap:6px;flex-shrink:0;}
+  .a-pending-item-actions button{background:none;border:1px solid var(--line);border-radius:4px;padding:3px 9px;font-size:0.72rem;cursor:pointer;color:var(--ink);}
   .a-preview-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
   .a-preview-item{position:relative;width:74px;height:74px;}
   .a-preview-item img{width:100%;height:100%;object-fit:cover;border-radius:6px;}
@@ -1460,6 +1472,7 @@
 
   <div class="admin-body" id="adminAddView">
     <h2>Add New Piece</h2>
+    <div class="a-pending-banner" id="apPendingBanner" style="display:none;"></div>
     <form id="addProductForm">
       <div class="a-field"><label>Product Name</label><input type="text" id="apName" required></div>
       <div class="a-field"><label>Description</label><textarea id="apDescription" rows="3"></textarea></div>
@@ -2199,6 +2212,7 @@ function showAdminTab(tab){
   document.getElementById('adminManageView').style.display = tab === 'manage' ? 'block' : 'none';
   document.getElementById('adminOrdersView').style.display = tab === 'orders' ? 'block' : 'none';
   document.getElementById('adminCustomersView').style.display = tab === 'customers' ? 'block' : 'none';
+  if (tab === 'add') renderPendingBanner();
   if (tab === 'manage') loadManageList();
   if (tab === 'orders') loadOrdersList();
   if (tab === 'customers') loadCustomersList();
@@ -2546,6 +2560,198 @@ function compressVideoForUpload(file){
   });
 }
 
+// ── Offline queue ───────────────────────────────────────────────────────
+// Lets an admin add a product with zero connectivity (e.g. at a market
+// stall). The product's fields + chosen files are saved in IndexedDB
+// (structured-clone supports File/Blob directly, so no base64 needed) and
+// pushed to the server automatically once we're back online.
+const OFFLINE_DB_NAME = 'sjgems-offline';
+const OFFLINE_STORE = 'pendingProducts';
+let _offlineSyncing = false;
+
+function openOfflineDB(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(OFFLINE_DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      if (!req.result.objectStoreNames.contains(OFFLINE_STORE)){
+        req.result.createObjectStore(OFFLINE_STORE, { keyPath: 'localId', autoIncrement: true });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function offlineQueueAdd(entry){
+  const db = await openOfflineDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(OFFLINE_STORE, 'readwrite');
+    const req = tx.objectStore(OFFLINE_STORE).add(entry);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function offlineQueueGetAll(){
+  const db = await openOfflineDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(OFFLINE_STORE, 'readonly');
+    const req = tx.objectStore(OFFLINE_STORE).getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function offlineQueuePut(entry){
+  const db = await openOfflineDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(OFFLINE_STORE, 'readwrite');
+    const req = tx.objectStore(OFFLINE_STORE).put(entry);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function offlineQueueDelete(localId){
+  const db = await openOfflineDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(OFFLINE_STORE, 'readwrite');
+    const req = tx.objectStore(OFFLINE_STORE).delete(localId);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function renderPendingBanner(){
+  const banner = document.getElementById('apPendingBanner');
+  if (!banner) return;
+  let items;
+  try { items = await offlineQueueGetAll(); } catch { items = []; }
+
+  if (items.length === 0){ banner.style.display = 'none'; banner.innerHTML = ''; return; }
+  items.sort((a, b) => a.queuedAt - b.queuedAt);
+
+  banner.style.display = 'block';
+  banner.innerHTML = `
+    <div class="a-pending-banner-head">
+      <strong>📥 ${items.length} product${items.length === 1 ? '' : 's'} waiting to upload</strong>
+      <button type="button" class="a-pending-sync-btn" id="apSyncNowBtn" ${navigator.onLine ? '' : 'disabled'}>
+        ${navigator.onLine ? 'Sync now' : 'Offline'}
+      </button>
+    </div>
+    <ul class="a-pending-list">
+      ${items.map(it => `
+        <li>
+          <span class="a-pending-item-name">
+            ${escapeHtml(it.fields.name)} — ${it.files.length} file${it.files.length === 1 ? '' : 's'}
+            ${it.lastError ? `<span class="a-pending-item-err">${escapeHtml(it.lastError)}</span>` : ''}
+          </span>
+          <span class="a-pending-item-actions">
+            ${it.duplicateInfo ? `<button type="button" onclick="resolveOfflineDuplicate(${it.localId}, true)">Add anyway</button>` : ''}
+            <button type="button" onclick="discardOfflineProduct(${it.localId})">Discard</button>
+          </span>
+        </li>
+      `).join('')}
+    </ul>`;
+
+  const syncBtn = document.getElementById('apSyncNowBtn');
+  if (syncBtn) syncBtn.onclick = () => syncPendingProducts();
+}
+
+async function discardOfflineProduct(localId){
+  await offlineQueueDelete(localId);
+  renderPendingBanner();
+}
+
+async function resolveOfflineDuplicate(localId, force){
+  const items = await offlineQueueGetAll();
+  const item = items.find(i => i.localId === localId);
+  if (!item) return;
+  item.duplicateInfo = null;
+  item.lastError = null;
+  item.forceNext = force;
+  await offlineQueuePut(item);
+  syncPendingProducts();
+}
+
+async function syncPendingProducts(){
+  if (_offlineSyncing || !navigator.onLine) { renderPendingBanner(); return; }
+  _offlineSyncing = true;
+  const status = document.getElementById('apStatus');
+  try {
+    const items = (await offlineQueueGetAll()).sort((a, b) => a.queuedAt - b.queuedAt);
+    for (const item of items){
+      if (!navigator.onLine) break;
+      try {
+        if (status) status.textContent = `Uploading queued product "${item.fields.name}"...`;
+        await postProductAndImages(item.fields, item.files, !!item.forceNext, msg => { if (status) status.textContent = msg; });
+        await offlineQueueDelete(item.localId);
+        loadProducts();
+      } catch (err) {
+        if (err instanceof TypeError){
+          break; // lost connection again -- leave remaining items queued
+        }
+        item.lastError = err.duplicate ? err.duplicate.message : err.message;
+        item.duplicateInfo = err.duplicate || null;
+        await offlineQueuePut(item);
+      }
+    }
+    if (status) status.textContent = '';
+  } finally {
+    _offlineSyncing = false;
+    renderPendingBanner();
+  }
+}
+
+window.addEventListener('online', () => syncPendingProducts());
+
+// ── Product creation (shared by the live form and the offline sync queue) ─
+async function postProductAndImages(fields, files, force, onProgress){
+  const productRes = await adminFetch(`${API_URL}/admin/products${force ? '?force=true' : ''}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fields)
+  });
+  const productData = await parseJsonResponse(productRes, 'Product creation');
+
+  if (productRes.status === 409 && productData.detail && typeof productData.detail === 'object'){
+    const err = new Error(productData.detail.message);
+    err.duplicate = productData.detail;
+    throw err;
+  }
+  if (!productRes.ok){
+    const msg = productData.detail && typeof productData.detail === 'object' ? productData.detail.message : productData.detail;
+    throw new Error(msg || 'Product creation failed');
+  }
+
+  for (let i = 0; i < files.length; i++){
+    const file = files[i];
+    const kind = isVideoFile(file) ? 'video' : 'image';
+    if (onProgress) onProgress(kind === 'video'
+      ? `Compressing & uploading video ${i + 1} of ${files.length}...`
+      : `Uploading image ${i + 1} of ${files.length}...`);
+    const { base64: dataBase64, contentType } = kind === 'video'
+      ? await compressVideoForUpload(file)
+      : await resizeImageForUpload(file);
+    const uploadRes = await adminFetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: file.name, contentType, dataBase64 })
+    });
+    const uploadData = await parseJsonResponse(uploadRes, `${kind === 'video' ? 'Video' : 'Image'} ${i + 1} upload`);
+    if (!uploadRes.ok) throw new Error(uploadData.error || `${kind === 'video' ? 'Video' : 'Image'} ${i + 1} upload failed`);
+
+    const imgRes = await adminFetch(`${API_URL}/admin/products/${productData.id}/images`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blob_url: uploadData.url, is_primary: i === 0, sort_order: i, media_type: kind })
+    });
+    if (!imgRes.ok) throw new Error(`Linking ${kind} ${i + 1} failed`);
+  }
+
+  return productData;
+}
+
 async function submitAddProduct(e, force){
   e.preventDefault();
   const status = document.getElementById('apStatus');
@@ -2572,74 +2778,36 @@ async function submitAddProduct(e, force){
     return;
   }
 
+  const fields = {
+    name: document.getElementById('apName').value,
+    description: document.getElementById('apDescription').value,
+    price: parseFloat(document.getElementById('apPrice').value),
+    sale_price: apSalePriceVal === '' ? null : parseFloat(apSalePriceVal),
+    category: document.getElementById('apCategory').value,
+    quantity: parseInt(document.getElementById('apQuantity').value, 10) || 0,
+    is_new: document.getElementById('apIsNew').checked
+  };
+
+  const queueForLater = async (msg) => {
+    await offlineQueueAdd({ fields, files: imageFiles, queuedAt: Date.now(), lastError: null, duplicateInfo: null, forceNext: false });
+    status.textContent = msg;
+    document.getElementById('addProductForm').reset();
+    document.getElementById('apPreviewRow').innerHTML = '';
+    delete mediaOrderState['ap'];
+    renderPendingBanner();
+  };
+
+  if (!navigator.onLine){
+    await queueForLater("📥 You're offline — product saved on this device. It'll upload automatically once you're back online.");
+    return;
+  }
+
   submitBtn.style.pointerEvents = 'none';
   submitBtn.style.opacity = '0.6';
 
   try {
     status.textContent = 'Saving product...';
-    const productRes = await adminFetch(`${API_URL}/admin/products${force ? '?force=true' : ''}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: document.getElementById('apName').value,
-        description: document.getElementById('apDescription').value,
-        price: parseFloat(document.getElementById('apPrice').value),
-        sale_price: (() => {
-          const v = document.getElementById('apSalePrice').value;
-          return v === '' ? null : parseFloat(v);
-        })(),
-        category: document.getElementById('apCategory').value,
-        quantity: parseInt(document.getElementById('apQuantity').value, 10) || 0,
-        is_new: document.getElementById('apIsNew').checked
-      })
-    });
-    const productData = await parseJsonResponse(productRes, 'Product creation');
-
-    if (productRes.status === 409 && productData.detail && typeof productData.detail === 'object'){
-      const d = productData.detail;
-      const goAhead = window.confirm(
-        `${d.message}\n\nExisting stock: ${d.existing_quantity}, price: ${d.existing_price}.\n\n` +
-        `Click OK to add this as a separate listing anyway, or Cancel to stop ` +
-        `(then edit the existing product #${d.existing_product_id} instead).`
-      );
-      submitBtn.style.pointerEvents = '';
-      submitBtn.style.opacity = '';
-      if (goAhead){
-        return submitAddProduct(e, true);
-      }
-      status.textContent = `⚠️ Not added — "${document.getElementById('apName').value}" already exists in this category.`;
-      return;
-    }
-
-    if (!productRes.ok) {
-      const msg = productData.detail && typeof productData.detail === 'object' ? productData.detail.message : productData.detail;
-      throw new Error(msg || 'Product creation failed');
-    }
-
-    for (let i = 0; i < imageFiles.length; i++){
-      const file = imageFiles[i];
-      const kind = isVideoFile(file) ? 'video' : 'image';
-      status.textContent = kind === 'video'
-        ? `Compressing & uploading video ${i + 1} of ${imageFiles.length}...`
-        : `Uploading image ${i + 1} of ${imageFiles.length}...`;
-      const { base64: dataBase64, contentType } = kind === 'video'
-        ? await compressVideoForUpload(file)
-        : await resizeImageForUpload(file);
-      const uploadRes = await adminFetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: file.name, contentType, dataBase64 })
-      });
-      const uploadData = await parseJsonResponse(uploadRes, `${kind === 'video' ? 'Video' : 'Image'} ${i + 1} upload`);
-      if (!uploadRes.ok) throw new Error(uploadData.error || `${kind === 'video' ? 'Video' : 'Image'} ${i + 1} upload failed`);
-
-      const imgRes = await adminFetch(`${API_URL}/admin/products/${productData.id}/images`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blob_url: uploadData.url, is_primary: i === 0, sort_order: i, media_type: kind })
-      });
-      if (!imgRes.ok) throw new Error(`Linking ${kind} ${i + 1} failed`);
-    }
+    await postProductAndImages(fields, imageFiles, force, msg => status.textContent = msg);
 
     status.textContent = '✅ Product added!';
     document.getElementById('addProductForm').reset();
@@ -2648,6 +2816,26 @@ async function submitAddProduct(e, force){
     loadProducts();
 
   } catch (err) {
+    if (err.duplicate){
+      const d = err.duplicate;
+      const goAhead = window.confirm(
+        `${d.message}\n\nExisting stock: ${d.existing_quantity}, price: ${d.existing_price}.\n\n` +
+        `Click OK to add this as a separate listing anyway, or Cancel to stop ` +
+        `(then edit the existing product #${d.existing_product_id} instead).`
+      );
+      submitBtn.style.pointerEvents = '';
+      submitBtn.style.opacity = '';
+      if (goAhead) return submitAddProduct(e, true);
+      status.textContent = `⚠️ Not added — "${fields.name}" already exists in this category.`;
+      return;
+    }
+    if (err instanceof TypeError){
+      // fetch itself failed (offline / connection dropped) before the
+      // product was created server-side, so it's safe to queue the whole
+      // thing without risking a server-side duplicate.
+      await queueForLater("📥 Connection lost — product saved on this device. It'll upload automatically once you're back online.");
+      return;
+    }
     status.textContent = '❌ ' + err.message;
   } finally {
     submitBtn.style.pointerEvents = '';
