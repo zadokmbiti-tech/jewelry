@@ -495,6 +495,10 @@
   .related-strip{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;}
   .related-card{flex:0 0 120px;cursor:pointer;}
   .related-card .tray{width:120px;height:120px;border-radius:8px;}
+  #modal .modal-reviews, #modal .modal-related{
+    max-width:640px;margin-top:10px;padding-top:36px;border-top:1px solid var(--line);
+  }
+  #modal .modal-related{max-width:none;border-top:none;padding-top:10px;}
   .related-name{font-size:0.78rem;margin-top:6px;line-height:1.3;}
   .review-form textarea{
     width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;
@@ -629,6 +633,46 @@
   .modal-tray svg{width:50%;height:50%;}
   .modal-tray .tray-img{width:100%;height:100%;object-fit:contain;background:rgba(255,255,255,0.35);}
   .modal-info{padding:34px;overflow-y:auto;}
+
+  /* Product detail page: #modal renders as a real full page (like navigating
+     to /product/x) instead of a centered popup. Header stays fixed above it. */
+  #modal{
+    display:block;align-items:unset;justify-content:unset;padding:0;
+    z-index:90;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;
+  }
+  #modal .modal-box{
+    display:block;max-width:1180px;width:100%;margin:0 auto;background:transparent;
+    border:none;box-shadow:none;border-radius:0;overflow:visible;max-height:none;
+    padding:118px 5vw 70px;min-height:100vh;
+  }
+  .pdp-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px;}
+  .pdp-breadcrumb{font-size:0.78rem;color:var(--muted);letter-spacing:0.02em;}
+  .pdp-breadcrumb a{color:var(--muted);cursor:pointer;transition:color .2s ease;}
+  .pdp-breadcrumb a:hover{color:var(--gold);}
+  .pdp-breadcrumb span{color:var(--ink);}
+  .pdp-back-btn{
+    flex:none;width:36px;height:36px;border-radius:50%;background:var(--bg);
+    border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:border-color .2s ease;
+  }
+  .pdp-back-btn:hover{border-color:var(--gold);}
+  .pdp-back-btn svg{width:15px;height:15px;stroke:var(--ink);}
+  .pdp-columns{display:flex;gap:56px;align-items:flex-start;}
+  .pdp-columns > .modal-close{display:none;}
+  #modal .modal-tray{
+    width:50%;flex:none;border-radius:8px;aspect-ratio:1/1;
+    box-shadow:0 20px 50px rgba(30,24,16,0.1);
+  }
+  #modal .modal-info{padding:0 0 0 4px;overflow-y:visible;flex:1;}
+  @media(max-width:860px){
+    #modal .modal-box{padding:96px 6vw 60px;}
+    .pdp-columns{flex-direction:column;gap:26px;}
+    #modal .modal-tray{width:100%;}
+  }
+  /* Rest of the homepage is hidden while a product page is showing, so the
+     product view reads as its own page rather than a popup over the shop. */
+  body.pdp-open .hero, body.pdp-open #collection, body.pdp-open .story,
+  body.pdp-open .ourshop, body.pdp-open .trust{display:none;}
   .modal-info .card-cat{margin-bottom:10px;}
   .modal-info h2{font-size:1.7rem;margin-bottom:10px;}
   .modal-price{font-size:1.15rem;color:var(--gold);margin-bottom:18px;}
@@ -877,6 +921,28 @@
   }
   .auth-tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,0.08);}
   .auth-tabs + .auth-body{margin-top:20px;}
+
+  /* Simple sign-in card: plain label-above-field layout, no banner/tabs. */
+  .simple-auth-box{
+    max-width:380px;width:100%;padding:36px 32px 30px;text-align:left;position:relative;
+  }
+  .simple-auth-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--ink);margin-bottom:22px;}
+  .simple-field{margin-bottom:18px;}
+  .simple-field label{display:block;font-size:0.82rem;font-weight:600;color:var(--ink);margin-bottom:7px;}
+  .simple-field label .req{color:#a3423f;}
+  .simple-field input{
+    width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:6px;
+    font-family:inherit;font-size:0.92rem;background:#fff;
+    transition:border-color .25s ease, box-shadow .25s ease;
+  }
+  .simple-field input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(184,134,11,0.1);}
+  .simple-pw-wrap{position:relative;}
+  .simple-pw-wrap input{padding-right:42px;}
+  .simple-pw-wrap .auth-toggle-pw{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;}
+  .simple-pw-wrap .auth-toggle-pw svg{width:17px;height:17px;stroke:var(--muted);}
+  .simple-auth-submit{width:100%;justify-content:center;margin-top:6px;}
+  .simple-auth-toggle{font-size:0.82rem;color:var(--muted);text-align:center;margin-top:20px;}
+  .simple-auth-toggle a{color:var(--gold);cursor:pointer;font-weight:600;text-decoration:underline;}
 
   .msu-box{max-width:400px;padding:0;overflow:visible;text-align:left;}
   .msu-banner{
@@ -1531,34 +1597,29 @@
 </div>
 
 <div class="modal" id="registerModal">
-  <div class="modal-box auth-box">
+  <div class="modal-box simple-auth-box">
     <button class="modal-close" onclick="closeAll()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="auth-head">
-      <div class="auth-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-      <h3 id="authTitle">Log In</h3>
-      <p id="authSubtitle">An account is required to buy</p>
+    <h3 class="simple-auth-title" id="authTitle">Sign In</h3>
+    <div class="auth-err" id="registerErr"></div>
+    <div class="simple-field" id="authNameField" style="display:none;">
+      <label for="regNameInput">Full name <span class="req">*</span></label>
+      <input type="text" id="regNameInput" placeholder="Enter your full name" autocomplete="name" onkeydown="if(event.key==='Enter')document.getElementById('regPhoneInput').focus()">
     </div>
-    <div class="auth-tabs">
-      <button type="button" class="auth-tab active" id="authTabLogin" onclick="switchAuthTab('login')">Log In</button>
-      <button type="button" class="auth-tab" id="authTabRegister" onclick="switchAuthTab('register')">Create Account</button>
+    <div class="simple-field">
+      <label for="regPhoneInput">Phone number <span class="req">*</span></label>
+      <input type="tel" id="regPhoneInput" placeholder="Enter your phone number" autocomplete="tel" onkeydown="if(event.key==='Enter')document.getElementById('regPasswordInput').focus()">
     </div>
-    <div class="auth-body">
-      <div class="auth-err" id="registerErr"></div>
-      <div class="auth-field" id="authNameField" style="display:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <input type="text" id="regNameInput" placeholder="Full name" autocomplete="name" onkeydown="if(event.key==='Enter')document.getElementById('regPhoneInput').focus()">
+    <div class="simple-field">
+      <label for="regPasswordInput">Password <span class="req">*</span></label>
+      <div class="simple-pw-wrap">
+        <input type="password" id="regPasswordInput" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()">
+        <button type="button" class="auth-toggle-pw" onclick="toggleRegPwVisibility()" aria-label="Show password">
+          <svg id="regPwEye" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
       </div>
-      <div class="auth-field">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.7A2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.7a2 2 0 01-.4 2.1L8.1 9.8a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4c.9.3 1.8.5 2.7.6a2 2 0 011.8 2.2z"/></svg>
-        <input type="tel" id="regPhoneInput" placeholder="Phone number (07xx xxx xxx)" autocomplete="tel" onkeydown="if(event.key==='Enter')document.getElementById('regPasswordInput').focus()">
-      </div>
-      <div class="auth-field">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
-        <input type="password" id="regPasswordInput" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()">
-      </div>
-      <a class="btn-primary" id="authSubmitBtn" onclick="submitAuth()">Log In</a>
-      <p class="auth-note" id="authNote">Log in to add items to your bag and check out.</p>
     </div>
+    <a class="btn-primary simple-auth-submit" id="authSubmitBtn" onclick="submitAuth()">Log In</a>
+    <p class="simple-auth-toggle" id="authNote">No account yet? <a onclick="switchAuthTab('register')" id="authToggleLink">Create Account</a></p>
   </div>
 </div>
 
@@ -1825,6 +1886,12 @@ async function loadProducts() {
     const data = await res.json();
     PRODUCTS = data.map(normalizeProduct);
     renderGrid();
+    // If the page was loaded (or refreshed) on a product link like
+    // ?product=12, open that product's page directly instead of the grid.
+    const productParam = new URLSearchParams(location.search).get('product');
+    if (productParam && PRODUCTS.some(x => x.id === Number(productParam))) {
+      openModal(Number(productParam), true);
+    }
   } catch (err) {
     grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--muted);">Couldn't load the collection right now. Please try again shortly.</p>`;
   }
@@ -2194,8 +2261,6 @@ function modalMarkup(p, media){
       ${stockLine}
       ${addBtn}
       ${buyNowBtn}
-      <div class="modal-reviews" id="modalReviews"></div>
-      <div class="modal-related" id="modalRelated"></div>
     </div>
   `;
 }
@@ -2293,14 +2358,37 @@ async function submitReview(productId){
   }
 }
 
-async function openModal(id){
+function pdpBreadcrumbHtml(p){
+  return `
+    <div class="pdp-top">
+      <div class="pdp-breadcrumb">
+        <a onclick="closeAll()">Home</a> / <a onclick="closeAll()">${escapeHtml(p.catLabel)}</a> / <span>${escapeHtml(p.name)}</span>
+      </div>
+      <button class="pdp-back-btn" onclick="closeAll()" aria-label="Back to shop"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+  `;
+}
+
+// Opens a product as its own full page (URL updates to ?product=id, rest of
+// the homepage is hidden) rather than a small popup, so it behaves like
+// clicking through to a real product page.
+async function openModal(id, replaceHistory = false){
   const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
   modalMedia = [{ url: p.img, media_type: 'image' }];
   modalMediaIndex = 0;
   modalMediaAlt = p.name;
-  document.getElementById('modalBox').innerHTML = modalMarkup(p, modalMedia);
-  document.getElementById('overlay').classList.add('open');
+  document.getElementById('modalBox').innerHTML = pdpBreadcrumbHtml(p)
+    + `<div class="pdp-columns">${modalMarkup(p, modalMedia)}</div>`
+    + `<div class="modal-reviews" id="modalReviews"></div>`
+    + `<div class="modal-related" id="modalRelated"></div>`;
+  document.body.classList.add('pdp-open');
   document.getElementById('modal').classList.add('open');
+  document.getElementById('modal').scrollTop = 0;
+  window.scrollTo(0, 0);
+  const url = `${location.pathname}?product=${id}${location.hash || ''}`;
+  if (replaceHistory) history.replaceState({ product: id }, '', url);
+  else history.pushState({ product: id }, '', url);
   renderRelatedProducts(p);
   renderReviews(p.id);
 
@@ -2313,12 +2401,28 @@ async function openModal(id){
       : [{ url: p.img, media_type: 'image' }];
     modalMedia = media;
     modalMediaIndex = 0;
-    document.getElementById('modalBox').innerHTML = modalMarkup(p, media);
+    document.getElementById('modalBox').innerHTML = pdpBreadcrumbHtml(p)
+      + `<div class="pdp-columns">${modalMarkup(p, media)}</div>`
+      + `<div class="modal-reviews" id="modalReviews"></div>`
+      + `<div class="modal-related" id="modalRelated"></div>`;
     renderRelatedProducts(p);
     renderReviews(p.id);
   } catch (err) {
   }
 }
+
+// Supports the browser back/forward buttons while a product page is open,
+// and opening a product link directly (e.g. shared ?product=id URL).
+window.addEventListener('popstate', (e) => {
+  const params = new URLSearchParams(location.search);
+  const productId = params.get('product');
+  if (productId && PRODUCTS.some(x => x.id === Number(productId))) {
+    openModal(Number(productId), true);
+  } else {
+    document.getElementById('modal').classList.remove('open');
+    document.body.classList.remove('pdp-open');
+  }
+});
 
 function openCart(){
   document.getElementById('overlay').classList.add('open');
@@ -2385,14 +2489,20 @@ async function doBuyNow(id){
   await placeOrder([{ product_id: id, quantity: 1 }]);
 }
 function closeAll(){
+  const modalEl = document.getElementById('modal');
+  const wasProductPageOpen = modalEl.classList.contains('open');
   document.getElementById('overlay').classList.remove('open');
   document.getElementById('drawer').classList.remove('open');
-  document.getElementById('modal').classList.remove('open');
+  modalEl.classList.remove('open');
   document.getElementById('stkModal').classList.remove('open');
   document.getElementById('adminLoginModal').classList.remove('open');
   document.getElementById('registerModal').classList.remove('open');
   document.getElementById('accountDrawer').classList.remove('open');
   document.getElementById('compareModal').classList.remove('open');
+  document.body.classList.remove('pdp-open');
+  if (wasProductPageOpen && new URLSearchParams(location.search).has('product')) {
+    history.pushState({}, '', location.pathname + location.hash);
+  }
 }
 
 window.addEventListener('scroll', () => {
@@ -2523,17 +2633,22 @@ function showRegisterModal(){
 function switchAuthTab(mode){
   authMode = mode;
   document.getElementById('registerErr').style.display = 'none';
-  document.getElementById('authTabLogin').classList.toggle('active', mode === 'login');
-  document.getElementById('authTabRegister').classList.toggle('active', mode === 'register');
   document.getElementById('authNameField').style.display = mode === 'register' ? 'block' : 'none';
-  document.getElementById('authTitle').textContent = mode === 'register' ? 'Create Account' : 'Log In';
-  document.getElementById('authSubtitle').textContent = mode === 'register'
-    ? 'Sign up to shop, track orders, and check out'
-    : 'An account is required to buy';
+  document.getElementById('authTitle').textContent = mode === 'register' ? 'Create Account' : 'Sign In';
   document.getElementById('authSubmitBtn').textContent = mode === 'register' ? 'Create Account' : 'Log In';
-  document.getElementById('authNote').textContent = mode === 'register'
-    ? 'We only use this to confirm your M-Pesa order and delivery.'
-    : "Don't have an account? Use the Create Account tab above.";
+  document.getElementById('authNote').innerHTML = mode === 'register'
+    ? `Already have an account? <a onclick="switchAuthTab('login')" id="authToggleLink">Log In</a>`
+    : `No account yet? <a onclick="switchAuthTab('register')" id="authToggleLink">Create Account</a>`;
+}
+
+function toggleRegPwVisibility(){
+  const input = document.getElementById('regPasswordInput');
+  const eye = document.getElementById('regPwEye');
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  eye.innerHTML = showing
+    ? '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>'
+    : '<path d="M17.9 17.9A10.4 10.4 0 0112 19c-7 0-11-7-11-7a19 19 0 015.1-5.6M9.9 4.2A10 10 0 0112 4c7 0 11 7 11 7a19 19 0 01-2.5 3.4M14.1 14.1a3 3 0 11-4.2-4.2"/><path d="M2 2l20 20"/>';
 }
 
 async function submitAuth(){
