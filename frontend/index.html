@@ -233,6 +233,14 @@
     box-shadow:0 10px 26px rgba(184,134,11,0.28);
   }
   .btn-primary:hover{background:var(--gold-bright);transform:translateY(-2px);box-shadow:0 14px 30px rgba(184,134,11,0.36);}
+  .btn-buynow{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    background:var(--ink);color:#fff;width:100%;margin-top:10px;
+    padding:15px 30px;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.16em;font-weight:500;
+    transition:background .3s ease, transform .3s ease;cursor:pointer;
+  }
+  .btn-buynow:hover{background:#3a2f24;transform:translateY(-2px);}
+  .btn-buynow.disabled{opacity:0.4;pointer-events:none;}
   .btn-ghost{
     display:inline-flex;align-items:center;gap:8px;
     border-bottom:1px solid var(--line);padding-bottom:4px;
@@ -1964,6 +1972,9 @@ function modalMarkup(p, media){
   const addBtn = p.quantity <= 0
     ? `<a class="btn-primary disabled" style="width:100%;justify-content:center;">Out of Stock</a>`
     : `<a class="btn-primary" style="width:100%;justify-content:center;" onclick="requireRegistration(() => { addToCart(${p.id}); closeAll(); })">Add to Bag</a>`;
+  const buyNowBtn = p.quantity <= 0
+    ? ''
+    : `<a class="btn-buynow" onclick="requireRegistration(() => buyNow(${p.id}))">Buy Now</a>`;
   const first = media[0] || { url: p.img, media_type: 'image' };
   const mainMedia = modalMainMediaHtml(first, p.name);
   return `
@@ -1980,6 +1991,7 @@ function modalMarkup(p, media){
       <p class="modal-desc">${escapeHtml(p.desc)}</p>
       ${stockLine}
       ${addBtn}
+      ${buyNowBtn}
     </div>
   `;
 }
@@ -2015,14 +2027,14 @@ function closeCart(){
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('overlay').classList.remove('open');
 }
-async function openStk(){
-  if(cart.length === 0) return;
+// Shared by cart checkout and Buy Now, so both paths post to /orders the
+// same way instead of duplicating the request/error handling.
+async function placeOrder(items, opts = {}){
+  const { clearCart = false, triggerBtn = null } = opts;
   const info = getCustomerInfo();
-  if(!info){ showRegisterModal(); return; }
+  if (!info) return false;
 
-  const checkoutBtn = document.querySelector('.checkout-btn');
-  if (checkoutBtn){ checkoutBtn.style.pointerEvents = 'none'; checkoutBtn.style.opacity = '0.6'; }
-
+  if (triggerBtn){ triggerBtn.style.pointerEvents = 'none'; triggerBtn.style.opacity = '0.6'; }
   try {
     const res = await fetch(`${API_URL}/orders`, {
       method: 'POST',
@@ -2030,21 +2042,42 @@ async function openStk(){
       body: JSON.stringify({
         customer_name: info.name,
         customer_phone: info.phone,
-        items: cart.map(i => ({ product_id: i.id, quantity: i.qty })),
+        items,
       }),
     });
     if (!res.ok) throw new Error('order failed');
   } catch (err) {
-    if (checkoutBtn){ checkoutBtn.style.pointerEvents = ''; checkoutBtn.style.opacity = ''; }
+    if (triggerBtn){ triggerBtn.style.pointerEvents = ''; triggerBtn.style.opacity = ''; }
     alert("Couldn't place your order right now. Please check your connection and try again, or message us on WhatsApp.");
-    return;
+    return false;
   }
 
-  if (checkoutBtn){ checkoutBtn.style.pointerEvents = ''; checkoutBtn.style.opacity = ''; }
-  cart = [];
-  updateCartUI();
+  if (triggerBtn){ triggerBtn.style.pointerEvents = ''; triggerBtn.style.opacity = ''; }
+  if (clearCart){ cart = []; updateCartUI(); }
   document.getElementById('overlay').classList.add('open');
   document.getElementById('stkModal').classList.add('open');
+  return true;
+}
+
+async function openStk(){
+  if(cart.length === 0) return;
+  const info = getCustomerInfo();
+  if(!info){ showRegisterModal(); return; }
+  const checkoutBtn = document.querySelector('.checkout-btn');
+  await placeOrder(cart.map(i => ({ product_id: i.id, quantity: i.qty })), { clearCart: true, triggerBtn: checkoutBtn });
+}
+
+// Buy Now skips the bag entirely, it places a single-item order right away
+// without adding or clearing anything already sitting in the cart.
+function buyNow(id){
+  closeAll();
+  doBuyNow(id);
+}
+
+async function doBuyNow(id){
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p || p.quantity <= 0) return;
+  await placeOrder([{ product_id: id, quantity: 1 }]);
 }
 function closeAll(){
   document.getElementById('overlay').classList.remove('open');
