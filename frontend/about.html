@@ -1259,14 +1259,14 @@
   <div class="about-story-shell">
     <span class="eyebrow">Since 2024</span>
     <h2>Cast in small batches, finished entirely by hand.</h2>
-    <p>Jewelry has adorned people for thousands of years — worn as a mark of status, a keepsake of love, or a quiet piece of personal history passed from one hand to the next.</p>
+    <p>Jewelry has adorned people for thousands of years  worn as a mark of status, a keepsake of love, or a quiet piece of personal history passed from one hand to the next.</p>
     <p>From hammered gold cuffs to hand-strung pearls, every era has shaped precious metal and stone into something meant to be kept, not just worn.</p>
-    <p>Every Sj Gems Jewelry Store piece starts as a wax carving on a workbench in Ruaka and from different parts of the globe. We cast in recycled gold and sterling silver, then stone-set and polish each piece ourselves — no two trays ever look quite the same.</p>
+    <p>Every Sj Gems Jewelry Store piece starts as a wax carving on a workbench in Ruaka and from different parts of the globe. We cast in recycled gold and sterling silver, then stone-set and polish each piece ourselves  no two trays ever look quite the same.</p>
   </div>
   <div class="about-pillars">
     <div class="about-pillar">
       <h3>Our Vision</h3>
-      <p>To be Ruaka's trusted home for jewelry — a place where every client, near or far, can find a piece that feels made for them.</p>
+      <p>To be Ruaka's trusted home for jewelry  a place where every client, near or far, can find a piece that feels made for them.</p>
     </div>
     <div class="about-pillar">
       <h3>Our Mission</h3>
@@ -3210,7 +3210,7 @@ async function renderPendingBanner(){
       ${items.map(it => `
         <li>
           <span class="a-pending-item-name">
-            ${escapeHtml(it.fields.name)} — ${it.files.length} file${it.files.length === 1 ? '' : 's'}
+            ${escapeHtml(it.fields.name)}  ${it.files.length} file${it.files.length === 1 ? '' : 's'}
             ${it.lastError ? `<span class="a-pending-item-err">${escapeHtml(it.lastError)}</span>` : ''}
           </span>
           <span class="a-pending-item-actions">
@@ -3365,7 +3365,7 @@ async function submitAddProduct(e, force){
   };
 
   if (!navigator.onLine){
-    await queueForLater("📥 You're offline — product saved on this device. It'll upload automatically once you're back online.");
+    await queueForLater("📥 You're offline  product saved on this device. It'll upload automatically once you're back online.");
     return;
   }
 
@@ -3393,14 +3393,14 @@ async function submitAddProduct(e, force){
       submitBtn.style.pointerEvents = '';
       submitBtn.style.opacity = '';
       if (goAhead) return submitAddProduct(e, true);
-      status.textContent = `⚠️ Not added — "${fields.name}" already exists in this category.`;
+      status.textContent = `⚠️ Not added  "${fields.name}" already exists in this category.`;
       return;
     }
     if (err instanceof TypeError){
       // fetch itself failed (offline / connection dropped) before the
       // product was created server-side, so it's safe to queue the whole
       // thing without risking a server-side duplicate.
-      await queueForLater("📥 Connection lost — product saved on this device. It'll upload automatically once you're back online.");
+      await queueForLater("📥 Connection lost  product saved on this device. It'll upload automatically once you're back online.");
       return;
     }
     status.textContent = '❌ ' + err.message;

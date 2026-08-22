@@ -3152,7 +3152,7 @@ async function renderPendingBanner(){
       ${items.map(it => `
         <li>
           <span class="a-pending-item-name">
-            ${escapeHtml(it.fields.name)} — ${it.files.length} file${it.files.length === 1 ? '' : 's'}
+            ${escapeHtml(it.fields.name)}  ${it.files.length} file${it.files.length === 1 ? '' : 's'}
             ${it.lastError ? `<span class="a-pending-item-err">${escapeHtml(it.lastError)}</span>` : ''}
           </span>
           <span class="a-pending-item-actions">
@@ -3307,7 +3307,7 @@ async function submitAddProduct(e, force){
   };
 
   if (!navigator.onLine){
-    await queueForLater("📥 You're offline — product saved on this device. It'll upload automatically once you're back online.");
+    await queueForLater("📥 You're offline  product saved on this device. It'll upload automatically once you're back online.");
     return;
   }
 
@@ -3335,14 +3335,14 @@ async function submitAddProduct(e, force){
       submitBtn.style.pointerEvents = '';
       submitBtn.style.opacity = '';
       if (goAhead) return submitAddProduct(e, true);
-      status.textContent = `⚠️ Not added — "${fields.name}" already exists in this category.`;
+      status.textContent = `⚠️ Not added  "${fields.name}" already exists in this category.`;
       return;
     }
     if (err instanceof TypeError){
       // fetch itself failed (offline / connection dropped) before the
       // product was created server-side, so it's safe to queue the whole
       // thing without risking a server-side duplicate.
-      await queueForLater("📥 Connection lost — product saved on this device. It'll upload automatically once you're back online.");
+      await queueForLater("📥 Connection lost  product saved on this device. It'll upload automatically once you're back online.");
       return;
     }
     status.textContent = '❌ ' + err.message;
