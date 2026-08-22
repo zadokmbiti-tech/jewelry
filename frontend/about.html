@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="format-detection" content="telephone=no">
-<title>Sj Gems Jewelry Store, Ruaka</title>
+<title>About Us - Sj Gems Jewelry Store, Ruaka</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -205,6 +205,50 @@
     display:flex;align-items:center;justify-content:center;font-weight:600;
   }
   .icon-btn svg{width:19px;height:19px;stroke:var(--ink);}
+
+  .about-hero{
+    padding:170px 8vw 60px;text-align:center;
+    background:radial-gradient(ellipse 900px 500px at 50% 0%, rgba(184,134,11,0.08), transparent 70%);
+  }
+  .about-hero .rail-index{
+    display:inline-block;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:18px;
+  }
+  .about-hero h1{
+    font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,5vw,3.4rem);
+    font-weight:600;line-height:1.15;max-width:14ch;margin:0 auto 18px;
+  }
+  .about-hero h1 em{font-style:italic;color:var(--gold);}
+  .about-hero p{color:var(--muted);max-width:46ch;margin:0 auto;font-size:1rem;}
+
+  .about-story{
+    max-width:920px;margin:0 auto;padding:20px 8vw 100px;text-align:center;
+  }
+  .about-story .eyebrow{
+    display:block;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;
+  }
+  .about-story h2{
+    font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,3.5vw,2.3rem);
+    font-weight:600;margin-bottom:22px;
+  }
+  .about-story-shell p{
+    color:var(--muted);font-size:1rem;line-height:1.75;margin-bottom:16px;text-align:left;
+  }
+  .about-pillars{
+    display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:44px 0 40px;text-align:left;
+  }
+  .about-pillar{
+    background:var(--surface);border-radius:14px;padding:32px;
+  }
+  .about-pillar h3{
+    font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--gold);margin-bottom:10px;
+  }
+  .about-pillar p{color:var(--muted);font-size:0.92rem;line-height:1.6;margin:0;}
+  @media (max-width:720px){
+    .about-hero{padding:140px 6vw 50px;}
+    .about-pillars{grid-template-columns:1fr;}
+    .about-story-shell p{text-align:left;}
+  }
 
   .hero{
     min-height:100vh;display:flex;align-items:center;
@@ -1091,10 +1135,10 @@
   <div class="logo">Sj Gems Jewelry Store<span>.</span></div>
   <div class="header-right">
     <nav class="links">
-      <a href="#top">Home</a>
-      <a href="about.html">About</a>
-      <a href="#collection">Our Shop</a>
-      <a href="#contact">Contact</a>
+      <a href="index.html#top">Home</a>
+      <a href="about.html" class="active-nav">About</a>
+      <a href="index.html#collection">Our Shop</a>
+      <a href="index.html#contact">Contact</a>
       <a href="help center.html">Help</a>
       <div class="nav-dropdown" id="menuDropdown">
         <button class="nav-dropdown-toggle" type="button" aria-haspopup="true">
@@ -1186,15 +1230,42 @@
 </header>
 
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#top" onclick="toggleMobileMenu()">Home</a>
-  <a href="about.html">About</a>
-  <a href="#ourshop" onclick="toggleMobileMenu()">Our Shop</a>
-  <a href="#contact" onclick="toggleMobileMenu()">Contact</a>
+  <a href="index.html#top">Home</a>
+  <a href="about.html" class="active-nav">About</a>
+  <a href="index.html#collection">Our Shop</a>
+  <a href="index.html#contact">Contact</a>
   <a href="help center.html">Help</a>
   <button class="mm-link" onclick="toggleMobileMenu(); openAdminEntry();">Admin</button>
 </div>
 
-<section class="hero">
+<section class="about-hero">
+  <span class="rail-index">About Us</span>
+  <h1>Made in Ruaka, <em>piece by piece.</em></h1>
+  <p>Get to know the workshop, the values, and the people behind every tray at Sj Gems Jewelry Store.</p>
+</section>
+
+<section class="about-story">
+  <div class="about-story-shell">
+    <span class="eyebrow">Since 2024</span>
+    <h2>Cast in small batches, finished entirely by hand.</h2>
+    <p>Jewelry has adorned people for thousands of years — worn as a mark of status, a keepsake of love, or a quiet piece of personal history passed from one hand to the next.</p>
+    <p>From hammered gold cuffs to hand-strung pearls, every era has shaped precious metal and stone into something meant to be kept, not just worn.</p>
+    <p>Every Sj Gems Jewelry Store piece starts as a wax carving on a workbench in Ruaka and from different parts of the globe. We cast in recycled gold and sterling silver, then stone-set and polish each piece ourselves — no two trays ever look quite the same.</p>
+  </div>
+  <div class="about-pillars">
+    <div class="about-pillar">
+      <h3>Our Vision</h3>
+      <p>To be Ruaka's trusted home for jewelry — a place where every client, near or far, can find a piece that feels made for them.</p>
+    </div>
+    <div class="about-pillar">
+      <h3>Our Mission</h3>
+      <p>We connect our workshop directly to our clients, offering honest pricing, genuine materials, and personal service from the first visit to the piece you take home.</p>
+    </div>
+  </div>
+  <a href="index.html#collection" class="btn-primary">Browse the Collection</a>
+</section>
+
+<section class="hero" style="display:none;">
   <div class="hero-orbit"></div>
   <svg class="hero-arc" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
     <path d="M -50 120 C 400 40, 900 260, 1650 60" />
@@ -1238,7 +1309,7 @@
   </div>
 </section>
 
-<section id="collection">
+<section id="collection" style="display:none;">
   <div class="collection-shell">
     <div class="collection-rail">
       <span class="rail-index">02</span>
