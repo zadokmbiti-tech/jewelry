@@ -204,8 +204,6 @@
     font-size:0.65rem;width:17px;height:17px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;font-weight:600;
   }
-  .icon-btn svg{width:19px;height:19px;stroke:var(--ink);}
-
   .about-hero{
     padding:170px 8vw 60px;text-align:center;
     background:radial-gradient(ellipse 900px 500px at 50% 0%, rgba(184,134,11,0.08), transparent 70%);
@@ -249,6 +247,8 @@
     .about-pillars{grid-template-columns:1fr;}
     .about-story-shell p{text-align:left;}
   }
+
+  .icon-btn svg{width:19px;height:19px;stroke:var(--ink);}
 
   .hero{
     min-height:100vh;display:flex;align-items:center;
@@ -369,6 +369,25 @@
   .section-head{text-align:center;max-width:600px;margin:0 auto 60px;}
   .section-head .eyebrow{margin-bottom:14px;display:block;}
   .section-head h2{font-size:clamp(1.9rem,3.4vw,2.6rem);}
+
+  .cat-tiles{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:18px;max-width:1300px;margin:0 auto;padding:0 5vw;
+  }
+  .cat-tile{cursor:pointer;text-align:center;}
+  .cat-tile-img{
+    width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;margin-bottom:10px;
+    background:var(--surface);transition:transform .3s ease;
+  }
+  .cat-tile:hover .cat-tile-img{transform:translateY(-4px);}
+  .cat-tile-img img{width:100%;height:100%;object-fit:cover;}
+  .cat-tile-name{font-family:'Cormorant Garamond',serif;font-size:1.02rem;font-weight:600;}
+  .cat-tile-count{font-size:0.72rem;color:var(--muted);margin-top:2px;}
+  @media(max-width:640px){
+    .cat-tiles{grid-template-columns:repeat(3,1fr);gap:12px;padding:0 4vw;}
+    .cat-tile-name{font-size:0.78rem;}
+    .cat-tile-count{font-size:0.64rem;}
+  }
 
   .search-bar{
     display:flex;align-items:center;gap:12px;
@@ -493,7 +512,8 @@
   .card-info{padding:18px 20px 22px;}
   .card-cat{font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
   .card-name{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;margin-bottom:8px;}
-  .card-row{display:flex;align-items:center;justify-content:space-between;}
+  .card-price-row{margin-bottom:8px;}
+  .card-actions-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .price{font-size:0.95rem;color:var(--ink);}
   .price-sale{color:#a3423f;font-weight:600;}
   .price-was{color:var(--muted);font-weight:400;text-decoration:line-through;margin-right:6px;font-size:0.88em;}
@@ -508,7 +528,7 @@
   .rating-count{font-size:0.72rem;color:var(--muted);}
   .compare-check{
     display:flex;align-items:center;gap:5px;font-size:0.68rem;color:var(--muted);
-    text-transform:uppercase;letter-spacing:0.08em;margin-top:10px;cursor:pointer;user-select:none;
+    text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;user-select:none;flex-shrink:0;
   }
   .compare-check.active{color:var(--gold);}
   .compare-check input{accent-color:var(--gold);cursor:pointer;}
@@ -1110,9 +1130,10 @@
       font-size:0.86rem;margin-bottom:5px;line-height:1.3;
       display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
     }
-    .card-row{flex-direction:column;align-items:flex-start;gap:4px;}
+    .card-actions-row{gap:6px;}
     .price{font-size:0.86rem;font-weight:600;}
-    .add-btn{font-size:0.62rem;}
+    .add-btn{font-size:0.6rem;white-space:nowrap;}
+    .compare-check{font-size:0.6rem;}
 
     .hero-art-frame > svg{width:min(220px,50vw);}
     .trust{gap:26px 34px;}
@@ -1307,6 +1328,22 @@
       <span class="hero-caption">Curated in Ruaka<em>Pieces with presence</em></span>
     </div>
   </div>
+</section>
+
+<section id="popularCategories" style="display:none;">
+  <div class="section-head">
+    <span class="eyebrow">Shop by</span>
+    <h2>Popular Categories</h2>
+    <p>Jump straight to what you're after.</p>
+  </div>
+  <div class="cat-tiles" id="catTiles"></div>
+</section>
+
+<section id="recentlyViewed" style="display:none !important;">
+  <div class="section-head">
+    <h2>You Recently Viewed</h2>
+  </div>
+  <div class="related-strip" id="recentlyViewedStrip" style="padding:0 4vw;"></div>
 </section>
 
 <section id="collection" style="display:none;">
@@ -1867,9 +1904,59 @@ async function loadProducts() {
     const data = await res.json();
     PRODUCTS = data.map(normalizeProduct);
     renderGrid();
+    renderCategoryTiles();
+    renderRecentlyViewed();
   } catch (err) {
     grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--muted);">Couldn't load the collection right now. Please try again shortly.</p>`;
   }
+}
+
+function renderCategoryTiles(){
+  const wrap = document.getElementById('catTiles');
+  if (!wrap) return;
+  wrap.innerHTML = CATEGORY_GROUPS.map(([groupLabel, slugs]) => {
+    const items = PRODUCTS.filter(p => slugs.includes(p.cat));
+    const cover = items[0];
+    const img = cover ? cover.img : PLACEHOLDER_IMG;
+    const bg = cover ? `var(--${cover.color})` : 'var(--surface)';
+    return `
+      <div class="cat-tile" onclick="goToCategory('group:${escapeHtml(groupLabel).replace(/'/g, "\\'")}')">
+        <div class="cat-tile-img" style="background:${bg};"><img src="${escapeHtml(img)}" alt="${escapeHtml(groupLabel)}" loading="lazy"></div>
+        <div class="cat-tile-name">${escapeHtml(groupLabel)}</div>
+        <div class="cat-tile-count">${items.length} piece${items.length === 1 ? '' : 's'}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// "Recently Viewed" -- purely client-side, tracked whenever a product modal
+// is opened. Capped at 8, most recent first, no duplicates.
+const RECENTLY_VIEWED_KEY = 'sjgems_recently_viewed';
+function trackRecentlyViewed(id){
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY)) || []; } catch(e) {}
+  list = [id, ...list.filter(x => x !== id)].slice(0, 8);
+  localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(list));
+}
+
+function renderRecentlyViewed(){
+  const section = document.getElementById('recentlyViewed');
+  const strip = document.getElementById('recentlyViewedStrip');
+  if (!section || !strip) return;
+  let ids = [];
+  try { ids = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY)) || []; } catch(e) {}
+  const items = ids.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
+  if (items.length === 0){ section.style.display = 'none'; return; }
+  section.style.display = '';
+  strip.innerHTML = items.map(p => `
+    <div class="related-card" onclick="openModal(${p.id})">
+      <div class="tray" style="background:var(--${p.color});">
+        <img class="tray-img" src="${escapeHtml(p.img)}" alt="${escapeHtml(p.name)}" loading="lazy">
+      </div>
+      <div class="related-name">${escapeHtml(p.name)}</div>
+      <div class="price" style="font-size:0.85rem;">${fmt(p.salePrice != null && p.salePrice < p.price ? p.salePrice : p.price)}</div>
+    </div>
+  `).join('');
 }
 
 const CART_STORAGE_KEY = 'sjgems_cart';
@@ -1948,13 +2035,13 @@ function renderGrid(filter=currentCategory){
         <div class="card-name">${escapeHtml(p.name)}</div>
         ${p.reviewCount > 0 ? `<div class="card-rating">${starsHtml(p.avgRating, p.reviewCount, 11)}</div>` : ''}
         ${(badge || saleBadge) ? `<div style="margin-bottom:8px;">${saleBadge}${badge}</div>` : ''}
-        <div class="card-row">
-          ${priceHtml(p)}
+        <div class="card-price-row">${priceHtml(p)}</div>
+        <div class="card-actions-row">
           <button class="add-btn" ${addDisabled} onclick="event.stopPropagation(); requireRegistration(() => addToCart(${p.id}))">Add to bag</button>
+          <label class="compare-check${comparing}" onclick="event.stopPropagation();">
+            <input type="checkbox" ${comparing ? 'checked' : ''} onchange="toggleCompare(${p.id}, this)"> Compare
+          </label>
         </div>
-        <label class="compare-check${comparing}" onclick="event.stopPropagation();">
-          <input type="checkbox" ${comparing ? 'checked' : ''} onchange="toggleCompare(${p.id}, this)"> Compare
-        </label>
       </div>
     </div>
   `;
@@ -2354,6 +2441,8 @@ async function openModal(id){
   document.getElementById('modal').classList.add('open');
   renderRelatedProducts(p);
   renderReviews(p.id);
+  trackRecentlyViewed(p.id);
+  renderRecentlyViewed();
 
   try {
     const res = await fetch(`${API_URL}/products/${id}`);
