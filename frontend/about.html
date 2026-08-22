@@ -413,16 +413,8 @@
     padding:0 5vw 90px;
   }
 
-  .collection-shell{display:flex;gap:64px;align-items:flex-start;max-width:1400px;margin:0 auto;}
-  .collection-rail{flex:0 0 260px;position:sticky;top:120px;}
-  .collection-rail .rail-index{
-    display:block;font-size:0.75rem;color:var(--muted);letter-spacing:0.14em;margin-bottom:18px;
-  }
-  .collection-rail .eyebrow{display:block;margin-bottom:14px;}
-  .collection-rail h2{font-size:clamp(1.7rem,2.4vw,2.2rem);line-height:1.15;margin-bottom:16px;}
-  .rail-desc{color:var(--muted);font-size:0.92rem;max-width:230px;margin-bottom:24px;}
-  .rail-ask{margin-left:0;}
-  .collection-main{flex:1;min-width:0;}
+  .collection-shell{max-width:1400px;margin:0 auto;}
+  .collection-main{width:100%;}
   .collection-toolbar{
     display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:flex-start;margin-bottom:8px;
   }
@@ -434,9 +426,7 @@
     padding:20px 0 30px;border-top:1px solid var(--line);margin-top:20px;
   }
   @media (max-width:900px){
-    .collection-shell{flex-direction:column;gap:30px;}
-    .collection-rail{position:static;flex:none;max-width:none;}
-    .rail-desc{max-width:none;}
+    .cat-select{min-width:0;width:100%;}
   }
   .cat-chip{
     display:flex;align-items:center;gap:10px;
@@ -1348,13 +1338,6 @@
 
 <section id="collection" style="display:none;">
   <div class="collection-shell">
-    <div class="collection-rail">
-      <span class="rail-index">02</span>
-      <span class="eyebrow">The Collection</span>
-      <h2>Every tray tells a story</h2>
-      <p class="rail-desc">Explore the assortment by mood, material or occasion. Availability can be confirmed with the Ruaka team.</p>
-      <a href="javascript:void(0)" class="btn-ghost rail-ask" onclick="toggleSunzly(true)">Ask about an item →</a>
-    </div>
     <div class="collection-main">
       <div class="collection-toolbar">
         <div class="categories">
