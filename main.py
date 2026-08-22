@@ -1,8 +1,11 @@
+import hashlib
 import hmac
 import os
 import re
+import secrets
 import time
 from collections import defaultdict
+from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI, HTTPException, Header, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,7 +38,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allow_headers=["Content-Type", "X-Admin-Secret"],
+    allow_headers=["Content-Type", "X-Admin-Secret", "X-Customer-Token"],
 )
 
 VALID_CATEGORIES = {
@@ -200,6 +203,85 @@ def require_admin(
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
+CUSTOMER_SESSION_DAYS = 30
+_customer_login_attempts: dict[str, list[float]] = defaultdict(list)
+
+
+def hash_password(password: str) -> str:
+    """PBKDF2-HMAC-SHA256 with a random per-password salt -- no extra
+    dependency needed since both pieces are in the stdlib. Stored as
+    'salt_hex$hash_hex' so verify_password doesn't need a separate column."""
+    salt = secrets.token_hex(16)
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt), 200_000)
+    return f"{salt}${digest.hex()}"
+
+
+def verify_password(password: str, stored: str) -> bool:
+    try:
+        salt, digest_hex = stored.split("$", 1)
+    except ValueError:
+        return False
+    candidate = hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt), 200_000)
+    return hmac.compare_digest(candidate.hex(), digest_hex)
+
+
+def _is_customer_locked_out(ip: str) -> bool:
+    now = time.time()
+    attempts = [t for t in _customer_login_attempts[ip] if now - t < LOCKOUT_WINDOW_SECONDS]
+    _customer_login_attempts[ip] = attempts
+    if len(attempts) < LOCKOUT_THRESHOLD:
+        return False
+    return now - attempts[-1] < LOCKOUT_DURATION_SECONDS
+
+
+def _record_customer_failure(ip: str) -> None:
+    now = time.time()
+    attempts = [t for t in _customer_login_attempts[ip] if now - t < LOCKOUT_WINDOW_SECONDS]
+    attempts.append(now)
+    _customer_login_attempts[ip] = attempts
+
+
+def create_customer_session(cur, customer_id: int) -> str:
+    """Issues a random 32-byte token and stores it in customer_sessions with
+    a 30-day expiry. Called on both register and login so either one leaves
+    the customer signed in immediately."""
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.now(timezone.utc) + timedelta(days=CUSTOMER_SESSION_DAYS)
+    cur.execute(
+        "INSERT INTO customer_sessions (customer_id, token, expires_at) VALUES (%s, %s, %s);",
+        (customer_id, token, expires_at),
+    )
+    return token
+
+
+def get_current_customer(
+    x_customer_token: str | None = Header(default=None, alias="X-Customer-Token"),
+):
+    """Dependency guarding every customer-account route (placing an order,
+    viewing 'My Orders'). Looks up the session by token and rejects if it's
+    missing, unknown, or expired -- same generic 401 either way so a bad
+    token can't be distinguished from an expired one."""
+    if not x_customer_token:
+        raise HTTPException(status_code=401, detail="Not logged in")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT c.id, c.name, c.phone
+        FROM customer_sessions s
+        JOIN customers c ON c.id = s.customer_id
+        WHERE s.token = %s AND s.expires_at > now();
+        """,
+        (x_customer_token,),
+    )
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=401, detail="Session expired, please log in again")
+    return {"id": row[0], "name": row[1], "phone": row[2]}
+
+
 def validate_category(category: str) -> str:
     if category not in VALID_CATEGORIES:
         raise HTTPException(
@@ -320,6 +402,48 @@ class CustomerCreate(BaseModel):
         return v
 
 
+class CustomerRegister(BaseModel):
+    name: str
+    phone: str
+    password: str
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        v = strip_tags(v)
+        if not (1 <= len(v) <= 120):
+            raise ValueError("name must be between 1 and 120 characters")
+        return v
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, v: str) -> str:
+        v = v.strip()
+        if not _KENYA_PHONE_RE.match(v):
+            raise ValueError("phone must be a valid Kenyan number, e.g. 07XXXXXXXX or +2547XXXXXXXX")
+        return v
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        if not (6 <= len(v) <= 200):
+            raise ValueError("password must be at least 6 characters")
+        return v
+
+
+class CustomerLogin(BaseModel):
+    phone: str
+    password: str
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, v: str) -> str:
+        v = v.strip()
+        if not _KENYA_PHONE_RE.match(v):
+            raise ValueError("phone must be a valid Kenyan number, e.g. 07XXXXXXXX or +2547XXXXXXXX")
+        return v
+
+
 class OrderItemCreate(BaseModel):
     product_id: int
     quantity: int
@@ -333,25 +457,10 @@ class OrderItemCreate(BaseModel):
 
 
 class OrderCreate(BaseModel):
-    customer_name: str
-    customer_phone: str
+    # customer_name/customer_phone used to come from the client -- they now
+    # come from the logged-in session (see get_current_customer) so a
+    # request can't place an order as someone else just by editing the body.
     items: list[OrderItemCreate]
-
-    @field_validator("customer_name")
-    @classmethod
-    def validate_customer_name(cls, v: str) -> str:
-        v = strip_tags(v)
-        if not (1 <= len(v) <= 120):
-            raise ValueError("customer_name must be between 1 and 120 characters")
-        return v
-
-    @field_validator("customer_phone")
-    @classmethod
-    def validate_customer_phone(cls, v: str) -> str:
-        v = v.strip()
-        if not _KENYA_PHONE_RE.match(v):
-            raise ValueError("customer_phone must be a valid Kenyan number, e.g. 07XXXXXXXX or +2547XXXXXXXX")
-        return v
 
     @field_validator("items")
     @classmethod
@@ -372,6 +481,28 @@ class OrderStatusUpdate(BaseModel):
         if v not in {"pending", "paid", "cancelled"}:
             raise ValueError("status must be one of: pending, paid, cancelled")
         return v
+
+
+class ReviewCreate(BaseModel):
+    rating: int
+    comment: str | None = None
+
+    @field_validator("rating")
+    @classmethod
+    def validate_rating(cls, v: int) -> int:
+        if v < 1 or v > 5:
+            raise ValueError("rating must be between 1 and 5")
+        return v
+
+    @field_validator("comment")
+    @classmethod
+    def validate_comment(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = strip_tags(v).strip()
+        if len(v) > 2000:
+            raise ValueError("comment is too long")
+        return v or None
 
 
 @app.get("/")
@@ -433,6 +564,19 @@ def get_products(request: Request, category: str | None = None):
         )
         thumbnails = {pid: url for pid, url in cur.fetchall()}
 
+    # One query for every product's rating summary, same batching approach
+    # as the thumbnails above -- powers the star rating shown on each card.
+    ratings: dict[int, dict] = {}
+    if product_ids:
+        cur.execute(
+            """
+            SELECT product_id, AVG(rating), COUNT(*)
+            FROM product_reviews WHERE product_id = ANY(%s) GROUP BY product_id;
+            """,
+            (product_ids,),
+        )
+        ratings = {pid: {"avg": float(avg), "count": count} for pid, avg, count in cur.fetchall()}
+
     products = [
         {
             "id": r[0],
@@ -444,6 +588,8 @@ def get_products(request: Request, category: str | None = None):
             "quantity": r[6],
             "is_new": r[7],
             "image_url": thumbnails.get(r[0]),
+            "avg_rating": ratings.get(r[0], {}).get("avg"),
+            "review_count": ratings.get(r[0], {}).get("count", 0),
         }
         for r in rows
     ]
@@ -473,6 +619,12 @@ def get_product(request: Request, product_id: int):
         (product_id,),
     )
     images = [{"id": r[0], "url": r[1], "media_type": r[2], "is_primary": r[3]} for r in cur.fetchall()]
+
+    cur.execute(
+        "SELECT AVG(rating), COUNT(*) FROM product_reviews WHERE product_id = %s;",
+        (product_id,),
+    )
+    avg_rating, review_count = cur.fetchone()
     cur.close()
     conn.close()
 
@@ -486,7 +638,75 @@ def get_product(request: Request, product_id: int):
         "quantity": row[6],
         "is_new": row[7],
         "images": images,
+        "avg_rating": float(avg_rating) if avg_rating is not None else None,
+        "review_count": review_count or 0,
     }
+
+
+@app.get("/products/{product_id}/reviews")
+@limiter.limit("60/minute")
+def list_product_reviews(request: Request, product_id: int):
+    """Public -- every review left on this product, newest first. Powers
+    the review list shown under a product's description."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT id, customer_name, rating, comment, created_at
+        FROM product_reviews WHERE product_id = %s ORDER BY created_at DESC;
+        """,
+        (product_id,),
+    )
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [
+        {"id": r[0], "customer_name": r[1], "rating": r[2], "comment": r[3], "created_at": r[4].isoformat()}
+        for r in rows
+    ]
+
+
+@app.post("/products/{product_id}/reviews")
+@limiter.limit("5/minute")
+def create_product_review(
+    request: Request,
+    product_id: int,
+    review: ReviewCreate,
+    customer: dict = Depends(get_current_customer),
+):
+    """Requires a logged-in customer, same account system as checkout, so
+    reviews can't be spammed anonymously. One review per customer per
+    product -- posting again updates the existing one instead of erroring,
+    so someone can revise their rating without contacting support."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT id FROM products WHERE id = %s;", (product_id,))
+        if not cur.fetchone():
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        cur.execute(
+            """
+            INSERT INTO product_reviews (product_id, customer_id, customer_name, rating, comment)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (product_id, customer_id)
+            DO UPDATE SET rating = EXCLUDED.rating, comment = EXCLUDED.comment, created_at = now()
+            RETURNING id;
+            """,
+            (product_id, customer["id"], customer["name"], review.rating, review.comment),
+        )
+        review_id = cur.fetchone()[0]
+        conn.commit()
+        return {"id": review_id, "message": "Review saved"}
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail="Could not save review")
+    finally:
+        cur.close()
+        conn.close()
 
 
 @app.post("/admin/products", dependencies=[Depends(require_admin)])
@@ -683,10 +903,11 @@ def delete_product(request: Request, product_id: int):
 @app.post("/customers")
 @limiter.limit("5/minute")
 def create_customer(request: Request, customer: CustomerCreate):
-    """Records a customer's name + phone before they can add an item to
-    their bag. No password, no login \u2014 this is a lightweight lead capture,
-    not an account system. Rate-limited since it's a public, unauthenticated
-    write endpoint and otherwise an easy target for spamming the table."""
+    """DEPRECATED: this was the old lead-capture flow (name + phone, no
+    password) that ran before every add-to-bag. The storefront now uses
+    POST /auth/register instead, which creates a real account. Left in
+    place only for backward compatibility -- nothing in the current
+    frontend calls this anymore."""
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
@@ -698,6 +919,144 @@ def create_customer(request: Request, customer: CustomerCreate):
     cur.close()
     conn.close()
     return {"id": new_id, "message": "Registered"}
+
+
+@app.post("/auth/register")
+@limiter.limit("5/minute")
+def register_customer(request: Request, body: CustomerRegister):
+    """Creates a real customer account (name + phone + password) and logs
+    them straight in. If this phone already has a row from the old
+    lead-capture flow (no password set), that row is claimed rather than
+    rejected -- so past 'quick registration' customers aren't locked out of
+    their own phone number when they sign up for real."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT id, password_hash FROM customers WHERE phone = %s;", (body.phone,))
+        existing = cur.fetchone()
+        pw_hash = hash_password(body.password)
+
+        if existing and existing[1]:
+            raise HTTPException(status_code=409, detail="An account with this phone number already exists. Please log in.")
+        elif existing:
+            customer_id = existing[0]
+            cur.execute(
+                "UPDATE customers SET name = %s, password_hash = %s WHERE id = %s;",
+                (body.name, pw_hash, customer_id),
+            )
+        else:
+            cur.execute(
+                "INSERT INTO customers (name, phone, password_hash) VALUES (%s, %s, %s) RETURNING id;",
+                (body.name, body.phone, pw_hash),
+            )
+            customer_id = cur.fetchone()[0]
+
+        token = create_customer_session(cur, customer_id)
+        conn.commit()
+        return {"token": token, "name": body.name, "phone": body.phone}
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail="Could not create account")
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.post("/auth/login")
+@limiter.limit("10/minute")
+def login_customer(request: Request, body: CustomerLogin):
+    """Verifies phone + password and issues a new session token. Locked out
+    per-IP after repeated failures, same as admin login, with a generic
+    error either way so a guess can't tell 'wrong phone' from 'wrong
+    password'."""
+    ip = get_remote_address(request)
+    if _is_customer_locked_out(ip):
+        raise HTTPException(status_code=401, detail="Too many attempts. Try again later.")
+
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT id, name, password_hash FROM customers WHERE phone = %s;", (body.phone,))
+        row = cur.fetchone()
+        if not row or not row[2] or not verify_password(body.password, row[2]):
+            _record_customer_failure(ip)
+            raise HTTPException(status_code=401, detail="Incorrect phone number or password")
+
+        customer_id, name, _ = row
+        token = create_customer_session(cur, customer_id)
+        conn.commit()
+        return {"token": token, "name": name, "phone": body.phone}
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail="Could not log in")
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.post("/auth/logout")
+def logout_customer(x_customer_token: str | None = Header(default=None, alias="X-Customer-Token")):
+    """Deletes the session row so the token can't be reused, then the
+    client drops it from local storage."""
+    if not x_customer_token:
+        return {"message": "Logged out"}
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM customer_sessions WHERE token = %s;", (x_customer_token,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message": "Logged out"}
+
+
+@app.get("/auth/me")
+def get_me(customer: dict = Depends(get_current_customer)):
+    """Lets the frontend confirm a stored token is still valid and greet
+    the customer by name after a page refresh."""
+    return customer
+
+
+@app.get("/orders/mine")
+def list_my_orders(customer: dict = Depends(get_current_customer)):
+    """Powers the customer-facing 'My Orders' view -- every order this
+    logged-in customer has placed, with line items, newest first."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT id, subtotal, status, created_at
+        FROM orders WHERE customer_id = %s ORDER BY created_at DESC;
+        """,
+        (customer["id"],),
+    )
+    orders = cur.fetchall()
+
+    result = []
+    for o in orders:
+        order_id = o[0]
+        cur.execute(
+            "SELECT product_name, price, quantity FROM order_items WHERE order_id = %s;",
+            (order_id,),
+        )
+        items = [{"name": r[0], "price": float(r[1]), "quantity": r[2]} for r in cur.fetchall()]
+        result.append(
+            {
+                "id": order_id,
+                "subtotal": float(o[1]),
+                "status": o[2],
+                "created_at": o[3].isoformat(),
+                "items": items,
+            }
+        )
+    cur.close()
+    conn.close()
+    return result
 
 
 @app.get("/admin/customers", dependencies=[Depends(require_admin)])
@@ -716,13 +1075,16 @@ def list_customers(request: Request):
 
 @app.post("/orders")
 @limiter.limit("10/minute")
-def create_order(request: Request, order: OrderCreate):
-    """Logs a checkout. Payment isn't wired to the real M-Pesa Daraja API
-    yet -- the order is saved with status 'pending' and an admin marks it
-    'paid' manually from the admin panel once payment is confirmed by other
-    means (call/SMS). Item prices are looked up fresh from the products
-    table server-side rather than trusting whatever price the client sent,
-    so a tampered request can't under-charge."""
+def create_order(request: Request, order: OrderCreate, customer: dict = Depends(get_current_customer)):
+    """Logs a checkout for the logged-in customer. Payment isn't wired to
+    the real M-Pesa Daraja API yet -- the order is saved with status
+    'pending' and an admin marks it 'paid' manually from the admin panel
+    once payment is confirmed by other means (call/SMS). Item prices are
+    looked up fresh from the products table server-side rather than
+    trusting whatever price the client sent, so a tampered request can't
+    under-charge. customer_name/customer_phone come from the authenticated
+    session, not the request body, so an order can't be placed as someone
+    else."""
     conn = get_conn()
     cur = conn.cursor()
     try:
@@ -744,19 +1106,12 @@ def create_order(request: Request, order: OrderCreate):
             subtotal += price * item.quantity
 
         cur.execute(
-            "SELECT id FROM customers WHERE phone = %s ORDER BY created_at DESC LIMIT 1;",
-            (order.customer_phone,),
-        )
-        cust_row = cur.fetchone()
-        customer_id = cust_row[0] if cust_row else None
-
-        cur.execute(
             """
             INSERT INTO orders (customer_id, customer_name, customer_phone, subtotal, status)
             VALUES (%s, %s, %s, %s, 'pending')
             RETURNING id;
             """,
-            (customer_id, order.customer_name, order.customer_phone, round(subtotal, 2)),
+            (customer["id"], customer["name"], customer["phone"], round(subtotal, 2)),
         )
         order_id = cur.fetchone()[0]
 
