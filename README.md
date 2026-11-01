@@ -127,3 +127,14 @@ products
                     └── orders
                             │
                             └── order_items
+## Frontend structure and SEO pages
+
+- `frontend/index.html`, `about.html`, `help-center.html` are the public pages. The shop code lives in `frontend/app.js` and the styles in `frontend/styles.css`.
+- The admin interface is **not** part of the public HTML. `frontend/admin-panel.html` (markup) and `frontend/admin.js` (code) are loaded on demand the first time an admin opens the panel. Access is still enforced by the `X-Admin-Secret` check on the API.
+- Category landing pages live in `frontend/c/<group>/` and `frontend/c/<group>/<category>/`. They are generated, so do not edit them by hand. After adding, renaming or removing a category in `CATEGORY_META` / `CATEGORY_GROUPS` (in `frontend/app.js`), run:
+
+  ```
+  node scripts/build-categories.js
+  ```
+
+  and commit the result. The script also refreshes the Menu dropdown, the footer Shop links and `frontend/sitemap.xml`.

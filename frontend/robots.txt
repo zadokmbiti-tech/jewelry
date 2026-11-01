@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.js
+Disallow: /admin-panel.html
+
+Sitemap: https://jewelrywebpage.vercel.app/sitemap.xml
